@@ -294,14 +294,58 @@
             margin-bottom: 20px;
         }
 
+        .calculation-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            user-select: none;
+        }
+
+        .calculation-toggle:hover {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .calculation-toggle strong {
+            color: #333;
+            font-size: 14px;
+        }
+
+        .toggle-arrow {
+            transition: transform 0.3s;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .toggle-arrow.expanded {
+            transform: rotate(180deg);
+        }
+
         .result-info {
             font-size: 14px;
             color: #666;
             line-height: 1.6;
             padding: 15px;
             background: rgba(255, 255, 255, 0.7);
-            border-radius: 10px;
-            margin-top: 15px;
+            border-radius: 8px;
+            margin-top: 8px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        }
+
+        .result-info.expanded {
+            max-height: 1000px;
+            padding: 15px;
+        }
+
+        .result-info:not(.expanded) {
+            padding: 0 15px;
         }
 
         .result-info strong {
@@ -536,11 +580,25 @@
             border: 1px solid #444;
         }
 
+        body.dark-mode .calculation-toggle {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        body.dark-mode .calculation-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .calculation-toggle strong {
+            color: #d0d0d0;
+        }
+
         body.dark-mode .result-info {
             background: #15151f;
-            padding: 15px;
-            border-radius: 8px;
             color: #d0d0d0;
+        }
+
+        body.dark-mode .result-info.expanded {
+            padding: 15px;
         }
 
         body.dark-mode .result-title {
@@ -631,11 +689,25 @@
                 border: 1px solid #444;
             }
 
+            body:not(.light-mode) .calculation-toggle {
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            body:not(.light-mode) .calculation-toggle:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            body:not(.light-mode) .calculation-toggle strong {
+                color: #d0d0d0;
+            }
+
             body:not(.light-mode) .result-info {
                 background: #15151f;
-                padding: 15px;
-                border-radius: 8px;
                 color: #d0d0d0;
+            }
+
+            body:not(.light-mode) .result-info.expanded {
+                padding: 15px;
             }
 
             body:not(.light-mode) .result-title {
@@ -789,6 +861,10 @@
             <div class="result-title">Velaton enimmäishinta</div>
             <div class="result-price" id="resultPrice"></div>
             <div class="result-change" id="resultChange"></div>
+            <div class="calculation-toggle" id="calculationToggle">
+                <strong>Laskenta</strong>
+                <span class="toggle-arrow">▼</span>
+            </div>
             <div class="result-info" id="resultInfo"></div>
         </div>
     </div>
@@ -1060,9 +1136,8 @@
             resultChange.innerHTML = `<span style="color: ${changeColor};">${changeSign}${formatPrice(Math.abs(priceChange))} (${changeSign}${percentageChange}%)</span>`;
 
             let infoHTML = `
-                <strong>Laskenta:</strong><br>
                 Alkuperäinen velaton hankintahinta: ${formatPrice(originalPrice)}<br>
-                Ostopäivä: ${monthNames[purchaseMonth - 1]} ${purchaseYear}<br>
+                Valmistumispäivä: ${monthNames[purchaseMonth - 1]} ${purchaseYear}<br>
                 <br>
             `;
 
@@ -1205,6 +1280,17 @@
             }
         }
 
+        // Calculation toggle functionality
+        function toggleCalculation() {
+            const resultInfo = document.getElementById('resultInfo');
+            const arrow = document.querySelector('.toggle-arrow');
+            
+            if (resultInfo && arrow) {
+                resultInfo.classList.toggle('expanded');
+                arrow.classList.toggle('expanded');
+            }
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', async function() {
             const themeToggle = document.getElementById('themeToggle');
@@ -1221,6 +1307,12 @@
                 setTheme(savedTheme);
             } else {
                 setTheme(null); // Auto mode
+            }
+
+            // Setup calculation toggle
+            const calculationToggle = document.getElementById('calculationToggle');
+            if (calculationToggle) {
+                calculationToggle.addEventListener('click', toggleCalculation);
             }
 
             initializeYearDropdown();
