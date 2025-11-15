@@ -83,14 +83,12 @@
             right: 20px;
             background: rgba(255, 255, 255, 0.2);
             border: none;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
+            border-radius: 20px;
+            padding: 4px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 4px;
             cursor: pointer;
-            font-size: 22px;
             transition: all 0.3s;
             backdrop-filter: blur(10px);
             -webkit-tap-highlight-color: transparent;
@@ -99,11 +97,28 @@
 
         .theme-toggle:hover {
             background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
         }
 
         .theme-toggle:active {
             transform: scale(0.95);
+        }
+
+        .theme-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            opacity: 0.5;
+        }
+
+        .theme-icon.active {
+            background: rgba(255, 255, 255, 0.3);
+            opacity: 1;
+            transform: scale(1.1);
         }
 
         h1 {
@@ -555,10 +570,13 @@
 
         body.dark-mode .theme-toggle {
             background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
         }
 
         body.dark-mode .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        body.dark-mode .theme-icon.active {
             background: rgba(255, 255, 255, 0.2);
         }
 
@@ -647,10 +665,13 @@
 
             body:not(.light-mode) .theme-toggle {
                 background: rgba(255, 255, 255, 0.1);
-                border-color: rgba(255, 255, 255, 0.2);
             }
 
             body:not(.light-mode) .theme-toggle:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+            body:not(.light-mode) .theme-icon.active {
                 background: rgba(255, 255, 255, 0.2);
             }
         }
@@ -690,9 +711,13 @@
             }
 
             .theme-toggle {
-                width: 35px;
-                height: 35px;
-                font-size: 18px;
+                padding: 3px;
+            }
+
+            .theme-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
             }
 
             .result-price {
@@ -708,7 +733,8 @@
 <body>
     <div class="header">
         <button class="theme-toggle" id="themeToggle" aria-label="Vaihda teemaa">
-            <span id="themeIcon">🌙</span>
+            <span class="theme-icon" id="lightIcon">☀️</span>
+            <span class="theme-icon" id="darkIcon">🌙</span>
         </button>
         <h1>HITAS Enimmäishintalaskuri</h1>
     </div>
@@ -1130,26 +1156,30 @@
 
         // Theme toggle functionality (define before DOMContentLoaded)
         function setTheme(theme) {
-            const themeIcon = document.getElementById('themeIcon');
+            const lightIcon = document.getElementById('lightIcon');
+            const darkIcon = document.getElementById('darkIcon');
             console.log('Setting theme:', theme);
             
             if (theme === 'dark') {
                 document.body.classList.add('dark-mode');
                 document.body.classList.remove('light-mode');
-                if (themeIcon) themeIcon.textContent = '☀️';
+                if (lightIcon) lightIcon.classList.remove('active');
+                if (darkIcon) darkIcon.classList.add('active');
                 localStorage.setItem('theme', 'dark');
                 console.log('Dark mode activated');
             } else if (theme === 'light') {
                 document.body.classList.add('light-mode');
                 document.body.classList.remove('dark-mode');
-                if (themeIcon) themeIcon.textContent = '🌙';
+                if (lightIcon) lightIcon.classList.add('active');
+                if (darkIcon) darkIcon.classList.remove('active');
                 localStorage.setItem('theme', 'light');
                 console.log('Light mode activated');
             } else {
                 // Auto mode - follow system preference
                 document.body.classList.remove('dark-mode', 'light-mode');
                 const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (themeIcon) themeIcon.textContent = isDark ? '☀️' : '🌙';
+                if (lightIcon) lightIcon.classList.toggle('active', !isDark);
+                if (darkIcon) darkIcon.classList.toggle('active', isDark);
                 localStorage.removeItem('theme');
                 console.log('Auto mode activated, system prefers:', isDark ? 'dark' : 'light');
             }
