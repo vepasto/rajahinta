@@ -6,7 +6,7 @@
     
     <!-- Theme colors for different modes -->
     <meta name="theme-color" content="#667eea" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#667eea" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)">
     <meta name="theme-color" content="#667eea">
     
     <!-- Apple specific meta tags -->
@@ -436,6 +436,85 @@
 
         .control-btn.empty {
             visibility: hidden;
+        }
+
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a1a2e;
+                background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%);
+            }
+
+            h1 {
+                color: #e0e0e0;
+            }
+
+            .subtitle {
+                color: #b0b0b0;
+            }
+
+            .subtitle.small {
+                color: #888;
+            }
+
+            .container {
+                background: #2a2a3e;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            }
+
+            label {
+                color: #e0e0e0;
+            }
+
+            input, select {
+                background: #1a1a2e;
+                color: #e0e0e0;
+                border-color: #444;
+            }
+
+            input:focus, select:focus {
+                border-color: #667eea;
+                background: #252538;
+            }
+
+            .form-section-title {
+                color: #e0e0e0;
+            }
+
+            .result {
+                background: #1a1a2e;
+                border-color: #444;
+            }
+
+            .result-title {
+                color: #b0b0b0;
+            }
+
+            .result-price {
+                color: #e0e0e0;
+            }
+
+            .result-info {
+                color: #b0b0b0;
+            }
+
+            .result-info strong {
+                color: #e0e0e0;
+            }
+
+            .warning {
+                background: rgba(231, 76, 60, 0.15);
+                border-color: #e74c3c;
+                color: #ff9999;
+            }
+
+            .footer {
+                color: #b0b0b0;
+            }
+
+            .footer a {
+                color: #b0b0b0;
+            }
         }
 
         @media (max-width: 768px) {
