@@ -24,6 +24,36 @@
             box-sizing: border-box;
         }
 
+        /* Skip to main content link for accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            z-index: 100;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Focus indicators */
+        *:focus-visible {
+            outline: 3px solid #667eea;
+            outline-offset: 2px;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 3px solid #667eea;
+            outline-offset: 2px;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: #667eea;
@@ -639,6 +669,16 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
+        body.dark-mode *:focus-visible {
+            outline-color: #9ca3ff;
+        }
+
+        body.dark-mode button:focus-visible,
+        body.dark-mode input:focus-visible,
+        body.dark-mode select:focus-visible {
+            outline-color: #9ca3ff;
+        }
+
         /* Auto dark mode based on system preference */
         @media (prefers-color-scheme: dark) {
             body:not(.light-mode) {
@@ -747,6 +787,16 @@
             body:not(.light-mode) .theme-icon.active {
                 background: rgba(255, 255, 255, 0.2);
             }
+
+            body:not(.light-mode) *:focus-visible {
+                outline-color: #9ca3ff;
+            }
+
+            body:not(.light-mode) button:focus-visible,
+            body:not(.light-mode) input:focus-visible,
+            body:not(.light-mode) select:focus-visible {
+                outline-color: #9ca3ff;
+            }
         }
 
         @media (max-width: 768px) {
@@ -805,15 +855,17 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <button class="theme-toggle" id="themeToggle" aria-label="Vaihda teemaa">
+    <a href="#main-content" class="skip-link">Siirry sisältöön</a>
+    
+    <header class="header">
+        <button class="theme-toggle" id="themeToggle" aria-label="Vaihda teemaa" aria-live="polite">
             <span class="theme-icon" id="lightIcon">☀️</span>
             <span class="theme-icon" id="darkIcon">🌙</span>
         </button>
         <h1>HITAS Enimmäishintalaskuri</h1>
-    </div>
+    </header>
 
-    <div class="container">
+    <main id="main-content" class="container">
         <p class="subtitle">Laske asuntosi nykyinen velaton enimmäishinta</p>
         <p class="subtitle small">
             Laskuri on tarkoitettu 1.1.2011 alkaen valmistuneille HITAS-asunnoille
@@ -857,25 +909,25 @@
             </div>
         </form>
 
-        <div id="result" class="result">
+        <div id="result" class="result" role="region" aria-live="polite" aria-atomic="true">
             <div class="result-title">Velaton enimmäishinta</div>
-            <div class="result-price" id="resultPrice"></div>
-            <div class="result-change" id="resultChange"></div>
-            <div class="calculation-toggle" id="calculationToggle">
+            <div class="result-price" id="resultPrice" aria-label="Laskettu enimmäishinta"></div>
+            <div class="result-change" id="resultChange" aria-label="Hinnanmuutos"></div>
+            <button class="calculation-toggle" id="calculationToggle" aria-expanded="false" aria-controls="resultInfo">
                 <strong>Laskenta</strong>
-                <span class="toggle-arrow">▼</span>
-            </div>
-            <div class="result-info" id="resultInfo"></div>
+                <span class="toggle-arrow" aria-hidden="true">▼</span>
+            </button>
+            <div class="result-info" id="resultInfo" role="region" aria-label="Laskentadetaljit" aria-hidden="true"></div>
         </div>
-    </div>
+    </main>
 
-    <div class="footer">
-        <p>Data: <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-indeksit-2005-100.pdf" target="_blank">Helsingin kaupunki</a></p>
-        <p style="margin-top: 5px;"><a href="https://hartela.fi/media/ulvcbt2x/helsingin_kaupunki_hitas-tietopaketti.pdf" target="_blank">HITAS-tietopaketti</a></p>
+    <footer class="footer">
+        <p>Data: <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-indeksit-2005-100.pdf" target="_blank" rel="noopener noreferrer">Helsingin kaupunki</a></p>
+        <p style="margin-top: 5px;"><a href="https://hartela.fi/media/ulvcbt2x/helsingin_kaupunki_hitas-tietopaketti.pdf" target="_blank" rel="noopener noreferrer">HITAS-tietopaketti</a></p>
         <p style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 5px;">
             <span>vibe coded by</span>
-            <a href="https://github.com/vepasto" target="_blank" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: white;">
-                <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <a href="https://github.com/vepasto" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: white;" aria-label="GitHub profiili: vepasto">
+                <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
                 </svg>
                 vepasto
@@ -890,7 +942,7 @@
                 </g>
             </svg>
         </div>
-    </div>
+    </footer>
 
     <!-- Snake Game Overlay -->
     <div id="snakeGame">
@@ -1284,10 +1336,15 @@
         function toggleCalculation() {
             const resultInfo = document.getElementById('resultInfo');
             const arrow = document.querySelector('.toggle-arrow');
+            const toggleBtn = document.getElementById('calculationToggle');
             
-            if (resultInfo && arrow) {
-                resultInfo.classList.toggle('expanded');
+            if (resultInfo && arrow && toggleBtn) {
+                const isExpanded = resultInfo.classList.toggle('expanded');
                 arrow.classList.toggle('expanded');
+                
+                // Update ARIA attributes for accessibility
+                toggleBtn.setAttribute('aria-expanded', isExpanded);
+                resultInfo.setAttribute('aria-hidden', !isExpanded);
             }
         }
 
