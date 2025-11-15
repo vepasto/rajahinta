@@ -227,16 +227,18 @@
             const visualGridX = Math.round(snakeHeadPixel.x);
             const visualGridY = Math.round(snakeHeadPixel.y);
             
-            if (visualGridX === food.x && visualGridY === food.y) {
+            if (visualGridX === food.x && visualGridY === food.y && food.x !== -1) {
                 // Eat food immediately when visual head reaches it
                 score += 10;
                 scoreElement.textContent = score;
                 snakeLength += 1;
-                generateFood();
                 stretchEffect = 1.0;
                 
-                // Remove food to prevent double eating
+                // Mark as eaten to prevent double eating
                 food = { x: -1, y: -1 };
+                
+                // Generate new food after marking old one as eaten
+                generateFood();
                 
                 if (pixelsPerFrame < 0.25) {
                     pixelsPerFrame += 0.005;
