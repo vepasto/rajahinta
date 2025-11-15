@@ -18,7 +18,9 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #667eea;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             padding: 20px;
             display: flex;
@@ -518,7 +520,6 @@
 
             <div class="button-group">
                 <button type="submit" class="btn-primary">Laske enimmäishinta</button>
-                <button type="button" id="resetBtn" class="btn-secondary">Tyhjennä</button>
             </div>
         </form>
 
@@ -891,13 +892,6 @@
                 purchaseYear,
                 purchaseMonth
             });
-        });
-
-        // Handle reset button
-        document.getElementById('resetBtn').addEventListener('click', function() {
-            clearLocalStorage();
-            document.getElementById('calculatorForm').reset();
-            document.getElementById('result').classList.remove('show');
         });
 
         // Initialize on page load
