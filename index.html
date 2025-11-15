@@ -163,7 +163,7 @@
         .subtitle {
             color: #666;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 30px;
             font-size: 16px;
         }
 
@@ -867,9 +867,6 @@
 
     <main id="main-content" class="container">
         <p class="subtitle">Laske asuntosi nykyinen velaton enimmäishinta</p>
-        <p class="subtitle small">
-            Laskuri on tarkoitettu 1.1.2011 alkaen valmistuneille HITAS-asunnoille
-        </p>
 
         <form id="calculatorForm">
             <div class="form-group">
@@ -922,7 +919,8 @@
     </main>
 
     <footer class="footer">
-        <p>Data: <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-indeksit-2005-100.pdf" target="_blank" rel="noopener noreferrer">Helsingin kaupunki</a></p>
+        <p>Data: <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-indeksit-2005-100.pdf" target="_blank" rel="noopener noreferrer">Helsingin kaupunki (2011→)</a> | 
+        <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-markkinahintaindeksi.pdf" target="_blank" rel="noopener noreferrer">Vanhat indeksit (←2011)</a></p>
         <p style="margin-top: 5px;"><a href="https://hartela.fi/media/ulvcbt2x/helsingin_kaupunki_hitas-tietopaketti.pdf" target="_blank" rel="noopener noreferrer">HITAS-tietopaketti</a></p>
         <p style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 5px;">
             <span>vibe coded by</span>
@@ -980,6 +978,7 @@
         // Indeksit ladataan JSON-tiedostosta
         let rakennuskustannusindeksi = {};
         let markkinahintaindeksi = {};
+        let vanhatMarkkinahintaindeksi = {};
         let indicesLoaded = false;
 
         // Lataa indeksit JSON-tiedostosta
@@ -1008,6 +1007,17 @@
                     }
                 }
                 
+                // Lataa vanhat markkinahintaindeksi (ennen 2011 valmistuneille)
+                vanhatMarkkinahintaindeksi = {};
+                if (data.vanhat_markkinahintaindeksi) {
+                    for (const [year, months] of Object.entries(data.vanhat_markkinahintaindeksi)) {
+                        vanhatMarkkinahintaindeksi[parseInt(year)] = {};
+                        for (const [month, value] of Object.entries(months)) {
+                            vanhatMarkkinahintaindeksi[parseInt(year)][parseInt(month)] = value;
+                        }
+                    }
+                }
+                
                 indicesLoaded = true;
                 console.log('Indices loaded from:', INDICES_FILE);
                 console.log('Data updated:', data.updated);
@@ -1026,7 +1036,7 @@
         function initializeYearDropdown() {
             const yearSelect = document.getElementById('purchaseYear');
             const currentYear = new Date().getFullYear();
-            const startYear = 2011; // HITAS-laskuri toimii vain 1.1.2011 alkaen valmistuneille asunnoille
+            const startYear = 1978; // Vanhemmat indeksit alkavat 1978 alkaen
             
             for (let year = currentYear; year >= startYear; year--) {
                 const option = document.createElement('option');
@@ -1087,33 +1097,52 @@
         function calculateRajahinta(originalPrice, purchaseYear, purchaseMonth) {
             const results = {
                 rakennuskustannus: null,
-                markkinahinta: null
+                markkinahinta: null,
+                vanhatMarkkinahinta: null
             };
 
-            // Get purchase indices
-            const purchaseRakennuskustannus = getIndexValue(rakennuskustannusindeksi, purchaseYear, purchaseMonth);
-            const purchaseMarkkinahinta = getIndexValue(markkinahintaindeksi, purchaseYear, purchaseMonth);
+            // Check if apartment was completed before 2011
+            const isBefore2011 = purchaseYear < 2011;
 
-            // Get current indices
-            const currentRakennuskustannus = getLatestIndex(rakennuskustannusindeksi);
-            const currentMarkkinahinta = getLatestIndex(markkinahintaindeksi);
+            if (isBefore2011) {
+                // Use old market price index for apartments completed before 2011
+                const purchaseOldMarket = getIndexValue(vanhatMarkkinahintaindeksi, purchaseYear, purchaseMonth);
+                const currentOldMarket = getLatestIndex(vanhatMarkkinahintaindeksi);
 
-            // Calculate with Rakennuskustannusindeksi
-            if (purchaseRakennuskustannus && currentRakennuskustannus) {
-                results.rakennuskustannus = {
-                    price: (originalPrice * currentRakennuskustannus.value) / purchaseRakennuskustannus,
-                    currentIndex: currentRakennuskustannus,
-                    purchaseIndex: purchaseRakennuskustannus
-                };
-            }
+                if (purchaseOldMarket && currentOldMarket) {
+                    results.vanhatMarkkinahinta = {
+                        price: (originalPrice * currentOldMarket.value) / purchaseOldMarket,
+                        currentIndex: currentOldMarket,
+                        purchaseIndex: purchaseOldMarket
+                    };
+                }
+            } else {
+                // Use rakennuskustannus and markkinahinta indices for apartments from 2011 onwards
+                // Get purchase indices
+                const purchaseRakennuskustannus = getIndexValue(rakennuskustannusindeksi, purchaseYear, purchaseMonth);
+                const purchaseMarkkinahinta = getIndexValue(markkinahintaindeksi, purchaseYear, purchaseMonth);
 
-            // Calculate with Markkinahintaindeksi
-            if (purchaseMarkkinahinta && currentMarkkinahinta) {
-                results.markkinahinta = {
-                    price: (originalPrice * currentMarkkinahinta.value) / purchaseMarkkinahinta,
-                    currentIndex: currentMarkkinahinta,
-                    purchaseIndex: purchaseMarkkinahinta
-                };
+                // Get current indices
+                const currentRakennuskustannus = getLatestIndex(rakennuskustannusindeksi);
+                const currentMarkkinahinta = getLatestIndex(markkinahintaindeksi);
+
+                // Calculate with Rakennuskustannusindeksi
+                if (purchaseRakennuskustannus && currentRakennuskustannus) {
+                    results.rakennuskustannus = {
+                        price: (originalPrice * currentRakennuskustannus.value) / purchaseRakennuskustannus,
+                        currentIndex: currentRakennuskustannus,
+                        purchaseIndex: purchaseRakennuskustannus
+                    };
+                }
+
+                // Calculate with Markkinahintaindeksi
+                if (purchaseMarkkinahinta && currentMarkkinahinta) {
+                    results.markkinahinta = {
+                        price: (originalPrice * currentMarkkinahinta.value) / purchaseMarkkinahinta,
+                        currentIndex: currentMarkkinahinta,
+                        purchaseIndex: purchaseMarkkinahinta
+                    };
+                }
             }
 
             return results;
@@ -1147,8 +1176,15 @@
             const currentYear = currentDate.getFullYear();
             const currentMonth = currentDate.getMonth() + 1;
 
-            // Determine which index gives higher price
-            if (results.rakennuskustannus && results.markkinahinta) {
+            // Check if using old market index (before 2011)
+            if (results.vanhatMarkkinahinta) {
+                finalPrice = results.vanhatMarkkinahinta.price;
+                usedIndex = 'Vanhojen osakeasuntojen hintaindeksi (markkinahintaindeksi)';
+                usedIndexData = results.vanhatMarkkinahinta.currentIndex;
+                purchaseIndexValue = results.vanhatMarkkinahinta.purchaseIndex;
+            }
+            // Determine which index gives higher price (for 2011 and later)
+            else if (results.rakennuskustannus && results.markkinahinta) {
                 if (results.rakennuskustannus.price >= results.markkinahinta.price) {
                     finalPrice = results.rakennuskustannus.price;
                     usedIndex = 'Rakennuskustannusindeksi';
@@ -1193,8 +1229,35 @@
                 <br>
             `;
 
-            // Show both index calculations
-            if (results.rakennuskustannus) {
+            // Show old market index calculation for pre-2011 apartments
+            if (results.vanhatMarkkinahinta) {
+                const vm = results.vanhatMarkkinahinta;
+                
+                // Check if old market index is using older data
+                const vmIsOld = vm.currentIndex.year < currentYear || 
+                                (vm.currentIndex.year === currentYear && vm.currentIndex.month < currentMonth);
+                
+                infoHTML += `
+                    <strong>${usedIndex}:</strong> ✓ (käytetty)<br>
+                    <em>Ennen 1.1.2011 valmistuneille HITAS-asunnoille käytetään yhtä indeksiä</em><br>
+                    <br>
+                    Valmistumishetken indeksi: ${vm.purchaseIndex.toFixed(2)}<br>
+                    Nykyinen indeksi: ${vm.currentIndex.value.toFixed(2)} (${monthNames[vm.currentIndex.month - 1]} ${vm.currentIndex.year})<br>
+                    Kaava: ${vm.currentIndex.value.toFixed(2)} / ${vm.purchaseIndex.toFixed(2)} × ${formatPrice(originalPrice)}<br>
+                    Tulos: ${formatPrice(vm.price)}<br>
+                `;
+                
+                if (vmIsOld) {
+                    infoHTML += `
+                        <div class="warning" style="margin-top: 10px; margin-bottom: 10px;">
+                            ⚠️ Huom: Laskettu ${monthNames[vm.currentIndex.month - 1]} ${vm.currentIndex.year} indeksin mukaan, 
+                            koska ${monthNames[currentMonth - 1]} ${currentYear} indeksiä ei ole vielä saatavilla.
+                        </div>
+                    `;
+                }
+            }
+            // Show both index calculations for post-2011 apartments
+            else if (results.rakennuskustannus) {
                 const rk = results.rakennuskustannus;
                 const isSelected = usedIndex === 'Rakennuskustannusindeksi';
                 

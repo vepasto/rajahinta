@@ -9,6 +9,7 @@ import sys
 import json
 from pathlib import Path
 import urllib.request
+import ssl
 import io
 
 try:
@@ -17,6 +18,8 @@ except ImportError:
     print("Error: pdfplumber not installed. Install with: pip install pdfplumber")
     sys.exit(1)
 
+# Import the old market index importer
+from import_old_market_index import get_old_market_index
 
 PDF_URL = "https://www.hel.fi/static/kv/asunto-osasto/hitas-indeksit-2005-100.pdf"
 HTML_PATH = Path(__file__).parent.parent / "index.html"
@@ -27,7 +30,10 @@ def download_pdf():
     print(f"Downloading PDF from {PDF_URL}...")
 
     try:
-        with urllib.request.urlopen(PDF_URL) as response:
+        # Create SSL context that doesn't verify certificates (for compatibility)
+        ssl_context = ssl._create_unverified_context()
+        
+        with urllib.request.urlopen(PDF_URL, context=ssl_context) as response:
             pdf_data = response.read()
         print(f"PDF downloaded successfully ({len(pdf_data)} bytes)")
         return io.BytesIO(pdf_data)
@@ -121,7 +127,7 @@ def extract_indices_from_pdf(pdf_data):
     return rakennuskustannus, markkinahinta
 
 
-def create_json_file(rakennuskustannus, markkinahinta):
+def create_json_file(rakennuskustannus, markkinahinta, old_market_index):
     """Create JSON file with current date in filename."""
     from datetime import datetime
 
@@ -141,6 +147,10 @@ def create_json_file(rakennuskustannus, markkinahinta):
         "markkinahintaindeksi": {
             str(year): {str(month): value for month, value in months.items()}
             for year, months in markkinahinta.items()
+        },
+        "vanhat_markkinahintaindeksi": {
+            str(year): {str(month): value for month, value in months.items()}
+            for year, months in old_market_index.items()
         },
     }
 
@@ -204,6 +214,16 @@ def main():
         print("Error: Failed to extract indices from PDF")
         return 1
 
+    # Get old market index (for apartments before 2011)
+    print("\n" + "=" * 50)
+    print("Fetching old market index (pre-2011)...")
+    print("=" * 50)
+    old_market_index = get_old_market_index()
+    
+    if not old_market_index:
+        print("Warning: Failed to get old market index")
+        print("Continuing without old market index data...")
+
     # Display summary
     print("\n" + "=" * 50)
     print("SUMMARY")
@@ -219,10 +239,18 @@ def main():
     latest_mh_month = max(markkinahinta[latest_mh_year].keys())
     latest_mh_value = markkinahinta[latest_mh_year][latest_mh_month]
     print(f"  Latest: {latest_mh_month}/{latest_mh_year} = {latest_mh_value}")
+    
+    if old_market_index:
+        print(f"Vanhat markkinahintaindeksi: {len(old_market_index)} years")
+        latest_old_year = max(old_market_index.keys())
+        latest_old_month = max(old_market_index[latest_old_year].keys())
+        latest_old_value = old_market_index[latest_old_year][latest_old_month]
+        print(f"  Latest: {latest_old_month}/{latest_old_year} = {latest_old_value}")
+    
     print("=" * 50)
 
     # Create JSON file
-    json_filename = create_json_file(rakennuskustannus, markkinahinta)
+    json_filename = create_json_file(rakennuskustannus, markkinahinta, old_market_index if old_market_index else {})
 
     # Update HTML reference
     if update_html_reference(json_filename):
