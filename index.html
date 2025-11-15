@@ -1092,46 +1092,58 @@
             });
         });
 
+        // Theme toggle functionality (define before DOMContentLoaded)
+        function setTheme(theme) {
+            const themeIcon = document.getElementById('themeIcon');
+            console.log('Setting theme:', theme);
+            
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.body.classList.remove('light-mode');
+                if (themeIcon) themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+                console.log('Dark mode activated');
+            } else if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                document.body.classList.remove('dark-mode');
+                if (themeIcon) themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+                console.log('Light mode activated');
+            } else {
+                // Auto mode - follow system preference
+                document.body.classList.remove('dark-mode', 'light-mode');
+                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (themeIcon) themeIcon.textContent = isDark ? '☀️' : '🌙';
+                localStorage.removeItem('theme');
+                console.log('Auto mode activated, system prefers:', isDark ? 'dark' : 'light');
+            }
+        }
+
+        function toggleTheme() {
+            console.log('Toggle button clicked!');
+            const currentTheme = localStorage.getItem('theme');
+            console.log('Current theme:', currentTheme);
+            
+            if (!currentTheme) {
+                // Currently auto, check system preference
+                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                setTheme(isDark ? 'light' : 'dark');
+            } else if (currentTheme === 'dark') {
+                setTheme('light');
+            } else {
+                setTheme(null); // Back to auto
+            }
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', async function() {
-            // Theme toggle functionality
             const themeToggle = document.getElementById('themeToggle');
-            const themeIcon = document.getElementById('themeIcon');
+            console.log('Theme toggle button:', themeToggle);
             
-            function setTheme(theme) {
-                if (theme === 'dark') {
-                    document.body.classList.add('dark-mode');
-                    document.body.classList.remove('light-mode');
-                    themeIcon.textContent = '☀️';
-                    localStorage.setItem('theme', 'dark');
-                } else if (theme === 'light') {
-                    document.body.classList.add('light-mode');
-                    document.body.classList.remove('dark-mode');
-                    themeIcon.textContent = '🌙';
-                    localStorage.setItem('theme', 'light');
-                } else {
-                    // Auto mode - follow system preference
-                    document.body.classList.remove('dark-mode', 'light-mode');
-                    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    themeIcon.textContent = isDark ? '☀️' : '🌙';
-                    localStorage.removeItem('theme');
-                }
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+                console.log('Click listener added');
             }
-
-            function toggleTheme() {
-                const currentTheme = localStorage.getItem('theme');
-                if (!currentTheme) {
-                    // Currently auto, check system preference
-                    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    setTheme(isDark ? 'light' : 'dark');
-                } else if (currentTheme === 'dark') {
-                    setTheme('light');
-                } else {
-                    setTheme(null); // Back to auto
-                }
-            }
-
-            themeToggle.addEventListener('click', toggleTheme);
 
             // Initialize theme
             const savedTheme = localStorage.getItem('theme');
