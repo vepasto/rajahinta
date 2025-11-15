@@ -12,16 +12,73 @@
     <!-- Apple specific meta tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="HITAS Laskuri">
+    <meta name="apple-mobile-web-app-title" content="Hitas hintalaskuri">
     
-    <title>HITAS Enimmäishintalaskuri</title>
-    <meta name="description" content="Laske HITAS-asuntosi nykyinen velaton enimmäishinta käyttäen virallisia rakennuskustannus- ja markkinahintaindeksejä.">
+    <title>Hitas hintalaskuri</title>
+    <meta name="description" content="Laske Hitas-asuntosi nykyinen velaton enimmäishinta käyttäen virallisia rakennuskustannus- ja markkinahintaindeksejä.">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23667eea'/%3E%3Cstop offset='100%25' style='stop-color:%23764ba2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23bg)'/%3E%3Cg fill='white'%3E%3Cpath d='M50 25 L70 45 L70 75 L30 75 L30 45 Z'/%3E%3Crect x='40' y='55' width='8' height='12'/%3E%3Crect x='52' y='55' width='8' height='12'/%3E%3C/g%3E%3C/svg%3E">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }
+
+        /* Navigation */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-container .theme-toggle {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .nav-link.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            font-weight: 600;
         }
 
         /* Skip to main content link for accessibility */
@@ -34,7 +91,7 @@
             padding: 8px 16px;
             text-decoration: none;
             border-radius: 0 0 4px 0;
-            z-index: 100;
+            z-index: 200;
         }
 
         .skip-link:focus {
@@ -60,7 +117,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             background-attachment: fixed;
             min-height: 100vh;
-            padding: 20px;
+            padding: 70px 20px 20px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -108,9 +165,6 @@
         }
 
         .theme-toggle {
-            position: absolute;
-            top: 0;
-            right: 20px;
             background: rgba(255, 255, 255, 0.2);
             border: none;
             border-radius: 20px;
@@ -122,15 +176,10 @@
             transition: all 0.3s;
             backdrop-filter: blur(10px);
             -webkit-tap-highlight-color: transparent;
-            z-index: 10;
         }
 
         .theme-toggle:hover {
             background: rgba(255, 255, 255, 0.3);
-        }
-
-        .theme-toggle:active {
-            transform: scale(0.95);
         }
 
         .theme-icon {
@@ -139,7 +188,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             border-radius: 50%;
             transition: all 0.3s;
             opacity: 0.5;
@@ -148,7 +197,6 @@
         .theme-icon.active {
             background: rgba(255, 255, 255, 0.3);
             opacity: 1;
-            transform: scale(1.1);
         }
 
         h1 {
@@ -158,6 +206,7 @@
             font-size: 32px;
             font-weight: 700;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
         }
 
         .subtitle {
@@ -367,6 +416,17 @@
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        }
+
+        .result-info a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .result-info a:hover {
+            color: #764ba2;
+            text-decoration: underline;
         }
 
         .result-info.expanded {
@@ -627,6 +687,14 @@
             color: #d0d0d0;
         }
 
+        body.dark-mode .result-info a {
+            color: #9ca3ff;
+        }
+
+        body.dark-mode .result-info a:hover {
+            color: #b8bcff;
+        }
+
         body.dark-mode .result-info.expanded {
             padding: 15px;
         }
@@ -677,6 +745,37 @@
         body.dark-mode input:focus-visible,
         body.dark-mode select:focus-visible {
             outline-color: #9ca3ff;
+        }
+
+        body.dark-mode .container .disclaimer {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: #b0b0b0 !important;
+        }
+
+        body.dark-mode .container a[href="info.html"] {
+            color: #9ca3ff !important;
+        }
+
+        .container a[href="info.html"]:hover {
+            opacity: 1 !important;
+        }
+
+        body.dark-mode .top-nav {
+            background: rgba(26, 26, 46, 0.6);
+        }
+
+        body.dark-mode .nav-link {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .nav-link:hover {
+            background: rgba(156, 163, 255, 0.15);
+            color: #9ca3ff;
+        }
+
+        body.dark-mode .nav-link.active {
+            background: rgba(156, 163, 255, 0.2);
+            color: #9ca3ff;
         }
 
         /* Auto dark mode based on system preference */
@@ -746,6 +845,14 @@
                 color: #d0d0d0;
             }
 
+            body:not(.light-mode) .result-info a {
+                color: #9ca3ff;
+            }
+
+            body:not(.light-mode) .result-info a:hover {
+                color: #b8bcff;
+            }
+
             body:not(.light-mode) .result-info.expanded {
                 padding: 15px;
             }
@@ -797,6 +904,33 @@
             body:not(.light-mode) select:focus-visible {
                 outline-color: #9ca3ff;
             }
+
+            body:not(.light-mode) .container .disclaimer {
+                background: rgba(255, 255, 255, 0.05) !important;
+                color: #b0b0b0 !important;
+            }
+
+            body:not(.light-mode) .container a[href="info.html"] {
+                color: #9ca3ff !important;
+            }
+
+            body:not(.light-mode) .top-nav {
+                background: rgba(26, 26, 46, 0.6);
+            }
+
+            body:not(.light-mode) .nav-link {
+                color: #e0e0e0;
+            }
+
+            body:not(.light-mode) .nav-link:hover {
+                background: rgba(156, 163, 255, 0.15);
+                color: #9ca3ff;
+            }
+
+            body:not(.light-mode) .nav-link.active {
+                background: rgba(156, 163, 255, 0.2);
+                color: #9ca3ff;
+            }
         }
 
         @media (max-width: 768px) {
@@ -841,7 +975,16 @@
             .theme-icon {
                 width: 28px;
                 height: 28px;
-                font-size: 16px;
+                font-size: 18px;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .nav-link {
+                font-size: 13px;
+                padding: 6px 12px;
             }
 
             .result-price {
@@ -857,21 +1000,36 @@
 <body>
     <a href="#main-content" class="skip-link">Siirry sisältöön</a>
     
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="/" class="nav-link active">Hintalaskuri</a>
+                <a href="info.html" class="nav-link">Info</a>
+                <a href="graphs.html" class="nav-link">Graafit</a>
+            </div>
+            <button class="theme-toggle" id="themeToggle" aria-label="Vaihda teemaa" aria-live="polite">
+                <span class="theme-icon" id="lightIcon">☼</span>
+                <span class="theme-icon" id="darkIcon">☾</span>
+            </button>
+        </div>
+    </nav>
+    
     <header class="header">
-        <button class="theme-toggle" id="themeToggle" aria-label="Vaihda teemaa" aria-live="polite">
-            <span class="theme-icon" id="lightIcon">☀️</span>
-            <span class="theme-icon" id="darkIcon">🌙</span>
-        </button>
-        <h1>HITAS Enimmäishintalaskuri</h1>
+        <h1>Hitas hintalaskuri</h1>
     </header>
 
     <main id="main-content" class="container">
-        <p class="subtitle">Laske asuntosi nykyinen velaton enimmäishinta</p>
+        <p class="subtitle" style="margin-bottom: 30px;">Laske Hitas-asuntosi nykyinen velaton enimmäishinta</p>
 
         <form id="calculatorForm">
             <div class="form-group">
                 <label for="originalPrice">Alkuperäinen velaton hankintahinta (€)</label>
                 <input type="number" id="originalPrice" name="originalPrice" required min="0" step="1000">
+            </div>
+
+            <div class="form-group">
+                <label for="apartmentSize">Asunnon pinta-ala (m²)</label>
+                <input type="number" id="apartmentSize" name="apartmentSize" required min="1" step="0.5">
             </div>
 
             <div class="form-section-title">Valmistumisaika</div>
@@ -904,6 +1062,10 @@
             <div class="button-group">
                 <button type="submit" class="btn-primary">Laske enimmäishinta</button>
             </div>
+
+            <div class="disclaimer" style="margin-top: 8px; padding: 8px 12px; background: rgba(255, 255, 255, 0.5); border-radius: 8px; text-align: center; font-size: 13px; color: #666;">
+                <em>Huom! Tämä on epävirallinen lomake ja tarkoitettu vain suuntaa antavaksi.</em>
+            </div>
         </form>
 
         <div id="result" class="result" role="region" aria-live="polite" aria-atomic="true">
@@ -916,12 +1078,19 @@
             </button>
             <div class="result-info" id="resultInfo" role="region" aria-label="Laskentadetaljit" aria-hidden="true"></div>
         </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="info.html" style="color: #667eea; text-decoration: none; font-weight: 500; font-size: 14px; display: inline-flex; align-items: center; gap: 5px; opacity: 0.85; transition: opacity 0.3s;">
+                → Lue lisää Hitas-asunnoista ja hinnoittelusta
+            </a>
+        </div>
     </main>
 
     <footer class="footer">
         <p>Data: <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-indeksit-2005-100.pdf" target="_blank" rel="noopener noreferrer">Helsingin kaupunki (2011→)</a> | 
-        <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-markkinahintaindeksi.pdf" target="_blank" rel="noopener noreferrer">Vanhat indeksit (←2011)</a></p>
-        <p style="margin-top: 5px;"><a href="https://hartela.fi/media/ulvcbt2x/helsingin_kaupunki_hitas-tietopaketti.pdf" target="_blank" rel="noopener noreferrer">HITAS-tietopaketti</a></p>
+        <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-markkinahintaindeksi.pdf" target="_blank" rel="noopener noreferrer">Vanhat indeksit (←2011)</a> | 
+        <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-rajahinta.pdf" target="_blank" rel="noopener noreferrer">Rajaneliöhinta</a></p>
+        <p style="margin-top: 5px;"><a href="https://hartela.fi/media/ulvcbt2x/helsingin_kaupunki_hitas-tietopaketti.pdf" target="_blank" rel="noopener noreferrer">Hitas-tietopaketti</a></p>
         <p style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 5px;">
             <span>vibe coded by</span>
             <a href="https://github.com/vepasto" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: white;" aria-label="GitHub profiili: vepasto">
@@ -947,7 +1116,7 @@
         <div class="close-game" id="closeGame">×</div>
         <div class="game-container">
             <div class="game-header">
-                <h2>🏠 HITAS Snake 🏠</h2>
+                <h2>🏠 Hitas Snake 🏠</h2>
                 <div class="game-score">Pisteet: <span id="score">0</span></div>
                 <div class="game-score" style="font-size: 16px;">Ennätys: <span id="highScore">0</span></div>
             </div>
@@ -979,6 +1148,7 @@
         let rakennuskustannusindeksi = {};
         let markkinahintaindeksi = {};
         let vanhatMarkkinahintaindeksi = {};
+        let rajaneliohinta = null;
         let indicesLoaded = false;
 
         // Lataa indeksit JSON-tiedostosta
@@ -1018,9 +1188,17 @@
                     }
                 }
                 
+                // Lataa rajaneliöhinta
+                if (data.rajaneliohinta) {
+                    rajaneliohinta = data.rajaneliohinta;
+                }
+                
                 indicesLoaded = true;
                 console.log('Indices loaded from:', INDICES_FILE);
                 console.log('Data updated:', data.updated);
+                if (rajaneliohinta) {
+                    console.log('Rajaneliöhinta:', rajaneliohinta.price_per_sqm, '€/m² (voimassa', rajaneliohinta.valid_from, '-', rajaneliohinta.valid_until + ')');
+                }
                 return true;
             } catch (error) {
                 console.error('Error loading indices:', error);
@@ -1094,11 +1272,12 @@
         }
 
         // Calculate rajahinta
-        function calculateRajahinta(originalPrice, purchaseYear, purchaseMonth) {
+        function calculateRajahinta(originalPrice, purchaseYear, purchaseMonth, apartmentSize) {
             const results = {
                 rakennuskustannus: null,
                 markkinahinta: null,
-                vanhatMarkkinahinta: null
+                vanhatMarkkinahinta: null,
+                rajaneliohinta: null
             };
 
             // Check if apartment was completed before 2011
@@ -1145,6 +1324,17 @@
                 }
             }
 
+            // Calculate rajaneliöhinta (applies to all Hitas apartments)
+            if (rajaneliohinta && apartmentSize) {
+                results.rajaneliohinta = {
+                    price: apartmentSize * rajaneliohinta.price_per_sqm,
+                    pricePerSqm: rajaneliohinta.price_per_sqm,
+                    apartmentSize: apartmentSize,
+                    validFrom: rajaneliohinta.valid_from,
+                    validUntil: rajaneliohinta.valid_until
+                };
+            }
+
             return results;
         }
 
@@ -1176,40 +1366,66 @@
             const currentYear = currentDate.getFullYear();
             const currentMonth = currentDate.getMonth() + 1;
 
+            // Collect all calculated prices to find the highest one
+            let candidates = [];
+            
             // Check if using old market index (before 2011)
             if (results.vanhatMarkkinahinta) {
-                finalPrice = results.vanhatMarkkinahinta.price;
-                usedIndex = 'Vanhojen osakeasuntojen hintaindeksi (markkinahintaindeksi)';
-                usedIndexData = results.vanhatMarkkinahinta.currentIndex;
-                purchaseIndexValue = results.vanhatMarkkinahinta.purchaseIndex;
+                candidates.push({
+                    price: results.vanhatMarkkinahinta.price,
+                    name: 'Vanhojen osakeasuntojen hintaindeksi (markkinahintaindeksi)',
+                    type: 'vanhatMarkkinahinta',
+                    data: results.vanhatMarkkinahinta
+                });
             }
-            // Determine which index gives higher price (for 2011 and later)
-            else if (results.rakennuskustannus && results.markkinahinta) {
-                if (results.rakennuskustannus.price >= results.markkinahinta.price) {
-                    finalPrice = results.rakennuskustannus.price;
-                    usedIndex = 'Rakennuskustannusindeksi';
-                    usedIndexData = results.rakennuskustannus.currentIndex;
-                    purchaseIndexValue = results.rakennuskustannus.purchaseIndex;
-                } else {
-                    finalPrice = results.markkinahinta.price;
-                    usedIndex = 'Markkinahintaindeksi';
-                    usedIndexData = results.markkinahinta.currentIndex;
-                    purchaseIndexValue = results.markkinahinta.purchaseIndex;
-                }
-            } else if (results.rakennuskustannus) {
-                finalPrice = results.rakennuskustannus.price;
-                usedIndex = 'Rakennuskustannusindeksi';
-                usedIndexData = results.rakennuskustannus.currentIndex;
-                purchaseIndexValue = results.rakennuskustannus.purchaseIndex;
-            } else if (results.markkinahinta) {
-                finalPrice = results.markkinahinta.price;
-                usedIndex = 'Markkinahintaindeksi';
-                usedIndexData = results.markkinahinta.currentIndex;
-                purchaseIndexValue = results.markkinahinta.purchaseIndex;
-            } else {
+            
+            // For 2011 and later
+            if (results.rakennuskustannus) {
+                candidates.push({
+                    price: results.rakennuskustannus.price,
+                    name: 'Rakennuskustannusindeksi',
+                    type: 'rakennuskustannus',
+                    data: results.rakennuskustannus
+                });
+            }
+            
+            if (results.markkinahinta) {
+                candidates.push({
+                    price: results.markkinahinta.price,
+                    name: 'Markkinahintaindeksi',
+                    type: 'markkinahinta',
+                    data: results.markkinahinta
+                });
+            }
+            
+            // Always check rajaneliöhinta (applies to all apartments)
+            if (results.rajaneliohinta) {
+                candidates.push({
+                    price: results.rajaneliohinta.price,
+                    name: 'Rajaneliöhinta',
+                    type: 'rajaneliohinta',
+                    data: results.rajaneliohinta
+                });
+            }
+            
+            if (candidates.length === 0) {
                 resultInfo.innerHTML = '<div class="warning">Virhe: Indeksitietoja ei löydy valitulle ajankohdalle.</div>';
                 resultDiv.classList.add('show');
                 return;
+            }
+            
+            // Find the highest price
+            const winner = candidates.reduce((max, current) => 
+                current.price > max.price ? current : max
+            );
+            
+            finalPrice = winner.price;
+            usedIndex = winner.name;
+            
+            // Set legacy variables for display compatibility
+            if (winner.type === 'vanhatMarkkinahinta' || winner.type === 'rakennuskustannus' || winner.type === 'markkinahinta') {
+                usedIndexData = winner.data.currentIndex;
+                purchaseIndexValue = winner.data.purchaseIndex;
             }
 
             resultPrice.textContent = formatPrice(finalPrice);
@@ -1238,8 +1454,9 @@
                                 (vm.currentIndex.year === currentYear && vm.currentIndex.month < currentMonth);
                 
                 infoHTML += `
-                    <strong>${usedIndex}:</strong> ✓ (käytetty)<br>
-                    <em>Ennen 1.1.2011 valmistuneille HITAS-asunnoille käytetään yhtä indeksiä</em><br>
+                    <strong>${usedIndex}:</strong> ✓ (käytetty) 
+                    <a href="graphs.html#old-indices-chart">(katso graafi →)</a><br>
+                    <em>Ennen 1.1.2011 valmistuneille Hitas-asunnoille käytetään yhtä indeksiä</em><br>
                     <br>
                     Valmistumishetken indeksi: ${vm.purchaseIndex.toFixed(2)}<br>
                     Nykyinen indeksi: ${vm.currentIndex.value.toFixed(2)} (${monthNames[vm.currentIndex.month - 1]} ${vm.currentIndex.year})<br>
@@ -1266,7 +1483,8 @@
                                 (rk.currentIndex.year === currentYear && rk.currentIndex.month < currentMonth);
                 
                 infoHTML += `
-                    <strong>Rakennuskustannusindeksi:</strong> ${isSelected ? '✓ (käytetty)' : ''}<br>
+                    <strong>Rakennuskustannusindeksi:</strong> ${isSelected ? '✓ (käytetty)' : ''} 
+                    <a href="graphs.html#new-indices-chart">(katso graafi →)</a><br>
                     Valmistumishetken indeksi: ${rk.purchaseIndex.toFixed(2)}<br>
                     Nykyinen indeksi: ${rk.currentIndex.value.toFixed(2)} (${monthNames[rk.currentIndex.month - 1]} ${rk.currentIndex.year})<br>
                     Kaava: ${rk.currentIndex.value.toFixed(2)} / ${rk.purchaseIndex.toFixed(2)} × ${formatPrice(originalPrice)}<br>
@@ -1294,7 +1512,8 @@
                                 (mh.currentIndex.year === currentYear && mh.currentIndex.month < currentMonth);
                 
                 infoHTML += `
-                    <strong>Markkinahintaindeksi:</strong> ${isSelected ? '✓ (käytetty)' : ''}<br>
+                    <strong>Markkinahintaindeksi:</strong> ${isSelected ? '✓ (käytetty)' : ''} 
+                    <a href="graphs.html#new-indices-chart">(katso graafi →)</a><br>
                     Valmistumishetken indeksi: ${mh.purchaseIndex.toFixed(2)}<br>
                     Nykyinen indeksi: ${mh.currentIndex.value.toFixed(2)} (${monthNames[mh.currentIndex.month - 1]} ${mh.currentIndex.year})<br>
                     Kaava: ${mh.currentIndex.value.toFixed(2)} / ${mh.purchaseIndex.toFixed(2)} × ${formatPrice(originalPrice)}<br>
@@ -1309,6 +1528,23 @@
                         </div>
                     `;
                 }
+            }
+
+            // Show rajaneliöhinta calculation
+            if (results.rajaneliohinta) {
+                const rh = results.rajaneliohinta;
+                const isSelected = usedIndex === 'Rajaneliöhinta';
+                
+                infoHTML += `
+                    <br>
+                    <strong>Rajaneliöhinta:</strong> ${isSelected ? '✓ (käytetty)' : ''}<br>
+                    <em>Kaikkien Hitas-yhtiöiden keskimääräinen neliöhinta (voimassa ${rh.validFrom} - ${rh.validUntil})</em><br>
+                    <br>
+                    Asunnon pinta-ala: ${rh.apartmentSize} m²<br>
+                    Rajaneliöhinta: ${formatPrice(rh.pricePerSqm)}/m²<br>
+                    Kaava: ${rh.apartmentSize} m² × ${formatPrice(rh.pricePerSqm)}/m²<br>
+                    Tulos: ${formatPrice(rh.price)}<br>
+                `;
             }
 
             infoHTML = infoHTML.trim();
@@ -1329,11 +1565,12 @@
             e.preventDefault();
 
             const originalPrice = parseFloat(document.getElementById('originalPrice').value);
+            const apartmentSize = parseFloat(document.getElementById('apartmentSize').value);
             const purchaseYear = parseInt(document.getElementById('purchaseYear').value);
             const purchaseMonth = parseInt(document.getElementById('purchaseMonth').value);
 
             // Calculate
-            const results = calculateRajahinta(originalPrice, purchaseYear, purchaseMonth);
+            const results = calculateRajahinta(originalPrice, purchaseYear, purchaseMonth, apartmentSize);
 
             // Display result
             displayResult(results, originalPrice, purchaseYear, purchaseMonth);
@@ -1341,6 +1578,7 @@
             // Save to localStorage
             saveToLocalStorage({
                 originalPrice,
+                apartmentSize,
                 purchaseYear,
                 purchaseMonth
             });
@@ -1444,16 +1682,22 @@
             const savedData = loadFromLocalStorage();
             if (savedData && indicesLoaded) {
                 document.getElementById('originalPrice').value = savedData.originalPrice;
+                if (savedData.apartmentSize) {
+                    document.getElementById('apartmentSize').value = savedData.apartmentSize;
+                }
                 document.getElementById('purchaseYear').value = savedData.purchaseYear;
                 document.getElementById('purchaseMonth').value = savedData.purchaseMonth;
 
-                // Auto-calculate without scrolling
-                const results = calculateRajahinta(
-                    savedData.originalPrice,
-                    savedData.purchaseYear,
-                    savedData.purchaseMonth
-                );
-                displayResult(results, savedData.originalPrice, savedData.purchaseYear, savedData.purchaseMonth, false);
+                // Auto-calculate without scrolling (only if apartment size is available)
+                if (savedData.apartmentSize) {
+                    const results = calculateRajahinta(
+                        savedData.originalPrice,
+                        savedData.purchaseYear,
+                        savedData.purchaseMonth,
+                        savedData.apartmentSize
+                    );
+                    displayResult(results, savedData.originalPrice, savedData.purchaseYear, savedData.purchaseMonth, false);
+                }
             }
         });
 
