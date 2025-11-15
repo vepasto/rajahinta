@@ -1,6 +1,84 @@
 # Muutosloki
 
-## 2025-11-15: Tuki ennen 2011 valmistuneille asunnoille
+## 2025-11-15 (v3): Erillinen graafit-sivu
+
+### Lisätyt ominaisuudet
+
+1. **Uusi graafit-sivu** (`graphs.html`)
+   - Visuaaliset käyrät indeksien kehityksestä omalla sivullaan
+   - Kaksi erillistä graafia:
+     - Uudet indeksit (2011→): Rakennuskustannusindeksi ja Markkinahintaindeksi
+     - Vanhat indeksit (←2011): Vanhat markkinahintaindeksi
+   - Selkeät selitykset graafien yhteydessä
+   - Chart.js-kirjastolla toteutetut interaktiiviset graafit
+   - Täysi dark mode -tuki
+
+2. **Päivitetty navigaatio**
+   - Kaikilla sivuilla (index.html, info.html, graphs.html) nyt kolme linkkiä:
+     - Hintalaskuri (pääsivu)
+     - Info
+     - Graafit
+   - Aktiivinen sivu näkyy korostettuna
+
+3. **Linkit graafeihin**
+   - Laskurin tuloksista suorat linkit relevantteihin graafeihin
+   - Info-sivulta linkit graafisivulle
+   - Smooth scroll ankkurilinkeillä oikeaan graafiin
+
+### Käyttöliittymä
+
+- Graafit siirretty omalle sivulleen paremman käyttökokemuksen vuoksi
+- Graafit skaalautuvat responsiivisesti
+- Dark mode vaihtaa graafien värimaailman automaattisesti
+- Hover-efektit näyttävät tarkat indeksiarvot
+
+---
+
+## 2025-11-15 (v2): Rajaneliöhinta-ominaisuus ja infosivut
+
+### Lisätyt ominaisuudet
+
+1. **Rajaneliöhinta (HITAS-asuntojen hintapohja)**
+   - Luotu `scripts/import_rajaneliohinta.py` - lataa ja parsii rajaneliöhinnan
+   - Lähde: https://www.hel.fi/static/kv/asunto-osasto/hitas-rajahinta.pdf
+   - Nykyinen rajaneliöhinta: 4 159 €/m² (voimassa 1.11.2025 - 31.1.2026)
+
+2. **Päivitetty laskentalogiikka**
+   - Lisätty pinta-alan syöttökenttä
+   - Lasketaan **kaikille** HITAS-asunnoille:
+     - Indeksipohjainen hinta (kuten ennen)
+     - Rajaneliöhinta (pinta-ala × 4159 €/m²)
+     - **Valitaan korkein** näistä kahdesta
+
+3. **Automaattinen päivitys**
+   - `update_indices.py` hakee nyt myös rajaneliöhinnan
+   - Päivitetään neljännesvuosittain (helmi, touko, elo, marras)
+
+4. **Kattava info-sivu** (`info.html`)
+   - Selitys mitä HITAS-asunto on
+   - Yksityiskohtainen kuvaus hintojen laskennasta
+   - Lista asioista mitä laskuri ei huomioi (remontit, yhtiölaina, yms.)
+   - Linkit virallisiin lähteisiin
+   - Linkki pääsivulta infosivulle
+
+### Säännöt
+
+Kaupunginvaltuuston päätöksen mukaan:
+- Jos laskennallinen neliöhinta < rajaneliöhinta → käytetään rajaneliöhintaa
+- Rajaneliöhinta = kaikkien HITAS-yhtiöiden keskiarvo
+- Voimassa 3 kuukautta kerrallaan
+
+### Käyttöliittymä
+
+- Uusi kenttä: "Asunnon pinta-ala (m²)"
+- Näyttää molemmat laskelmat:
+  - Indeksipohjainen hinta
+  - Rajaneliöhinta
+  - Selkeä merkintä kumpi valittiin (✓)
+
+---
+
+## 2025-11-15 (v1): Tuki ennen 2011 valmistuneille asunnoille
 
 ### Lisätyt ominaisuudet
 

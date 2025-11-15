@@ -92,7 +92,3 @@ python -m http.server 8000
 ```bash
 python scripts/update_indices.py
 ```
-
-## Lisenssi
-
-MIT License - katso [LICENSE](LICENSE) tiedosto
