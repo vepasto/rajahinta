@@ -1232,11 +1232,6 @@
                 }
                 
                 indicesLoaded = true;
-                console.log('Indices loaded from:', INDICES_FILE);
-                console.log('Data updated:', data.updated);
-                if (rajaneliohinta) {
-                    console.log('Rajaneliöhinta:', rajaneliohinta.price_per_sqm, '€/m² (voimassa', rajaneliohinta.valid_from, '-', rajaneliohinta.valid_until + ')');
-                }
                 return true;
             } catch (error) {
                 console.error('Error loading indices:', error);
@@ -1889,7 +1884,6 @@
         function setTheme(theme) {
             const lightIcon = document.getElementById('lightIcon');
             const darkIcon = document.getElementById('darkIcon');
-            console.log('Setting theme:', theme);
             
             if (theme === 'dark') {
                 document.body.classList.add('dark-mode');
@@ -1897,14 +1891,12 @@
                 if (lightIcon) lightIcon.classList.remove('active');
                 if (darkIcon) darkIcon.classList.add('active');
                 localStorage.setItem('theme', 'dark');
-                console.log('Dark mode activated');
             } else if (theme === 'light') {
                 document.body.classList.add('light-mode');
                 document.body.classList.remove('dark-mode');
                 if (lightIcon) lightIcon.classList.add('active');
                 if (darkIcon) darkIcon.classList.remove('active');
                 localStorage.setItem('theme', 'light');
-                console.log('Light mode activated');
             } else {
                 // Auto mode - follow system preference
                 document.body.classList.remove('dark-mode', 'light-mode');
@@ -1912,7 +1904,6 @@
                 if (lightIcon) lightIcon.classList.toggle('active', !isDark);
                 if (darkIcon) darkIcon.classList.toggle('active', isDark);
                 localStorage.removeItem('theme');
-                console.log('Auto mode activated, system prefers:', isDark ? 'dark' : 'light');
             }
             
             // Recreate chart with new theme colors if it exists
@@ -1926,9 +1917,7 @@
         }
 
         function toggleTheme() {
-            console.log('Toggle button clicked!');
             const currentTheme = localStorage.getItem('theme');
-            console.log('Current theme:', currentTheme);
             
             // Check if currently in dark mode (either manually set or from system preference)
             const isDarkNow = document.body.classList.contains('dark-mode') || 
@@ -1962,11 +1951,9 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', async function() {
             const themeToggle = document.getElementById('themeToggle');
-            console.log('Theme toggle button:', themeToggle);
             
             if (themeToggle) {
                 themeToggle.addEventListener('click', toggleTheme);
-                console.log('Click listener added');
             }
 
             // Initialize theme
