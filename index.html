@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HITAS Rajahintalaskuri</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23667eea'/%3E%3Cstop offset='100%25' style='stop-color:%23764ba2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23bg)'/%3E%3Cg fill='white'%3E%3Cpath d='M50 25 L70 45 L70 75 L30 75 L30 45 Z'/%3E%3Crect x='40' y='55' width='8' height='12'/%3E%3Crect x='52' y='55' width='8' height='12'/%3E%3C/g%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='1'%3E%3Cpath d='M50 10 L70 30 L70 50 L30 50 L30 30 Z'/%3E%3Crect x='40' y='35' width='8' height='10'/%3E%3Crect x='52' y='35' width='8' height='10'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 80px 80px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container, .footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            margin-top: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInNumber {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .result.show .result-price {
+            animation: fadeInNumber 0.6s ease-out 0.2s both;
+        }
+
+        .result.show .result-change {
+            animation: fadeInNumber 0.6s ease-out 0.3s both;
+        }
+
+        .result-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-price {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-change {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .result-info {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .result-info strong {
+            color: #333;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #856404;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .house-icon {
+            display: inline-block;
+            margin-top: 15px;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: all 0.3s;
+        }
+
+        .house-icon:hover {
+            opacity: 0.6;
+            transform: scale(1.1);
+        }
+
+        .house-icon svg {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Snake Game Styles */
+        #snakeGame {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #snakeGame.active {
+            display: flex;
+        }
+
+        .game-container {
+            text-align: center;
+        }
+
+        .game-header {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .game-header h2 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .game-score {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        #gameCanvas {
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            background: #1a1a2e;
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .game-controls {
+            margin-top: 20px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .game-controls p {
+            margin: 5px 0;
+        }
+
+        .close-game {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 24px;
+            transition: all 0.3s;
+        }
+
+        .close-game:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .game-over-message {
+            color: #e74c3c;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .restart-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .restart-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .result-price {
+                font-size: 28px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HITAS Enimmäishintalaskuri</h1>
+        <p class="subtitle">Laske asuntosi nykyinen velaton enimmäishinta</p>
+        <p class="subtitle" style="color: #999; font-size: 12px; margin-top: -15px; margin-bottom: 20px;">
+            Laskuri on tarkoitettu 1.1.2011 alkaen valmistuneille HITAS-asunnoille
+        </p>
+
+        <form id="calculatorForm">
+            <div class="form-group">
+                <label for="originalPrice">Alkuperäinen velaton hankintahinta (€)</label>
+                <input type="number" id="originalPrice" name="originalPrice" required min="0" step="0.01">
+            </div>
+
+            <div class="form-section-title">Valmistumisaika</div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="purchaseYear">Vuosi</label>
+                    <select id="purchaseYear" name="purchaseYear" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="purchaseMonth">Kuukausi</label>
+                    <select id="purchaseMonth" name="purchaseMonth" required>
+                        <option value="1">Tammikuu</option>
+                        <option value="2">Helmikuu</option>
+                        <option value="3">Maaliskuu</option>
+                        <option value="4">Huhtikuu</option>
+                        <option value="5">Toukokuu</option>
+                        <option value="6">Kesäkuu</option>
+                        <option value="7">Heinäkuu</option>
+                        <option value="8">Elokuu</option>
+                        <option value="9">Syyskuu</option>
+                        <option value="10">Lokakuu</option>
+                        <option value="11">Marraskuu</option>
+                        <option value="12">Joulukuu</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-primary">Laske enimmäishinta</button>
+                <button type="button" id="resetBtn" class="btn-secondary">Tyhjennä</button>
+            </div>
+        </form>
+
+        <div id="result" class="result">
+            <div class="result-title">Velaton enimmäishinta</div>
+            <div class="result-price" id="resultPrice"></div>
+            <div class="result-change" id="resultChange"></div>
+            <div class="result-info" id="resultInfo"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Data: <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-indeksit-2005-100.pdf" target="_blank">Helsingin kaupunki</a></p>
+        <p style="margin-top: 5px;"><a href="https://hartela.fi/media/ulvcbt2x/helsingin_kaupunki_hitas-tietopaketti.pdf" target="_blank">HITAS-tietopaketti</a></p>
+        <p style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 5px;">
+            <span>vibe coded by</span>
+            <a href="https://github.com/vepasto" target="_blank" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: white;">
+                <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                vepasto
+            </a>
+        </p>
+        <div class="house-icon" id="houseButton">
+            <svg width="30" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <g fill="white" fill-opacity="0.8">
+                    <path d="M50 10 L70 30 L70 50 L30 50 L30 30 Z"/>
+                    <rect x="40" y="35" width="8" height="10"/>
+                    <rect x="52" y="35" width="8" height="10"/>
+                </g>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Snake Game Overlay -->
+    <div id="snakeGame">
+        <div class="close-game" id="closeGame">×</div>
+        <div class="game-container">
+            <div class="game-header">
+                <h2>🏠 HITAS Snake 🏠</h2>
+                <div class="game-score">Pisteet: <span id="score">0</span></div>
+                <div class="game-score" style="font-size: 16px;">Ennätys: <span id="highScore">0</span></div>
+            </div>
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <div id="gameOverContainer"></div>
+            <div class="game-controls">
+                <p>🎮 Käytä nuolinäppäimiä tai WASD</p>
+                <p>🏠 Kerää taloja kasvaaksesi!</p>
+                <p>⚠️ Älä törmää reunoihin tai itseesi!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const INDICES_FILE = 'data/indices-2025-11-15.json';
+        
+        // Indeksit ladataan JSON-tiedostosta
+        let rakennuskustannusindeksi = {};
+        let markkinahintaindeksi = {};
+        let indicesLoaded = false;
+
+        // Lataa indeksit JSON-tiedostosta
+        async function loadIndices() {
+            try {
+                const response = await fetch(INDICES_FILE);
+                if (!response.ok) {
+                    throw new Error('Failed to load indices');
+                }
+                const data = await response.json();
+                
+                // Muunna JSON data oikeaan muotoon (merkkijonoavaimet -> numerot)
+                rakennuskustannusindeksi = {};
+                for (const [year, months] of Object.entries(data.rakennuskustannusindeksi)) {
+                    rakennuskustannusindeksi[parseInt(year)] = {};
+                    for (const [month, value] of Object.entries(months)) {
+                        rakennuskustannusindeksi[parseInt(year)][parseInt(month)] = value;
+                    }
+                }
+                
+                markkinahintaindeksi = {};
+                for (const [year, months] of Object.entries(data.markkinahintaindeksi)) {
+                    markkinahintaindeksi[parseInt(year)] = {};
+                    for (const [month, value] of Object.entries(months)) {
+                        markkinahintaindeksi[parseInt(year)][parseInt(month)] = value;
+                    }
+                }
+                
+                indicesLoaded = true;
+                console.log('Indices loaded from:', INDICES_FILE);
+                console.log('Data updated:', data.updated);
+                return true;
+            } catch (error) {
+                console.error('Error loading indices:', error);
+                alert('Virhe: Indeksien lataus epäonnistui. Päivitä sivu.');
+                return false;
+            }
+        }
+
+        const monthNames = ['Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Kesäkuu', 
+                           'Heinäkuu', 'Elokuu', 'Syyskuu', 'Lokakuu', 'Marraskuu', 'Joulukuu'];
+
+        // Initialize year dropdown
+        function initializeYearDropdown() {
+            const yearSelect = document.getElementById('purchaseYear');
+            const currentYear = new Date().getFullYear();
+            const startYear = 2011; // HITAS-laskuri toimii vain 1.1.2011 alkaen valmistuneille asunnoille
+            
+            for (let year = currentYear; year >= startYear; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        // Get the latest available index value (not in the future)
+        function getLatestIndex(indexData) {
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-11
+            
+            const years = Object.keys(indexData).map(Number).sort((a, b) => b - a);
+            
+            for (const year of years) {
+                // Skip future years
+                if (year > currentYear) continue;
+                
+                const months = Object.keys(indexData[year]).map(Number).sort((a, b) => b - a);
+                for (const month of months) {
+                    // Skip future months in current year
+                    if (year === currentYear && month > currentMonth) continue;
+                    
+                    if (indexData[year][month]) {
+                        return {
+                            value: indexData[year][month],
+                            year: year,
+                            month: month
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Get index value for a specific date
+        function getIndexValue(indexData, year, month) {
+            if (indexData[year] && indexData[year][month]) {
+                return indexData[year][month];
+            }
+            return null;
+        }
+
+        // Format price in euros
+        function formatPrice(price) {
+            return new Intl.NumberFormat('fi-FI', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(price);
+        }
+
+        // Calculate rajahinta
+        function calculateRajahinta(originalPrice, purchaseYear, purchaseMonth) {
+            const results = {
+                rakennuskustannus: null,
+                markkinahinta: null
+            };
+
+            // Get purchase indices
+            const purchaseRakennuskustannus = getIndexValue(rakennuskustannusindeksi, purchaseYear, purchaseMonth);
+            const purchaseMarkkinahinta = getIndexValue(markkinahintaindeksi, purchaseYear, purchaseMonth);
+
+            // Get current indices
+            const currentRakennuskustannus = getLatestIndex(rakennuskustannusindeksi);
+            const currentMarkkinahinta = getLatestIndex(markkinahintaindeksi);
+
+            // Calculate with Rakennuskustannusindeksi
+            if (purchaseRakennuskustannus && currentRakennuskustannus) {
+                results.rakennuskustannus = {
+                    price: (originalPrice * currentRakennuskustannus.value) / purchaseRakennuskustannus,
+                    currentIndex: currentRakennuskustannus,
+                    purchaseIndex: purchaseRakennuskustannus
+                };
+            }
+
+            // Calculate with Markkinahintaindeksi
+            if (purchaseMarkkinahinta && currentMarkkinahinta) {
+                results.markkinahinta = {
+                    price: (originalPrice * currentMarkkinahinta.value) / purchaseMarkkinahinta,
+                    currentIndex: currentMarkkinahinta,
+                    purchaseIndex: purchaseMarkkinahinta
+                };
+            }
+
+            return results;
+        }
+
+        // Save to localStorage
+        function saveToLocalStorage(data) {
+            localStorage.setItem('hitasCalculatorData', JSON.stringify(data));
+        }
+
+        // Load from localStorage
+        function loadFromLocalStorage() {
+            const data = localStorage.getItem('hitasCalculatorData');
+            return data ? JSON.parse(data) : null;
+        }
+
+        // Clear localStorage
+        function clearLocalStorage() {
+            localStorage.removeItem('hitasCalculatorData');
+        }
+
+        // Display result
+        function displayResult(results, originalPrice, purchaseYear, purchaseMonth) {
+            const resultDiv = document.getElementById('result');
+            const resultPrice = document.getElementById('resultPrice');
+            const resultChange = document.getElementById('resultChange');
+            const resultInfo = document.getElementById('resultInfo');
+
+            let finalPrice, usedIndex, usedIndexData, purchaseIndexValue;
+            const currentDate = new Date();
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth() + 1;
+
+            // Determine which index gives higher price
+            if (results.rakennuskustannus && results.markkinahinta) {
+                if (results.rakennuskustannus.price >= results.markkinahinta.price) {
+                    finalPrice = results.rakennuskustannus.price;
+                    usedIndex = 'Rakennuskustannusindeksi';
+                    usedIndexData = results.rakennuskustannus.currentIndex;
+                    purchaseIndexValue = results.rakennuskustannus.purchaseIndex;
+                } else {
+                    finalPrice = results.markkinahinta.price;
+                    usedIndex = 'Markkinahintaindeksi';
+                    usedIndexData = results.markkinahinta.currentIndex;
+                    purchaseIndexValue = results.markkinahinta.purchaseIndex;
+                }
+            } else if (results.rakennuskustannus) {
+                finalPrice = results.rakennuskustannus.price;
+                usedIndex = 'Rakennuskustannusindeksi';
+                usedIndexData = results.rakennuskustannus.currentIndex;
+                purchaseIndexValue = results.rakennuskustannus.purchaseIndex;
+            } else if (results.markkinahinta) {
+                finalPrice = results.markkinahinta.price;
+                usedIndex = 'Markkinahintaindeksi';
+                usedIndexData = results.markkinahinta.currentIndex;
+                purchaseIndexValue = results.markkinahinta.purchaseIndex;
+            } else {
+                resultInfo.innerHTML = '<div class="warning">Virhe: Indeksitietoja ei löydy valitulle ajankohdalle.</div>';
+                resultDiv.classList.add('show');
+                return;
+            }
+
+            resultPrice.textContent = formatPrice(finalPrice);
+
+            // Calculate change
+            const priceChange = finalPrice - originalPrice;
+            const percentageChange = ((priceChange / originalPrice) * 100).toFixed(1);
+            const changeSign = priceChange >= 0 ? '+' : '';
+            const changeColor = priceChange >= 0 ? '#27ae60' : '#e74c3c';
+
+            // Display change
+            resultChange.innerHTML = `<span style="color: ${changeColor};">${changeSign}${formatPrice(Math.abs(priceChange))} (${changeSign}${percentageChange}%)</span>`;
+
+            let infoHTML = `
+                <strong>Laskenta:</strong><br>
+                Alkuperäinen velaton hankintahinta: ${formatPrice(originalPrice)}<br>
+                Ostopäivä: ${monthNames[purchaseMonth - 1]} ${purchaseYear}<br>
+                <br>
+            `;
+
+            // Show both index calculations
+            if (results.rakennuskustannus) {
+                const rk = results.rakennuskustannus;
+                const isSelected = usedIndex === 'Rakennuskustannusindeksi';
+                
+                // Check if Rakennuskustannus index is using older data
+                const rkIsOld = rk.currentIndex.year < currentYear || 
+                                (rk.currentIndex.year === currentYear && rk.currentIndex.month < currentMonth);
+                
+                infoHTML += `
+                    <strong>Rakennuskustannusindeksi:</strong> ${isSelected ? '✓ (käytetty)' : ''}<br>
+                    Valmistumishetken indeksi: ${rk.purchaseIndex.toFixed(2)}<br>
+                    Nykyinen indeksi: ${rk.currentIndex.value.toFixed(2)} (${monthNames[rk.currentIndex.month - 1]} ${rk.currentIndex.year})<br>
+                    Kaava: ${rk.currentIndex.value.toFixed(2)} / ${rk.purchaseIndex.toFixed(2)} × ${formatPrice(originalPrice)}<br>
+                    Tulos: ${formatPrice(rk.price)}<br>
+                `;
+                
+                if (rkIsOld) {
+                    infoHTML += `
+                        <div class="warning" style="margin-top: 10px; margin-bottom: 10px;">
+                            ⚠️ Huom: Laskettu ${monthNames[rk.currentIndex.month - 1]} ${rk.currentIndex.year} indeksin mukaan, 
+                            koska ${monthNames[currentMonth - 1]} ${currentYear} indeksiä ei ole vielä saatavilla.
+                        </div>
+                    `;
+                }
+                
+                infoHTML += '<br>';
+            }
+
+            if (results.markkinahinta) {
+                const mh = results.markkinahinta;
+                const isSelected = usedIndex === 'Markkinahintaindeksi';
+                
+                // Check if Markkinahinta index is using older data
+                const mhIsOld = mh.currentIndex.year < currentYear || 
+                                (mh.currentIndex.year === currentYear && mh.currentIndex.month < currentMonth);
+                
+                infoHTML += `
+                    <strong>Markkinahintaindeksi:</strong> ${isSelected ? '✓ (käytetty)' : ''}<br>
+                    Valmistumishetken indeksi: ${mh.purchaseIndex.toFixed(2)}<br>
+                    Nykyinen indeksi: ${mh.currentIndex.value.toFixed(2)} (${monthNames[mh.currentIndex.month - 1]} ${mh.currentIndex.year})<br>
+                    Kaava: ${mh.currentIndex.value.toFixed(2)} / ${mh.purchaseIndex.toFixed(2)} × ${formatPrice(originalPrice)}<br>
+                    Tulos: ${formatPrice(mh.price)}<br>
+                `;
+                
+                if (mhIsOld) {
+                    infoHTML += `
+                        <div class="warning" style="margin-top: 10px; margin-bottom: 10px;">
+                            ⚠️ Huom: Laskettu ${monthNames[mh.currentIndex.month - 1]} ${mh.currentIndex.year} indeksin mukaan, 
+                            koska ${monthNames[currentMonth - 1]} ${currentYear} indeksiä ei ole vielä saatavilla.
+                        </div>
+                    `;
+                }
+            }
+
+            infoHTML = infoHTML.trim();
+
+            resultInfo.innerHTML = infoHTML;
+            resultDiv.classList.add('show');
+            
+            // Scroll to result
+            setTimeout(() => {
+                resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        // Handle form submission
+        document.getElementById('calculatorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const originalPrice = parseFloat(document.getElementById('originalPrice').value);
+            const purchaseYear = parseInt(document.getElementById('purchaseYear').value);
+            const purchaseMonth = parseInt(document.getElementById('purchaseMonth').value);
+
+            // Calculate
+            const results = calculateRajahinta(originalPrice, purchaseYear, purchaseMonth);
+
+            // Display result
+            displayResult(results, originalPrice, purchaseYear, purchaseMonth);
+
+            // Save to localStorage
+            saveToLocalStorage({
+                originalPrice,
+                purchaseYear,
+                purchaseMonth
+            });
+        });
+
+        // Handle reset button
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            clearLocalStorage();
+            document.getElementById('calculatorForm').reset();
+            document.getElementById('result').classList.remove('show');
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            initializeYearDropdown();
+
+            // Lataa indeksit ensin
+            await loadIndices();
+
+            // Load saved data and auto-calculate
+            const savedData = loadFromLocalStorage();
+            if (savedData && indicesLoaded) {
+                document.getElementById('originalPrice').value = savedData.originalPrice;
+                document.getElementById('purchaseYear').value = savedData.purchaseYear;
+                document.getElementById('purchaseMonth').value = savedData.purchaseMonth;
+
+                // Auto-calculate
+                const results = calculateRajahinta(
+                    savedData.originalPrice,
+                    savedData.purchaseYear,
+                    savedData.purchaseMonth
+                );
+                displayResult(results, savedData.originalPrice, savedData.purchaseYear, savedData.purchaseMonth);
+            }
+        });
+
+    </script>
+    
+    <!-- Snake Game Easter Egg -->
+        <script src="scripts/snake-game.js"></script>
+</body>
+</html>
+
