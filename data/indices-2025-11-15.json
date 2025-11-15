@@ -1262,5 +1262,12 @@
       "7": 44.0,
       "8": 44.0
     }
+  },
+  "rajaneliohinta": {
+    "price_per_sqm": 4159.0,
+    "valid_from": "2025-11-01",
+    "valid_until": "2026-01-31",
+    "description": "Kaikkien Hitas-yhtiöiden keskimääräisten neliöhintojen perusteella laskettu rajaneliöhinta. Päivitetään neljännesvuosittain.",
+    "source": "https://www.hel.fi/static/kv/asunto-osasto/hitas-rajahinta.pdf"
   }
 }
