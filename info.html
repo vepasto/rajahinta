@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hitas-asunnot - Tietoa ja ohjeet</title>
+    <meta name="description" content="Tietoa Hitas-asunnoista, hintojen laskennasta ja rajoituksista.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23667eea'/%3E%3Cstop offset='100%25' style='stop-color:%23764ba2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23bg)'/%3E%3Cg fill='white'%3E%3Cpath d='M50 25 L70 45 L70 75 L30 75 L30 45 Z'/%3E%3Crect x='40' y='55' width='8' height='12'/%3E%3Crect x='52' y='55' width='8' height='12'/%3E%3C/g%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+
+        /* Navigation */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-container .theme-toggle {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .nav-link.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 70px 20px 20px 20px;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='1'%3E%3Cpath d='M50 10 L70 30 L70 50 L30 50 L30 30 Z'/%3E%3Crect x='40' y='35' width='8' height='10'/%3E%3Crect x='52' y='35' width='8' height='10'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 80px 80px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .header, .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            position: relative;
+            max-width: 600px;
+            width: 100%;
+            padding: 0 20px 20px 20px;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 20px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            opacity: 0.5;
+        }
+
+        .theme-icon.active {
+            background: rgba(255, 255, 255, 0.3);
+            opacity: 1;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            color: #764ba2;
+            gap: 12px;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 10px;
+            padding-top: 50px;
+            font-size: 32px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h2:first-child {
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #555;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+
+        .formula {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .link-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 30px;
+            transition: all 0.3s;
+        }
+
+        .link-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .external-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .external-link:hover {
+            text-decoration: underline;
+        }
+
+        strong {
+            color: #333;
+        }
+
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .chart-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .chart-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 12px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .container {
+            background: #2a2a3e;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        body.dark-mode h1 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode h2,
+        body.dark-mode h3 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode h2 {
+            border-bottom-color: #9ca3ff;
+        }
+
+        body.dark-mode p,
+        body.dark-mode li {
+            color: #d0d0d0;
+        }
+
+        body.dark-mode .back-link {
+            color: #9ca3ff;
+        }
+
+        body.dark-mode .back-link:hover {
+            color: #b8bcff;
+        }
+
+        body.dark-mode .info-box {
+            background: #1a1a2e;
+            border-left-color: #9ca3ff;
+        }
+
+        body.dark-mode .warning-box {
+            background: rgba(231, 76, 60, 0.15);
+            border-left-color: #e74c3c;
+            color: #ff9999;
+        }
+
+        body.dark-mode .formula {
+            background: #1a1a2e;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode code {
+            background: #1a1a2e;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .external-link {
+            color: #9ca3ff;
+        }
+
+        body.dark-mode .external-link:hover {
+            color: #b8bcff;
+        }
+
+        body.dark-mode strong {
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .chart-link {
+            color: #9ca3ff;
+        }
+
+        body.dark-mode .chart-link:hover {
+            color: #b8bcff;
+        }
+
+        body.dark-mode .footer {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .footer a {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .theme-toggle {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        body.dark-mode .theme-icon.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        body.dark-mode .top-nav {
+            background: rgba(26, 26, 46, 0.6);
+        }
+
+        body.dark-mode .nav-link {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .nav-link:hover {
+            background: rgba(156, 163, 255, 0.15);
+            color: #9ca3ff;
+        }
+
+        body.dark-mode .nav-link.active {
+            background: rgba(156, 163, 255, 0.2);
+            color: #9ca3ff;
+        }
+
+        /* Auto dark mode based on system preference */
+        @media (prefers-color-scheme: dark) {
+            body:not(.light-mode) {
+                background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%);
+                color: #e0e0e0;
+            }
+
+            body:not(.light-mode) .container {
+                background: #2a2a3e;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            }
+
+            body:not(.light-mode) h1 {
+                color: #e0e0e0;
+            }
+
+            body:not(.light-mode) h2,
+            body:not(.light-mode) h3 {
+                color: #e0e0e0;
+            }
+
+            body:not(.light-mode) h2 {
+                border-bottom-color: #9ca3ff;
+            }
+
+            body:not(.light-mode) p,
+            body:not(.light-mode) li {
+                color: #d0d0d0;
+            }
+
+            body:not(.light-mode) .back-link {
+                color: #9ca3ff;
+            }
+
+            body:not(.light-mode) .back-link:hover {
+                color: #b8bcff;
+            }
+
+            body:not(.light-mode) .info-box {
+                background: #1a1a2e;
+                border-left-color: #9ca3ff;
+            }
+
+            body:not(.light-mode) .warning-box {
+                background: rgba(231, 76, 60, 0.15);
+                border-left-color: #e74c3c;
+                color: #ff9999;
+            }
+
+            body:not(.light-mode) .formula {
+                background: #1a1a2e;
+                color: #e0e0e0;
+            }
+
+            body:not(.light-mode) code {
+                background: #1a1a2e;
+                color: #e0e0e0;
+            }
+
+            body:not(.light-mode) .external-link {
+                color: #9ca3ff;
+            }
+
+            body:not(.light-mode) .external-link:hover {
+                color: #b8bcff;
+            }
+
+            body:not(.light-mode) strong {
+                color: #f0f0f0;
+            }
+
+            body:not(.light-mode) .chart-link {
+                color: #9ca3ff;
+            }
+
+            body:not(.light-mode) .chart-link:hover {
+                color: #b8bcff;
+            }
+
+            body:not(.light-mode) .footer {
+                color: #b0b0b0;
+            }
+
+            body:not(.light-mode) .footer a {
+                color: #b0b0b0;
+            }
+
+            body:not(.light-mode) .theme-toggle {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            body:not(.light-mode) .theme-toggle:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+            body:not(.light-mode) .theme-icon.active {
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+            body:not(.light-mode) .top-nav {
+                background: rgba(26, 26, 46, 0.6);
+            }
+
+            body:not(.light-mode) .nav-link {
+                color: #e0e0e0;
+            }
+
+            body:not(.light-mode) .nav-link:hover {
+                background: rgba(156, 163, 255, 0.15);
+                color: #9ca3ff;
+            }
+
+            body:not(.light-mode) .nav-link.active {
+                background: rgba(156, 163, 255, 0.2);
+                color: #9ca3ff;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+                padding-top: 45px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            .header {
+                padding: 0 20px 15px 20px;
+            }
+
+            .theme-toggle {
+                padding: 3px;
+            }
+
+            .theme-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 18px;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .nav-link {
+                font-size: 13px;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="/" class="nav-link">Hintalaskuri</a>
+                <a href="info.html" class="nav-link active">Info</a>
+                <a href="graphs.html" class="nav-link">Graafit</a>
+            </div>
+            <button class="theme-toggle" id="themeToggle" aria-label="Vaihda teemaa" aria-live="polite">
+                <span class="theme-icon" id="lightIcon">☼</span>
+                <span class="theme-icon" id="darkIcon">☾</span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="header">
+        <h1>Hitas-asunnot - Tietoa ja ohjeet</h1>
+    </header>
+
+    <div class="container">
+        <h2>Mikä on Hitas-asunto?</h2>
+        
+        <p>Hitas (Hinta- ja laatutason säätelyjärjestelmä) on Helsingin kaupungin omistaman asuntotontin luovutukseen ja rakentamiseen liittyvä järjestelmä, jolla säädellään asuntojen hintoja ja laatua.</p>
+
+        <div class="info-box">
+            <strong>Keskeiset Hitas-periaatteet:</strong>
+            <ul>
+                <li><strong>Hintojen säätely:</strong> Asuntojen myyntihinnat on rajattu kaupungin vahvistamiin enimmäishintoihin</li>
+                <li><strong>Kohtuuhintaisuus:</strong> Tavoitteena on tarjota kohtuuhintaisia asuntoja helsinkiläisille</li>
+                <li><strong>Luonnollisille henkilöille:</strong> Hitas-asuntoja saa myydä vain yksityishenkilöille, ei yrityksille</li>
+                <li><strong>Myyntirajoitus:</strong> Asunnon omistusoikeus voidaan siirtää vain kaupungin vahvistaman enimmäishinnan mukaisesti</li>
+            </ul>
+        </div>
+
+        <h3>Hitas-asunnon edut</h3>
+        <ul>
+            <li>Alkuperäinen hankintahinta on markkinahintaa alempi</li>
+            <li>Turvaa kohtuuhintaisen asumisen</li>
+            <li>Sijaitsevat usein hyvällä paikalla Helsingissä</li>
+        </ul>
+
+        <h3>Hitas-asunnon rajoitukset</h3>
+        <ul>
+            <li>Myyntihinta on rajattu kaupungin vahvistamaan enimmäishintaan</li>
+            <li>Arvonnousu voi jäädä vapaiden markkinahintojen alapuolelle</li>
+            <li>Enimmäishinta lasketaan indeksien ja rajaneliöhinnan mukaan</li>
+        </ul>
+
+        <h2>Miten hinnat lasketaan?</h2>
+
+        <p>Hitas-asuntojen myyntihinnat määräytyvät eri tavalla riippuen siitä, milloin asunto on valmistunut.</p>
+
+        <h3>Asunnot valmistuneet 1.1.2011 alkaen</h3>
+
+        <p>Enimmäishinta lasketaan kahdella indeksillä (<a href="graphs.html#new-indices-chart" class="chart-link">katso graafi →</a>) ja valitaan <strong>korkeampi</strong>:</p>
+
+        <div class="formula">
+            Rakennuskustannusindeksi:<br>
+            Nykyinen indeksi / Valmistumishetken indeksi × Alkuperäinen hinta
+        </div>
+
+        <div class="formula">
+            Markkinahintaindeksi:<br>
+            Nykyinen indeksi / Valmistumishetken indeksi × Alkuperäinen hinta
+        </div>
+
+        <h3>Asunnot valmistuneet ennen 1.1.2011</h3>
+
+        <p>Käytetään yhtä vanhojen osakeasuntojen hintaindeksiä (<a href="graphs.html#old-indices-chart" class="chart-link">katso graafi →</a>):</p>
+
+        <div class="formula">
+            Nykyinen indeksi / Valmistumishetken indeksi × Alkuperäinen hinta
+        </div>
+
+        <h3>Rajaneliöhinta (kaikki asunnot)</h3>
+
+        <p>Vuodesta 2011 alkaen on käytössä myös <strong>rajaneliöhinta</strong>, joka toimii hintapohjana kaikille Hitas-asunnoille:</p>
+
+        <div class="info-box">
+            <strong>Nykyinen rajaneliöhinta:</strong> 4 159 €/m²<br>
+            <strong>Voimassa:</strong> 1.11.2025 - 31.1.2026<br>
+            <strong>Päivitetään:</strong> Neljännesvuosittain (helmikuu, toukokuu, elokuu, marraskuu)
+        </div>
+
+        <div class="formula">
+            Rajaneliöhinta:<br>
+            Asunnon pinta-ala (m²) × 4 159 €/m²
+        </div>
+
+        <p><strong>Kaupunginvaltuuston päätös:</strong> Jos indeksipohjainen neliöhinta on alempi kuin rajaneliöhinta, käytetään rajaneliöhintaa. Muutoin käytetään indeksipohjaista hintaa.</p>
+
+        <h3>Lopullinen enimmäishinta</h3>
+
+        <p>Laskuri vertailee kaikkia laskettuja hintoja ja valitsee <strong>korkeimman</strong>:</p>
+        <ul>
+            <li>Rakennuskustannusindeksillä laskettu hinta (jos valmistunut ≥ 2011)</li>
+            <li>Markkinahintaindeksillä laskettu hinta</li>
+            <li>Rajaneliöhinta (pinta-ala × 4 159 €/m²)</li>
+        </ul>
+
+        <h2>Mitä tämä lomake ei huomioi</h2>
+
+        <div class="warning-box">
+            <strong>⚠️ Tärkeää:</strong> Tämä laskuri antaa vain <strong>karkean suuntaa antavan</strong> arvion. Virallinen enimmäishinta vahvistetaan aina kaupungin toimesta.
+        </div>
+
+        <p>Laskuri ei huomioi asunnon parannuksia.</p>
+
+        <h3>Virallinen enimmäishinnan vahvistus</h3>
+
+        <p>Asunnon virallinen enimmäishinta vahvistetaan Helsingin kaupungin toimesta seuraavien dokumenttien perusteella:</p>
+
+        <ul>
+            <li><strong>Isännöitsijäntodistus</strong> - sisältää tiedot asunnosta, yhtiölainoista ja tehdyistä remonteista</li>
+            <li><strong>Enimmäishinnan vahvistamislomake</strong> - isännöitsijän täyttämä lomake</li>
+        </ul>
+
+        <p>Näiden dokumenttien avulla kaupunki voi huomioida kaikki asuntoon ja taloyhtiöön tehdyt muutokset ja antaa tarkan enimmäishinnan.</p>
+
+        <div class="info-box">
+            <strong>💡 Suositus:</strong> Käytä tätä laskuria saamaan alustava arvio hinnasta. Pyydä aina virallinen enimmäishinnan vahvistus Helsingin kaupungilta ennen kauppaa.
+        </div>
+
+        <h2>Lisätietoa</h2>
+
+        <p>Lisätietoja Hitas-asunnoista ja hinnoittelusta:</p>
+
+        <ul>
+            <li><a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-indeksit-2005-100.pdf" class="external-link" target="_blank" rel="noopener">Hitas-indeksit (2011→)</a></li>
+            <li><a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-markkinahintaindeksi.pdf" class="external-link" target="_blank" rel="noopener">Vanhat markkinahintaindeksit (←2011)</a></li>
+            <li><a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-rajahinta.pdf" class="external-link" target="_blank" rel="noopener">Rajaneliöhinta</a></li>
+            <li><a href="https://hartela.fi/media/ulvcbt2x/helsingin_kaupunki_hitas-tietopaketti.pdf" class="external-link" target="_blank" rel="noopener">Hitas-tietopaketti</a></li>
+            <li><a href="https://www.hel.fi/fi/asuminen-ja-ymparisto/asunnot/hitas-ja-asuntojen-hintasaantely" class="external-link" target="_blank" rel="noopener">Helsingin kaupungin Hitas-sivut</a></li>
+        </ul>
+    </div>
+
+    <footer class="footer">
+        <p>Data: <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-indeksit-2005-100.pdf" target="_blank" rel="noopener noreferrer">Helsingin kaupunki (2011→)</a> | 
+        <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-markkinahintaindeksi.pdf" target="_blank" rel="noopener noreferrer">Vanhat indeksit (←2011)</a> | 
+        <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-rajahinta.pdf" target="_blank" rel="noopener noreferrer">Rajaneliöhinta</a></p>
+        <p style="margin-top: 5px;"><a href="https://hartela.fi/media/ulvcbt2x/helsingin_kaupunki_hitas-tietopaketti.pdf" target="_blank" rel="noopener noreferrer">Hitas-tietopaketti</a></p>
+        <p style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 5px;">
+            <span>vibe coded by</span>
+            <a href="https://github.com/vepasto" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: rgba(255, 255, 255, 0.9);" aria-label="GitHub profiili: vepasto">
+                <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                vepasto
+            </a>
+        </p>
+    </footer>
+
+    <script>
+        // Theme toggle functionality
+        function setTheme(theme) {
+            const lightIcon = document.getElementById('lightIcon');
+            const darkIcon = document.getElementById('darkIcon');
+            
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.body.classList.remove('light-mode');
+                if (lightIcon) lightIcon.classList.remove('active');
+                if (darkIcon) darkIcon.classList.add('active');
+                localStorage.setItem('theme', 'dark');
+            } else if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                document.body.classList.remove('dark-mode');
+                if (lightIcon) lightIcon.classList.add('active');
+                if (darkIcon) darkIcon.classList.remove('active');
+                localStorage.setItem('theme', 'light');
+            } else {
+                // Auto mode - follow system preference
+                document.body.classList.remove('dark-mode', 'light-mode');
+                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (lightIcon) lightIcon.classList.toggle('active', !isDark);
+                if (darkIcon) darkIcon.classList.toggle('active', isDark);
+                localStorage.removeItem('theme');
+            }
+        }
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('theme');
+            
+            // Check if currently in dark mode (either manually set or from system preference)
+            const isDarkNow = document.body.classList.contains('dark-mode') || 
+                             (!document.body.classList.contains('light-mode') && 
+                              window.matchMedia('(prefers-color-scheme: dark)').matches);
+            
+            // Toggle between dark and light
+            if (isDarkNow) {
+                setTheme('light');
+            } else {
+                setTheme('dark');
+            }
+        }
+
+        // Sync theme with main page
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+
+            // Initialize theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            } else {
+                setTheme(null); // Auto mode
+            }
+        });
+    </script>
+</body>
+</html>
+
