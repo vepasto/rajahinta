@@ -1160,14 +1160,16 @@
             const currentTheme = localStorage.getItem('theme');
             console.log('Current theme:', currentTheme);
             
-            if (!currentTheme) {
-                // Currently auto, check system preference
-                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                setTheme(isDark ? 'light' : 'dark');
-            } else if (currentTheme === 'dark') {
+            // Check if currently in dark mode (either manually set or from system preference)
+            const isDarkNow = document.body.classList.contains('dark-mode') || 
+                             (!document.body.classList.contains('light-mode') && 
+                              window.matchMedia('(prefers-color-scheme: dark)').matches);
+            
+            // Toggle between dark and light
+            if (isDarkNow) {
                 setTheme('light');
             } else {
-                setTheme(null); // Back to auto
+                setTheme('dark');
             }
         }
 
