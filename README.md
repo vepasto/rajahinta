@@ -1,22 +1,22 @@
-# HITAS Rajahintalaskuri
+# HITAS Enimmäishintalaskuri
 
-HITAS-asuntojen rajahinnan laskemiseen tarkoitettu web-sovellus. Laskuri käyttää Helsingin kaupungin virallisia rakennuskustannus- ja markkinahintaindeksejä.
+HITAS-asuntojen enimmäishinnan laskemiseen tarkoitettu web-sovellus. Laskuri käyttää Helsingin kaupungin virallisia rakennuskustannus- ja markkinahintaindeksejä.
 
 ## Käyttö
 
-Sovellus on käytettävissä osoitteessa: [GitHub Pages](https://veikko.karsikko.github.io/rajahinta/) *(päivitä linkki oikeaksi)*
+🌐 **Sovellus on käytettävissä osoitteessa: [https://vepasto.github.io/rajahinta/](https://vepasto.github.io/rajahinta/)**
 
-### Rajahinnan laskeminen
+### Enimmäishinnan laskeminen
 
 1. Syötä asunnon alkuperäinen velaton hankintahinta (€)
-2. Valitse ostovuosi ja -kuukausi
-3. Klikkaa "Laske rajahinta"
+2. Valitse valmistumisvuosi ja -kuukausi
+3. Klikkaa "Laske enimmäishinta"
 
-Sovellus laskee rajahinnan molemmilla indekseillä ja näyttää korkeamman arvon.
+Sovellus laskee enimmäishinnan molemmilla indekseillä ja näyttää korkeamman arvon.
 
 ### Tietojen tallennus
 
-Sovellus tallentaa syöttämäsi tiedot selaimen paikalliseen muistiin (localStorage). Kun palaat sivulle, rajahinta lasketaan automaattisesti uusimmilla indeksiarvoilla.
+Sovellus tallentaa syöttämäsi tiedot selaimen paikalliseen muistiin (localStorage). Kun palaat sivulle, enimmäishinta lasketaan automaattisesti uusimmilla indeksiarvoilla.
 
 ## Indeksit
 
@@ -26,13 +26,23 @@ Laskuri käyttää kahta indeksiä:
 
 Indeksit päivitetään automaattisesti Helsingin kaupungin [virallisesta PDF-tiedostosta](https://www.hel.fi/static/kv/asunto-osasto/hitas-indeksit-2005-100.pdf).
 
+## Ominaisuudet
+
+- 🏠 HITAS enimmäishinnan laskenta kahdella indeksillä
+- 💾 Automaattinen tietojen tallennus selaimeen
+- 📊 Hinnanmuutos ja prosenttiosuus näkyvissä
+- 🎮 Matopeli easter egg (klikkaa talokuvaketta!)
+- 📱 Responsiivinen design mobiililaitteille
+- 🔄 Automaattiset päivittäiset indeksipäivitykset
+- ✨ Animoidut siirtymät ja fade-in efektit
+
 ## Tekninen toteutus
 
 - Yksisivuinen HTML/JavaScript-sovellus
 - Ei vaadi palvelinta, toimii täysin selaimessa
-- Responsiivinen design (toimii myös mobiililaitteilla)
-- Indeksit upotettu JavaScript-koodiin
-- Automaattinen päivitys GitHub Actionsilla
+- Indeksit ladataan JSON-tiedostosta
+- Automaattinen päivitys GitHub Actionsilla päivittäin
+- Python-skripti PDF:n parsintaan
 
 ## GitHub Pages -julkaisu
 
@@ -47,9 +57,9 @@ Sivusto on käytettävissä muutaman minuutin kuluttua osoitteessa: `https://<k�
 ## Indeksien päivitys
 
 Indeksit päivitetään automaattisesti:
-- GitHub Actions ajaa päivitysscriptin päivittäin klo 06:00 (Suomen aika)
-- Scripti hakee uusimman PDF:n Helsingin kaupungin sivuilta
-- Jos dataa on päivittynyt, se commitoidaan automaattisesti
+- GitHub Actions ajaa päivitysscriptin päivittäin klo 03:00 UTC (05:00-06:00 Suomen aikaa)
+- Scripti lataa ja parsii uusimman PDF:n Helsingin kaupungin sivuilta
+- Jos dataa on päivittynyt, muutokset commitoidaan ja julkaistaan automaattisesti
 
 Voit myös pakottaa päivityksen manuaalisesti:
 1. Mene repositoryn "Actions"-välilehdelle
