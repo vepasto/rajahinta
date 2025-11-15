@@ -1003,9 +1003,9 @@
     <nav class="top-nav">
         <div class="nav-container">
             <div class="nav-links">
-                <a href="index.html" class="nav-link active">Hintalaskuri</a>
-                <a href="info.html" class="nav-link">Info</a>
-                <a href="graphs.html" class="nav-link">Graafit</a>
+                <a href="./" class="nav-link active">Hintalaskuri</a>
+                <a href="./info/" class="nav-link">Info</a>
+                <a href="./graphs/" class="nav-link">Graafit</a>
             </div>
             <button class="theme-toggle" id="themeToggle" aria-label="Vaihda teemaa" aria-live="polite">
                 <span class="theme-icon" id="lightIcon">☼</span>
@@ -1455,7 +1455,7 @@
                 
                 infoHTML += `
                     <strong>${usedIndex}:</strong> ✓ (käytetty) 
-                    <a href="graphs.html#old-indices-chart">(katso graafi →)</a><br>
+                    <a href="./graphs/#old-indices-chart">(katso graafi →)</a><br>
                     <em>Ennen 1.1.2011 valmistuneille Hitas-asunnoille käytetään yhtä indeksiä</em><br>
                     <br>
                     Valmistumishetken indeksi: ${vm.purchaseIndex.toFixed(2)}<br>
@@ -1484,7 +1484,7 @@
                 
                 infoHTML += `
                     <strong>Rakennuskustannusindeksi:</strong> ${isSelected ? '✓ (käytetty)' : ''} 
-                    <a href="graphs.html#new-indices-chart">(katso graafi →)</a><br>
+                    <a href="./graphs/#new-indices-chart">(katso graafi →)</a><br>
                     Valmistumishetken indeksi: ${rk.purchaseIndex.toFixed(2)}<br>
                     Nykyinen indeksi: ${rk.currentIndex.value.toFixed(2)} (${monthNames[rk.currentIndex.month - 1]} ${rk.currentIndex.year})<br>
                     Kaava: ${rk.currentIndex.value.toFixed(2)} / ${rk.purchaseIndex.toFixed(2)} × ${formatPrice(originalPrice)}<br>
@@ -1513,7 +1513,7 @@
                 
                 infoHTML += `
                     <strong>Markkinahintaindeksi:</strong> ${isSelected ? '✓ (käytetty)' : ''} 
-                    <a href="graphs.html#new-indices-chart">(katso graafi →)</a><br>
+                    <a href="./graphs/#new-indices-chart">(katso graafi →)</a><br>
                     Valmistumishetken indeksi: ${mh.purchaseIndex.toFixed(2)}<br>
                     Nykyinen indeksi: ${mh.currentIndex.value.toFixed(2)} (${monthNames[mh.currentIndex.month - 1]} ${mh.currentIndex.year})<br>
                     Kaava: ${mh.currentIndex.value.toFixed(2)} / ${mh.purchaseIndex.toFixed(2)} × ${formatPrice(originalPrice)}<br>

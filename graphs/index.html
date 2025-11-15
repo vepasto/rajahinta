@@ -444,9 +444,9 @@
     <nav class="top-nav">
         <div class="nav-container">
             <div class="nav-links">
-                <a href="index.html" class="nav-link">Hintalaskuri</a>
-                <a href="info.html" class="nav-link">Info</a>
-                <a href="graphs.html" class="nav-link active">Graafit</a>
+                <a href="../" class="nav-link">Hintalaskuri</a>
+                <a href="../info/" class="nav-link">Info</a>
+                <a href="./" class="nav-link active">Graafit</a>
             </div>
             <button class="theme-toggle" id="themeToggle" aria-label="Vaihda teemaa" aria-live="polite">
                 <span class="theme-icon" id="lightIcon">☼</span>
@@ -590,7 +590,7 @@
                     oldIndicesChartInstance = null;
                 }
 
-                const response = await fetch('data/indices-2025-11-15.json');
+                const response = await fetch('../data/indices-2025-11-15.json');
                 const data = await response.json();
                 
                 const isDark = document.body.classList.contains('dark-mode') || 
