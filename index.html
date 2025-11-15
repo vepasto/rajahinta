@@ -43,7 +43,7 @@
             z-index: 0;
         }
 
-        .container, .footer {
+        .header, .container, .footer {
             position: relative;
             z-index: 1;
         }
@@ -57,18 +57,31 @@
             padding: 40px;
         }
 
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
+        .header {
             text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .subtitle {
-            color: #666;
+            color: rgba(255, 255, 255, 0.95);
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 14px;
+            margin-bottom: 5px;
+            font-size: 16px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle.small {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .form-group {
@@ -320,6 +333,7 @@
             border-radius: 10px;
             background: #1a1a2e;
             box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+            touch-action: none; /* Prevent default touch behaviors */
         }
 
         .game-controls {
@@ -380,6 +394,65 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
+        /* Mobile Controls */
+        .mobile-controls {
+            display: none;
+            margin-top: 20px;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(3, 60px);
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: rgba(102, 126, 234, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .control-btn:active {
+            background: rgba(102, 126, 234, 0.5);
+            transform: scale(0.95);
+        }
+
+        .control-btn.empty {
+            visibility: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-controls {
+                display: grid;
+            }
+
+            .game-controls p {
+                font-size: 12px;
+            }
+
+            #gameCanvas {
+                width: 90vw !important;
+                height: 90vw !important;
+                max-width: 400px !important;
+                max-height: 400px !important;
+            }
+
+            .game-header h2 {
+                font-size: 24px;
+            }
+
+            .game-score {
+                font-size: 18px;
+            }
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 25px;
@@ -400,13 +473,15 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="header">
         <h1>HITAS Enimmäishintalaskuri</h1>
         <p class="subtitle">Laske asuntosi nykyinen velaton enimmäishinta</p>
-        <p class="subtitle" style="color: #999; font-size: 12px; margin-top: -15px; margin-bottom: 20px;">
+        <p class="subtitle small">
             Laskuri on tarkoitettu 1.1.2011 alkaen valmistuneille HITAS-asunnoille
         </p>
+    </div>
 
+    <div class="container">
         <form id="calculatorForm">
             <div class="form-group">
                 <label for="originalPrice">Alkuperäinen velaton hankintahinta (€)</label>
@@ -492,6 +567,17 @@
                 <p>🎮 Käytä nuolinäppäimiä tai WASD</p>
                 <p>🏠 Kerää taloja kasvaaksesi!</p>
                 <p>⚠️ Älä törmää reunoihin tai itseesi!</p>
+            </div>
+            <div class="mobile-controls">
+                <div class="control-btn empty"></div>
+                <div class="control-btn" data-direction="up">▲</div>
+                <div class="control-btn empty"></div>
+                <div class="control-btn" data-direction="left">◄</div>
+                <div class="control-btn empty"></div>
+                <div class="control-btn" data-direction="right">►</div>
+                <div class="control-btn empty"></div>
+                <div class="control-btn" data-direction="down">▼</div>
+                <div class="control-btn empty"></div>
             </div>
         </div>
     </div>
