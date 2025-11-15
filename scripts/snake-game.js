@@ -29,7 +29,7 @@
     let animationLoop = null;
     let gameRunning = false;
     let moveProgress = 0; // 0 to 1, progress to next grid cell
-    let pixelsPerFrame = 0.1; // Speed of smooth movement
+    let pixelsPerFrame = 0.15; // Speed of smooth movement (higher = faster)
     let stretchEffect = 0; // Stretch animation effect
     let snakeTrail = []; // Trail of positions for collision detection
     let inputQueue = []; // Queue for direction changes
@@ -39,72 +39,49 @@
     function drawStretchyHouse(trail, headPixelPos, progress, length, stretchAnim = 0) {
         if (trail.length === 0) return;
         
-        // Draw body with flat tail at the beginning and no cap at the end
         ctx.strokeStyle = '#667eea';
         ctx.lineWidth = gridSize * 0.85;
         ctx.lineCap = 'butt'; // Flat tail
         ctx.lineJoin = 'round';
         
         // Calculate smooth tail position
-        // The tail should be 'length' grid units behind the head
         const totalLength = length;
         const headProgress = trail.length - 1 + progress;
         const tailProgress = Math.max(0, headProgress - totalLength);
         
-        // Find tail position
         const tailIndex = Math.floor(tailProgress);
         const tailOffset = tailProgress - tailIndex;
         
         let tailX, tailY;
         if (tailIndex >= trail.length - 1) {
-            // Tail is at or beyond current head
             tailX = headPixelPos.x;
             tailY = headPixelPos.y;
         } else if (tailIndex < 0) {
-            // Tail is before first trail point
             tailX = trail[0].x;
             tailY = trail[0].y;
         } else if (tailIndex >= trail.length - 2) {
-            // Interpolate between last trail point and head
             const prev = trail[trail.length - 1];
             tailX = prev.x + (headPixelPos.x - prev.x) * tailOffset;
             tailY = prev.y + (headPixelPos.y - prev.y) * tailOffset;
         } else {
-            // Interpolate between two trail points
             const curr = trail[tailIndex];
             const next = trail[tailIndex + 1];
             tailX = curr.x + (next.x - curr.x) * tailOffset;
             tailY = curr.y + (next.y - curr.y) * tailOffset;
         }
         
-        // Draw the body as a thick line from smooth tail to head
-        // Use butt line cap for flat tail
-        ctx.lineCap = 'butt';
+        // Draw snake as a simple line from tail to head
         ctx.beginPath();
         ctx.moveTo(tailX * gridSize + gridSize / 2, tailY * gridSize + gridSize / 2);
         
-        // Draw visible trail segments
         const startIdx = Math.max(0, Math.ceil(tailProgress));
         for (let i = startIdx; i < trail.length; i++) {
             const pos = trail[i];
             ctx.lineTo(pos.x * gridSize + gridSize / 2, pos.y * gridSize + gridSize / 2);
         }
         
-        // End at head position
         ctx.lineTo(headPixelPos.x * gridSize + gridSize / 2, headPixelPos.y * gridSize + gridSize / 2);
         ctx.stroke();
-        
-        // Draw round head on top
-        ctx.fillStyle = '#667eea';
-        ctx.beginPath();
-        ctx.arc(
-            headPixelPos.x * gridSize + gridSize / 2,
-            headPixelPos.y * gridSize + gridSize / 2,
-            ctx.lineWidth / 2,
-            0,
-            Math.PI * 2
-        );
-        ctx.fill();
     }
 
     function drawFood(x, y) {
@@ -142,7 +119,7 @@
         dy = 1; // Start moving down
         score = 0;
         moveProgress = 0;
-        pixelsPerFrame = 0.1;
+        pixelsPerFrame = 0.15;
         stretchEffect = 0;
         inputQueue = []; // Clear input queue
         scoreElement.textContent = score;
@@ -240,8 +217,8 @@
                 // Generate new food after marking old one as eaten
                 generateFood();
                 
-                if (pixelsPerFrame < 0.25) {
-                    pixelsPerFrame += 0.005;
+                if (pixelsPerFrame < 0.3) {
+                    pixelsPerFrame += 0.01;
                 }
             }
         }
@@ -399,6 +376,73 @@
             closeGameButton.click();
         }
     });
+
+    // Mobile controls - touch buttons
+    const controlButtons = document.querySelectorAll('.control-btn[data-direction]');
+    controlButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!snakeGameOverlay.classList.contains('active') || !gameRunning) return;
+            
+            const direction = this.getAttribute('data-direction');
+            const fakeEvent = { key: direction === 'up' ? 'ArrowUp' : 
+                                    direction === 'down' ? 'ArrowDown' :
+                                    direction === 'left' ? 'ArrowLeft' : 'ArrowRight' };
+            changeDirection(fakeEvent);
+        });
+    });
+
+    // Swipe detection for mobile
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+
+    const minSwipeDistance = 30;
+
+    canvas.addEventListener('touchstart', function(e) {
+        if (!snakeGameOverlay.classList.contains('active') || !gameRunning) return;
+        e.preventDefault();
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', function(e) {
+        if (!snakeGameOverlay.classList.contains('active') || !gameRunning) return;
+        e.preventDefault();
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+    }, { passive: false });
+
+    function handleSwipe() {
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
+        const absDiffX = Math.abs(diffX);
+        const absDiffY = Math.abs(diffY);
+
+        // Check if swipe is long enough
+        if (absDiffX < minSwipeDistance && absDiffY < minSwipeDistance) {
+            return;
+        }
+
+        // Determine swipe direction
+        if (absDiffX > absDiffY) {
+            // Horizontal swipe
+            if (diffX > 0) {
+                changeDirection({ key: 'ArrowRight' });
+            } else {
+                changeDirection({ key: 'ArrowLeft' });
+            }
+        } else {
+            // Vertical swipe
+            if (diffY > 0) {
+                changeDirection({ key: 'ArrowDown' });
+            } else {
+                changeDirection({ key: 'ArrowUp' });
+            }
+        }
+    }
 
     // Make restartGame available globally for the onclick handler
     window.restartGame = restartGame;
