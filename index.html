@@ -106,21 +106,6 @@
             transform: scale(0.95);
         }
 
-        body.dark-mode .theme-toggle,
-        @media (prefers-color-scheme: dark) {
-            body:not(.light-mode) .theme-toggle {
-                background: rgba(255, 255, 255, 0.1);
-                border-color: rgba(255, 255, 255, 0.2);
-            }
-        }
-
-        body.dark-mode .theme-toggle:hover,
-        @media (prefers-color-scheme: dark) {
-            body:not(.light-mode) .theme-toggle:hover {
-                background: rgba(255, 255, 255, 0.2);
-            }
-        }
-
         h1 {
             color: white;
             margin-bottom: 10px;
@@ -487,135 +472,180 @@
         }
 
         /* Dark mode */
-        body.dark-mode,
+        body.dark-mode {
+            background-color: #1a1a2e;
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%);
+        }
+
+        body.dark-mode h1 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .subtitle {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .subtitle.small {
+            color: #888;
+        }
+
+        body.dark-mode .container {
+            background: #2a2a3e;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        body.dark-mode label {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode input,
+        body.dark-mode select {
+            background: #1a1a2e;
+            color: #e0e0e0;
+            border-color: #444;
+        }
+
+        body.dark-mode input:focus,
+        body.dark-mode select:focus {
+            border-color: #667eea;
+            background: #252538;
+        }
+
+        body.dark-mode .form-section-title {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .result {
+            background: #1a1a2e;
+            border-color: #444;
+        }
+
+        body.dark-mode .result-title {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .result-price {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .result-info {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .result-info strong {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .warning {
+            background: rgba(231, 76, 60, 0.15);
+            border-color: #e74c3c;
+            color: #ff9999;
+        }
+
+        body.dark-mode .footer {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .footer a {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .theme-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        body.dark-mode .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Auto dark mode based on system preference */
         @media (prefers-color-scheme: dark) {
             body:not(.light-mode) {
                 background-color: #1a1a2e;
                 background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%);
             }
 
-        }
-
-        body.dark-mode h1,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) h1 {
                 color: #e0e0e0;
             }
-        }
 
-        body.dark-mode .subtitle,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) .subtitle {
                 color: #b0b0b0;
             }
-        }
 
-        body.dark-mode .subtitle.small,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) .subtitle.small {
                 color: #888;
             }
-        }
 
-        body.dark-mode .container,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) .container {
                 background: #2a2a3e;
                 box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
             }
-        }
 
-        body.dark-mode label,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) label {
                 color: #e0e0e0;
             }
-        }
 
-        body.dark-mode input,
-        body.dark-mode select,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) input,
             body:not(.light-mode) select {
                 background: #1a1a2e;
                 color: #e0e0e0;
                 border-color: #444;
             }
-        }
 
-        body.dark-mode input:focus,
-        body.dark-mode select:focus,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) input:focus,
             body:not(.light-mode) select:focus {
                 border-color: #667eea;
                 background: #252538;
             }
-        }
 
-        body.dark-mode .form-section-title,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) .form-section-title {
                 color: #e0e0e0;
             }
-        }
 
-        body.dark-mode .result,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) .result {
                 background: #1a1a2e;
                 border-color: #444;
             }
-        }
 
-        body.dark-mode .result-title,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) .result-title {
                 color: #b0b0b0;
             }
-        }
 
-        body.dark-mode .result-price,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) .result-price {
                 color: #e0e0e0;
             }
-        }
 
-        body.dark-mode .result-info,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) .result-info {
                 color: #b0b0b0;
             }
-        }
 
-        body.dark-mode .result-info strong,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) .result-info strong {
                 color: #e0e0e0;
             }
-        }
 
-        body.dark-mode .warning,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) .warning {
                 background: rgba(231, 76, 60, 0.15);
                 border-color: #e74c3c;
                 color: #ff9999;
             }
-        }
 
-        body.dark-mode .footer,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) .footer {
                 color: #b0b0b0;
             }
-        }
 
-        body.dark-mode .footer a,
-        @media (prefers-color-scheme: dark) {
             body:not(.light-mode) .footer a {
                 color: #b0b0b0;
+            }
+
+            body:not(.light-mode) .theme-toggle {
+                background: rgba(255, 255, 255, 0.1);
+                border-color: rgba(255, 255, 255, 0.2);
+            }
+
+            body:not(.light-mode) .theme-toggle:hover {
+                background: rgba(255, 255, 255, 0.2);
             }
         }
 
