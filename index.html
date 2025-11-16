@@ -1310,6 +1310,14 @@
             }).format(price);
         }
 
+        // Format price compactly for charts (e.g., 305000 -> 305k €)
+        function formatPriceCompact(price) {
+            if (price >= 1000) {
+                return Math.round(price / 1000) + 'k €';
+            }
+            return Math.round(price) + ' €';
+        }
+
         // Calculate rajahinta
         function calculateRajahinta(originalPrice, purchaseYear, purchaseMonth, apartmentSize) {
             const results = {
@@ -1607,7 +1615,7 @@
                             callbacks: {
                                 label: function(context) {
                                     const label = context.dataset.label || '';
-                                    return label + ': ' + formatPrice(context.parsed.y);
+                                    return label + ': ' + formatPriceCompact(context.parsed.y);
                                 }
                             }
                         }
@@ -1629,7 +1637,7 @@
                             ticks: {
                                 color: textColor,
                                 callback: function(value) {
-                                    return formatPrice(value);
+                                    return formatPriceCompact(value);
                                 }
                             },
                             grid: {
