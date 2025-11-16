@@ -443,6 +443,10 @@
                 font-size: 13px;
                 padding: 6px 12px;
             }
+
+            canvas {
+                max-height: 500px !important;
+            }
         }
     </style>
 </head>
@@ -606,6 +610,10 @@
                 const textColor = isDark ? '#e0e0e0' : '#333';
                 const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)';
                 
+                // Use smaller aspect ratio on mobile for taller charts
+                const isMobile = window.innerWidth <= 768;
+                const aspectRatio = isMobile ? 1.2 : 2;
+                
                 // Chart 1: New indices (2011 onwards)
                 const newLabels = [];
                 const rakennuskustannus = [];
@@ -650,7 +658,7 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: true,
-                        aspectRatio: 2,
+                        aspectRatio: aspectRatio,
                         plugins: {
                             legend: {
                                 display: true,
@@ -734,7 +742,7 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: true,
-                        aspectRatio: 2,
+                        aspectRatio: aspectRatio,
                         plugins: {
                             legend: {
                                 display: true,
