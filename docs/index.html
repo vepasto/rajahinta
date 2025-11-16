@@ -701,7 +701,7 @@
 
         @media (max-width: 768px) {
             .price-chart-container canvas {
-                max-height: 500px;
+                max-height: 800px;
             }
         }
 
@@ -2297,7 +2297,7 @@
             
             // Use smaller aspect ratio on mobile for taller chart
             const isMobile = window.innerWidth <= 768;
-            const aspectRatio = isMobile ? 1.2 : 1.2; // Taller chart on desktop too
+            const aspectRatio = isMobile ? 0.8 : 1.2; // Much taller chart on mobile
             
             chartContainer.style.display = 'block';
             
