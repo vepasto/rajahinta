@@ -1,5 +1,7 @@
 # HITAS Enimmäishintalaskuri
 
+> 💜 vibe coded by [vepasto](https://github.com/vepasto)
+
 HITAS-asuntojen enimmäishinnan laskemiseen tarkoitettu web-sovellus. Laskuri käyttää Helsingin kaupungin virallisia rakennuskustannus- ja markkinahintaindeksejä.
 
 ## Käyttö
