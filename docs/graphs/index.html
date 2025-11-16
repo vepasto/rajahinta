@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Theme colors for different modes -->
+    <meta name="theme-color" content="#667eea" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1a1a2e" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#667eea">
+    
+    <!-- Mobile web app meta tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Hitas hintalaskuri - Graafit">
+    
+    <title>Indeksigraafit - Hitas hintalaskuri</title>
+    <meta name="description" content="Visuaaliset graafit Hitas-indeksien kehityksestä vuosien varrella.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="fi_FI">
+    <meta property="og:url" content="https://vepasto.github.io/rajahinta/graphs/">
+    <meta property="og:title" content="Indeksigraafit - Hitas hintalaskuri">
+    <meta property="og:description" content="Visuaaliset graafit Hitas-indeksien kehityksestä vuosien varrella.">
+    <!-- Landscape image for Facebook/Twitter -->
+    <meta property="og:image:secure_url" itemprop="image" content="https://vepasto.github.io/rajahinta/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <!-- Square image for WhatsApp (must be last og:image) -->
+    <meta property="og:image:secure_url" itemprop="image" content="https://vepasto.github.io/rajahinta/og-image-square.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="1200">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://vepasto.github.io/rajahinta/graphs/">
+    <meta name="twitter:title" content="Indeksigraafit - Hitas hintalaskuri">
+    <meta name="twitter:description" content="Visuaaliset graafit Hitas-indeksien kehityksestä vuosien varrella.">
+    <meta name="twitter:image" content="https://vepasto.github.io/rajahinta/og-image.png">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23667eea'/%3E%3Cstop offset='100%25' style='stop-color:%23764ba2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23bg)'/%3E%3Cg fill='white'%3E%3Cpath d='M50 25 L70 45 L70 75 L30 75 L30 45 Z'/%3E%3Crect x='40' y='55' width='8' height='12'/%3E%3Crect x='52' y='55' width='8' height='12'/%3E%3C/g%3E%3C/svg%3E">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background-color: #667eea;
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+
+        /* Navigation */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-container .theme-toggle {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .nav-link.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 70px 20px 20px 20px;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            background-image: url('../house-pattern.svg');
+            background-size: 80px 80px;
+            background-repeat: repeat;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            position: relative;
+            max-width: 600px;
+            width: 100%;
+            padding: 0 20px 20px 20px;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 10px;
+            padding-top: 20px;
+            font-size: 32px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.95);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 900px;
+            width: 100%;
+            z-index: 1;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 24px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        h2:first-child {
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #555;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .chart-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .chart-container h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chart-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 20px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .theme-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border-radius: 50%;
+            transition: all 0.3s;
+            opacity: 0.5;
+        }
+
+        .theme-icon.active {
+            background: rgba(255, 255, 255, 0.3);
+            opacity: 1;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 12px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .bug-report-link {
+            display: block;
+            margin-top: 0;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .bug-report-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        body.dark-mode .bug-report-link {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .bug-report-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        body:not(.light-mode) .bug-report-link {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body:not(.light-mode) .bug-report-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dark mode styles */
+        html.dark-mode {
+            background-color: #1a1a2e;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode::before {
+            opacity: 0.03;
+        }
+
+        body.dark-mode .top-nav {
+            background: rgba(26, 26, 46, 0.6);
+        }
+
+        body.dark-mode .nav-link {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .nav-link:hover {
+            background: rgba(102, 126, 234, 0.2);
+            color: #9ca3ff;
+        }
+
+        body.dark-mode .nav-link.active {
+            background: rgba(102, 126, 234, 0.25);
+            color: #9ca3ff;
+        }
+
+        body.dark-mode .container {
+            background: rgba(30, 30, 50, 0.95);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-mode h1 {
+            color: #ffffff;
+        }
+
+        body.dark-mode .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        body.dark-mode h2 {
+            color: #e0e0e0;
+            border-bottom-color: #9ca3ff;
+        }
+
+        body.dark-mode h3 {
+            color: #d0d0d0;
+        }
+
+        body.dark-mode p {
+            color: #c0c0c0;
+        }
+
+        body.dark-mode .chart-container {
+            background: #1a1a2e;
+        }
+
+        body.dark-mode .chart-description {
+            color: #b0b0b0;
+            background: rgba(156, 163, 255, 0.1);
+            border-left-color: #9ca3ff;
+        }
+
+        body.dark-mode .theme-toggle {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        body.dark-mode .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        body.dark-mode .theme-icon.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        body.dark-mode .footer {
+            color: #b0b0b0;
+        }
+
+        body.dark-mode .footer a {
+            color: #b0b0b0;
+        }
+
+        .external-link {
+            color: #667eea;
+            text-decoration: underline;
+            transition: color 0.3s;
+        }
+
+        .external-link:hover {
+            color: #5568d3;
+        }
+
+        body.dark-mode .external-link {
+            color: #9ca3ff;
+        }
+
+        body.dark-mode .external-link:hover {
+            color: #b4b9ff;
+        }
+
+        body:not(.light-mode) .external-link {
+            color: #9ca3ff;
+        }
+
+        body:not(.light-mode) .external-link:hover {
+            color: #b4b9ff;
+        }
+
+        /* Prefer dark mode by default if user system preference is dark */
+        @media (prefers-color-scheme: dark) {
+            body:not(.light-mode) {
+                background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%);
+                color: #e0e0e0;
+            }
+
+            body:not(.light-mode)::before {
+                opacity: 0.03;
+            }
+
+            body:not(.light-mode) .top-nav {
+                background: rgba(26, 26, 46, 0.6);
+            }
+
+            body:not(.light-mode) .nav-link {
+                color: #e0e0e0;
+            }
+
+            body:not(.light-mode) .nav-link:hover {
+                background: rgba(102, 126, 234, 0.2);
+                color: #9ca3ff;
+            }
+
+            body:not(.light-mode) .nav-link.active {
+                background: rgba(102, 126, 234, 0.25);
+                color: #9ca3ff;
+            }
+
+            body:not(.light-mode) .container {
+                background: rgba(30, 30, 50, 0.95);
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            }
+
+            body:not(.light-mode) h1 {
+                color: #ffffff;
+            }
+
+            body:not(.light-mode) .subtitle {
+                color: rgba(255, 255, 255, 0.9);
+            }
+
+            body:not(.light-mode) h2 {
+                color: #e0e0e0;
+                border-bottom-color: #9ca3ff;
+            }
+
+            body:not(.light-mode) h3 {
+                color: #d0d0d0;
+            }
+
+            body:not(.light-mode) p {
+                color: #c0c0c0;
+            }
+
+            body:not(.light-mode) .chart-container {
+                background: #1a1a2e;
+            }
+
+            body:not(.light-mode) .chart-description {
+                color: #b0b0b0;
+                background: rgba(156, 163, 255, 0.1);
+                border-left-color: #9ca3ff;
+            }
+
+            body:not(.light-mode) .theme-toggle {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            body:not(.light-mode) .theme-toggle:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+            body:not(.light-mode) .theme-icon.active {
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+            body:not(.light-mode) .footer {
+                color: #b0b0b0;
+            }
+
+            body:not(.light-mode) .footer a {
+                color: #b0b0b0;
+            }
+        }
+
+        /* Responsive styles */
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            .theme-toggle {
+                padding: 2px;
+                gap: 2px;
+            }
+
+            .theme-icon {
+                width: 24px;
+                height: 24px;
+                font-size: 16px;
+            }
+
+            .nav-container .theme-toggle {
+                right: 10px;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+
+            .nav-link {
+                font-size: 13px;
+                padding: 6px 12px;
+            }
+
+            canvas {
+                max-height: 500px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-container">
+            <div class="nav-links">
+                <a href="../" class="nav-link">Hintalaskuri</a>
+                <a href="../info/" class="nav-link">Info</a>
+                <a href="./" class="nav-link active">Graafit</a>
+            </div>
+            <button class="theme-toggle" id="themeToggle" aria-label="Vaihda teemaa" aria-live="polite">
+                <span class="theme-icon" id="lightIcon">☼</span>
+                <span class="theme-icon" id="darkIcon">☾</span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="header">
+        <h1>Indeksigraafit</h1>
+        <p class="subtitle">Visuaaliset käyrät Hitas-indeksien kehityksestä</p>
+    </header>
+
+    <div class="container">
+        <h2>Indeksien kehitys</h2>
+        
+        <p>Alla olevat graafit näyttävät Hitas-asuntojen hinnoittelussa käytettävien indeksien kehityksen vuosien varrella. Indeksit päivittyvät säännöllisesti ja niitä käytetään määrittämään asuntojen enimmäismyyntihinnat.</p>
+
+        <div class="chart-container" id="new-indices-chart">
+            <h3>Indeksien kehitys (2011→)</h3>
+            <div class="chart-description">
+                <strong>Vuodesta 2011 alkaen valmistuneille asunnoille</strong> käytetään kahta indeksiä:
+                <ul style="margin-top: 8px; margin-left: 20px;">
+                    <li><strong>Rakennuskustannusindeksi</strong> (sininen) - Mittaa rakentamisen kustannusten kehitystä</li>
+                    <li><strong>Markkinahintaindeksi</strong> (vihreä) - Perustuu asuntojen markkinahintoihin</li>
+                </ul>
+                Enimmäishinta lasketaan molemmilla indekseillä ja käytetään korkeampaa arvoa.
+            </div>
+            <canvas id="newIndicesChart"></canvas>
+        </div>
+
+        <div class="chart-container" id="old-indices-chart">
+            <h3>Indeksien kehitys (←2011)</h3>
+            <div class="chart-description">
+                <strong>Ennen vuotta 2011 valmistuneille asunnoille</strong> käytetään yhtä indeksiä:
+                <ul style="margin-top: 8px; margin-left: 20px;">
+                    <li><strong>Vanhat markkinahintaindeksi</strong> (punainen) - Aikaisempi markkinahintaindeksi</li>
+                </ul>
+                Tätä indeksiä sovelletaan kaikkiin ennen 1.1.2011 valmistuneisiin Hitas-asuntoihin.
+            </div>
+            <canvas id="oldIndicesChart"></canvas>
+        </div>
+
+        <div class="chart-container" id="rajaneliohinta-chart">
+            <h3>Rajaneliöhinta</h3>
+            <div class="chart-description">
+                <strong>Rajaneliöhinta</strong> on neliömetrihinta, jota käytetään asunnon enimmäishinnan laskennassa.
+                <ul style="margin-top: 8px; margin-left: 20px;">
+                    <li>Rajaneliöhinta määritetään neljännesvuosittain (helmikuu, toukokuu, elokuu, marraskuu)</li>
+                    <li>Rajaneliöhinta kerrotaan asunnon pinta-alalla saadakseen rajahinnan</li>
+                    <li>Rajahinta on yksi neljästä mahdollisesta enimmäishinnasta</li>
+                </ul>
+                <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-rajahintatilasto.pdf" class="external-link" target="_blank" rel="noopener" style="margin-top: 8px; display: inline-block; color: #667eea; text-decoration: underline;">Lisätietoja Helsingin kaupungin sivuilta →</a>
+            </div>
+            <canvas id="rajaneliohintaChart"></canvas>
+        </div>
+
+        <p style="margin-top: 30px; font-size: 13px; color: #999; text-align: center;">
+            Indeksitiedot päivittyvät automaattisesti Helsingin kaupungin julkaisemista tiedoista.
+        </p>
+    </div>
+
+    <footer class="footer">
+        <p style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+            <span>vibe coded by</span>
+            <a href="https://github.com/vepasto" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: white;" aria-label="GitHub profiili: vepasto">
+                <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                vepasto
+            </a>
+        </p>
+        <a href="https://github.com/vepasto/rajahinta/issues" target="_blank" rel="noopener noreferrer" class="bug-report-link">
+            Löysitkö bugin?
+        </a>
+    </footer>
+
+    <script>
+        // Store chart instances globally so we can destroy them when theme changes
+        let newIndicesChartInstance = null;
+        let oldIndicesChartInstance = null;
+        let rajaneliohintaChartInstance = null;
+
+        // Theme toggle functionality
+        function setTheme(theme) {
+            const lightIcon = document.getElementById('lightIcon');
+            const darkIcon = document.getElementById('darkIcon');
+            
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+                document.documentElement.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+                document.body.classList.remove('light-mode');
+                if (lightIcon) lightIcon.classList.remove('active');
+                if (darkIcon) darkIcon.classList.add('active');
+                localStorage.setItem('theme', 'dark');
+            } else if (theme === 'light') {
+                document.documentElement.classList.add('light-mode');
+                document.documentElement.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+                document.body.classList.remove('dark-mode');
+                if (lightIcon) lightIcon.classList.add('active');
+                if (darkIcon) darkIcon.classList.remove('active');
+                localStorage.setItem('theme', 'light');
+            } else {
+                // Auto mode - follow system preference
+                document.documentElement.classList.remove('dark-mode', 'light-mode');
+                document.body.classList.remove('dark-mode', 'light-mode');
+                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (lightIcon) lightIcon.classList.toggle('active', !isDark);
+                if (darkIcon) darkIcon.classList.toggle('active', isDark);
+                localStorage.removeItem('theme');
+            }
+            
+            // Reload charts with new theme colors
+            setTimeout(loadIndicesCharts, 100);
+        }
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('theme');
+            
+            // Check if currently in dark mode (either manually set or from system preference)
+            const isDarkNow = document.body.classList.contains('dark-mode') || 
+                             (!document.body.classList.contains('light-mode') && 
+                              window.matchMedia('(prefers-color-scheme: dark)').matches);
+            
+            // Toggle between dark and light
+            if (isDarkNow) {
+                setTheme('light');
+            } else {
+                setTheme('dark');
+            }
+        }
+        
+        // Initialize theme on page load
+        const themeToggle = document.getElementById('themeToggle');
+        
+        if (themeToggle) {
+            themeToggle.addEventListener('click', toggleTheme);
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else {
+            setTheme(null); // Auto mode
+        }
+
+        // Load and display charts
+        async function loadIndicesCharts() {
+            try {
+                // Destroy existing charts before creating new ones
+                if (newIndicesChartInstance) {
+                    newIndicesChartInstance.destroy();
+                    newIndicesChartInstance = null;
+                }
+                if (oldIndicesChartInstance) {
+                    oldIndicesChartInstance.destroy();
+                    oldIndicesChartInstance = null;
+                }
+                if (rajaneliohintaChartInstance) {
+                    rajaneliohintaChartInstance.destroy();
+                    rajaneliohintaChartInstance = null;
+                }
+
+                // Find the latest indices file by trying dates backwards from today
+                let data = null;
+                let lastError = null;
+                const maxDaysBack = 30; // Try up to 30 days back
+                
+                // Start from today and go backwards
+                const today = new Date();
+                for (let daysBack = 0; daysBack < maxDaysBack; daysBack++) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - daysBack);
+                    
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const filename = `../data/indices-${year}-${month}-${day}.json`;
+                    
+                    try {
+                        const response = await fetch(filename);
+                        if (response.ok) {
+                            data = await response.json();
+                            break;
+                        }
+                    } catch (e) {
+                        lastError = e;
+                        continue;
+                    }
+                }
+                
+                if (!data) {
+                    throw new Error('Could not load indices data: ' + (lastError ? lastError.message : 'No files found'));
+                }
+                
+                // Validate data structure
+                if (!data.rakennuskustannusindeksi || typeof data.rakennuskustannusindeksi !== 'object') {
+                    throw new Error('Invalid data: rakennuskustannusindeksi is missing or invalid');
+                }
+                
+                if (!data.markkinahintaindeksi || typeof data.markkinahintaindeksi !== 'object') {
+                    throw new Error('Invalid data: markkinahintaindeksi is missing or invalid');
+                }
+                
+                const isDark = document.body.classList.contains('dark-mode') || 
+                               (!document.body.classList.contains('light-mode') && 
+                                window.matchMedia('(prefers-color-scheme: dark)').matches);
+                
+                const textColor = isDark ? '#e0e0e0' : '#333';
+                const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)';
+                
+                // Use smaller aspect ratio on mobile for taller charts
+                const isMobile = window.innerWidth <= 768;
+                const aspectRatio = isMobile ? 1.2 : 2;
+                
+                // Chart 1: New indices (2011 onwards)
+                const newLabels = [];
+                const rakennuskustannus = [];
+                const markkinahinta = [];
+                
+                try {
+                    const newYears = Object.keys(data.rakennuskustannusindeksi)
+                        .map(Number)
+                        .filter(y => !isNaN(y))
+                        .sort((a, b) => a - b);
+                    
+                    for (const year of newYears) {
+                        if (!data.rakennuskustannusindeksi[year] || typeof data.rakennuskustannusindeksi[year] !== 'object') {
+                            continue;
+                        }
+                        
+                        const months = Object.keys(data.rakennuskustannusindeksi[year])
+                            .map(Number)
+                            .filter(m => !isNaN(m) && m >= 1 && m <= 12)
+                            .sort((a, b) => a - b);
+                        
+                        for (const month of months) {
+                            const rkValue = data.rakennuskustannusindeksi[year][month];
+                            const mhValue = data.markkinahintaindeksi[year]?.[month];
+                            
+                            if (typeof rkValue === 'number' && !isNaN(rkValue)) {
+                                newLabels.push(`${year}-${String(month).padStart(2, '0')}`);
+                                rakennuskustannus.push(rkValue);
+                                markkinahinta.push((typeof mhValue === 'number' && !isNaN(mhValue)) ? mhValue : null);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error parsing new indices data:', error);
+                    throw new Error('Failed to parse indices data');
+                }
+                
+                const ctxNew = document.getElementById('newIndicesChart').getContext('2d');
+                newIndicesChartInstance = new Chart(ctxNew, {
+                    type: 'line',
+                    data: {
+                        labels: newLabels,
+                        datasets: [
+                            {
+                                label: 'Rakennuskustannusindeksi',
+                                data: rakennuskustannus,
+                                borderColor: '#667eea',
+                                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.1,
+                                pointRadius: 0
+                            },
+                            {
+                                label: 'Markkinahintaindeksi',
+                                data: markkinahinta,
+                                borderColor: '#51cf66',
+                                backgroundColor: 'rgba(81, 207, 102, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.1,
+                                pointRadius: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: aspectRatio,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    color: textColor,
+                                    font: {
+                                        size: 12
+                                    },
+                                    padding: 15
+                                }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' + context.parsed.y.toFixed(2);
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: textColor,
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    autoSkip: true,
+                                    maxTicksLimit: 20
+                                },
+                                grid: {
+                                    color: gridColor
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    color: textColor
+                                },
+                                grid: {
+                                    color: gridColor
+                                },
+                                beginAtZero: false
+                            }
+                        }
+                    }
+                });
+                
+                // Chart 2: Old market index (before 2011)
+                const oldLabels = [];
+                const vanhatMarkkinahinta = [];
+                
+                if (data.vanhat_markkinahintaindeksi && typeof data.vanhat_markkinahintaindeksi === 'object') {
+                    try {
+                        const oldYears = Object.keys(data.vanhat_markkinahintaindeksi)
+                            .map(Number)
+                            .filter(y => !isNaN(y))
+                            .sort((a, b) => a - b);
+                        
+                        for (const year of oldYears) {
+                            if (!data.vanhat_markkinahintaindeksi[year] || typeof data.vanhat_markkinahintaindeksi[year] !== 'object') {
+                                continue;
+                            }
+                            
+                            const months = Object.keys(data.vanhat_markkinahintaindeksi[year])
+                                .map(Number)
+                                .filter(m => !isNaN(m) && m >= 1 && m <= 12)
+                                .sort((a, b) => a - b);
+                            
+                            for (const month of months) {
+                                const value = data.vanhat_markkinahintaindeksi[year][month];
+                                if (typeof value === 'number' && !isNaN(value)) {
+                                    oldLabels.push(`${year}-${String(month).padStart(2, '0')}`);
+                                    vanhatMarkkinahinta.push(value);
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error parsing old indices data:', error);
+                    }
+                }
+                
+                const ctxOld = document.getElementById('oldIndicesChart').getContext('2d');
+                oldIndicesChartInstance = new Chart(ctxOld, {
+                    type: 'line',
+                    data: {
+                        labels: oldLabels,
+                        datasets: [
+                            {
+                                label: 'Vanhat markkinahintaindeksi',
+                                data: vanhatMarkkinahinta,
+                                borderColor: '#ff6b6b',
+                                backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.1,
+                                pointRadius: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: aspectRatio,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    color: textColor,
+                                    font: {
+                                        size: 12
+                                    },
+                                    padding: 15
+                                }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' + context.parsed.y.toFixed(2);
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: textColor,
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    autoSkip: true,
+                                    maxTicksLimit: 20
+                                },
+                                grid: {
+                                    color: gridColor
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    color: textColor
+                                },
+                                grid: {
+                                    color: gridColor
+                                },
+                                beginAtZero: false
+                            }
+                        }
+                    }
+                });
+                
+                // Chart 3: Rajaneliöhinta
+                const rajaneliohintaLabels = [];
+                const rajaneliohinta = [];
+                
+                if (data.rajaneliohinta_tilasto && typeof data.rajaneliohinta_tilasto === 'object') {
+                    try {
+                        const rajahintaYears = Object.keys(data.rajaneliohinta_tilasto)
+                            .map(Number)
+                            .filter(y => !isNaN(y))
+                            .sort((a, b) => a - b);
+                        
+                        for (const year of rajahintaYears) {
+                            if (!data.rajaneliohinta_tilasto[year] || typeof data.rajaneliohinta_tilasto[year] !== 'object') {
+                                continue;
+                            }
+                            
+                            const months = Object.keys(data.rajaneliohinta_tilasto[year])
+                                .map(Number)
+                                .filter(m => !isNaN(m) && m >= 1 && m <= 12)
+                                .sort((a, b) => a - b);
+                            
+                            for (const month of months) {
+                                const value = data.rajaneliohinta_tilasto[year][month];
+                                if (typeof value === 'number' && !isNaN(value)) {
+                                    rajaneliohintaLabels.push(`${year}-${String(month).padStart(2, '0')}`);
+                                    rajaneliohinta.push(value);
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error parsing rajaneliohinta_tilasto data:', error);
+                    }
+                }
+                
+                const ctxRajahinta = document.getElementById('rajaneliohintaChart').getContext('2d');
+                rajaneliohintaChartInstance = new Chart(ctxRajahinta, {
+                    type: 'line',
+                    data: {
+                        labels: rajaneliohintaLabels,
+                        datasets: [
+                            {
+                                label: 'Rajaneliöhinta (€/m²)',
+                                data: rajaneliohinta,
+                                borderColor: '#ffa94d',
+                                backgroundColor: 'rgba(255, 169, 77, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.1,
+                                pointRadius: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: aspectRatio,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    color: textColor,
+                                    font: {
+                                        size: 12
+                                    },
+                                    padding: 15
+                                }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' + context.parsed.y.toFixed(0) + ' €/m²';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: textColor,
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    autoSkip: true,
+                                    maxTicksLimit: 20
+                                },
+                                grid: {
+                                    color: gridColor
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    color: textColor,
+                                    callback: function(value) {
+                                        return value.toFixed(0) + ' €/m²';
+                                    }
+                                },
+                                grid: {
+                                    color: gridColor
+                                },
+                                beginAtZero: false
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading chart data:', error);
+            }
+        }
+
+        // Load charts when page loads
+        window.addEventListener('load', loadIndicesCharts);
+    </script>
+</body>
+</html>
+
