@@ -1957,12 +1957,12 @@
         let priceChartInstance = null;
         let currentChartData = null; // Store current chart data for theme switching
 
-        function createPriceChart(purchaseYear, purchaseMonth, originalPrice) {
+        function createPriceChart(purchaseYear, purchaseMonth, originalPrice, apartmentSize = null, winner = null) {
             const chartContainer = document.getElementById('priceChartContainer');
             const canvas = document.getElementById('priceChart');
             
             // Store data for theme switching
-            currentChartData = { purchaseYear, purchaseMonth, originalPrice };
+            currentChartData = { purchaseYear, purchaseMonth, originalPrice, apartmentSize, winner };
             
             // Destroy existing chart
             if (priceChartInstance) {
@@ -2060,7 +2060,8 @@
                             tension: 0.1,
                             pointRadius: 0,
                             pointHoverRadius: 5,
-                            spanGaps: true
+                            spanGaps: true,
+                            hidden: winner && winner.type !== 'rakennuskustannus'
                         });
                         
                         datasets.push({
@@ -2073,7 +2074,8 @@
                             tension: 0.1,
                             pointRadius: 0,
                             pointHoverRadius: 5,
-                            spanGaps: true
+                            spanGaps: true,
+                            hidden: winner && winner.type !== 'markkinahinta'
                         });
                     }
                 }
@@ -2115,8 +2117,169 @@
                     fill: true,
                     tension: 0.1,
                     pointRadius: 0,
-                    pointHoverRadius: 5
+                    pointHoverRadius: 5,
+                    hidden: winner && winner.type !== 'vanhatMarkkinahinta'
                 });
+            }
+            
+            // Add rajaneliöhinta line if apartment size is available and we have historical data
+            if (apartmentSize && indicesData && indicesData.rajaneliohinta_tilasto && typeof indicesData.rajaneliohinta_tilasto === 'object') {
+                try {
+                    const currentDate = new Date();
+                    const currentYear = currentDate.getFullYear();
+                    const currentMonth = currentDate.getMonth() + 1;
+                    
+                    // Find the last valid rajaneliöhinta before purchase date
+                    let lastRajahintaBeforePurchase = null;
+                    const rajahintaYears = Object.keys(indicesData.rajaneliohinta_tilasto)
+                        .map(Number)
+                        .filter(y => !isNaN(y))
+                        .sort((a, b) => b - a); // Sort descending to find latest first
+                    
+                    for (const year of rajahintaYears) {
+                        if (!indicesData.rajaneliohinta_tilasto[year] || typeof indicesData.rajaneliohinta_tilasto[year] !== 'object') {
+                            continue;
+                        }
+                        
+                        const months = Object.keys(indicesData.rajaneliohinta_tilasto[year])
+                            .map(Number)
+                            .filter(m => !isNaN(m) && m >= 1 && m <= 12)
+                            .sort((a, b) => b - a); // Sort descending
+                        
+                        for (const month of months) {
+                            const pricePerSqm = indicesData.rajaneliohinta_tilasto[year][month];
+                            if (typeof pricePerSqm === 'number' && !isNaN(pricePerSqm)) {
+                                // Check if this is before purchase date
+                                const isBeforePurchase = year < purchaseYear || (year === purchaseYear && month < purchaseMonth);
+                                
+                                if (isBeforePurchase) {
+                                    lastRajahintaBeforePurchase = {
+                                        year: year,
+                                        month: month,
+                                        pricePerSqm: pricePerSqm,
+                                        price: apartmentSize * pricePerSqm
+                                    };
+                                    break; // Found the latest one before purchase
+                                }
+                            }
+                        }
+                        if (lastRajahintaBeforePurchase) break; // Found, exit outer loop
+                    }
+                    
+                    // Collect rajaneliöhinta data points from purchase date onwards
+                    const rajahintaDataPoints = [];
+                    
+                    // Add starting point using last valid rajaneliöhinta before purchase (or first available after purchase)
+                    if (lastRajahintaBeforePurchase) {
+                        rajahintaDataPoints.push({
+                            year: purchaseYear,
+                            month: purchaseMonth,
+                            price: lastRajahintaBeforePurchase.price
+                        });
+                    }
+                    
+                    // Collect all data points from purchase date onwards
+                    for (const year of rajahintaYears.slice().reverse()) { // Reverse to ascending order
+                        if (!indicesData.rajaneliohinta_tilasto[year] || typeof indicesData.rajaneliohinta_tilasto[year] !== 'object') {
+                            continue;
+                        }
+                        
+                        const months = Object.keys(indicesData.rajaneliohinta_tilasto[year])
+                            .map(Number)
+                            .filter(m => !isNaN(m) && m >= 1 && m <= 12)
+                            .sort((a, b) => a - b);
+                        
+                        for (const month of months) {
+                            const pricePerSqm = indicesData.rajaneliohinta_tilasto[year][month];
+                            if (typeof pricePerSqm === 'number' && !isNaN(pricePerSqm)) {
+                                // Only include data from purchase date onwards, but not in the future
+                                const isAfterPurchase = year > purchaseYear || (year === purchaseYear && month >= purchaseMonth);
+                                const isNotFuture = year < currentYear || (year === currentYear && month <= currentMonth);
+                                
+                                if (isAfterPurchase && isNotFuture) {
+                                    rajahintaDataPoints.push({
+                                        year: year,
+                                        month: month,
+                                        price: apartmentSize * pricePerSqm
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Sort by year and month
+                    rajahintaDataPoints.sort((a, b) => {
+                        if (a.year !== b.year) return a.year - b.year;
+                        return a.month - b.month;
+                    });
+                    
+                    if (rajahintaDataPoints.length > 0) {
+                        // Store original labels and data before merging
+                        const originalLabels = [...labels];
+                        const originalDatasets = datasets.map(ds => ({
+                            data: [...ds.data],
+                            label: ds.label
+                        }));
+                        
+                        // Create labels for rajaneliöhinta
+                        const rajahintaLabels = rajahintaDataPoints.map(dp => `${dp.month}/${dp.year}`);
+                        
+                        // Merge with existing labels
+                        const allLabelsSet = new Set(labels);
+                        rajahintaLabels.forEach(l => allLabelsSet.add(l));
+                        
+                        // Sort labels chronologically
+                        const allLabelsArray = Array.from(allLabelsSet).sort((a, b) => {
+                            const [m1, y1] = a.split('/').map(Number);
+                            const [m2, y2] = b.split('/').map(Number);
+                            if (y1 !== y2) return y1 - y2;
+                            return m1 - m2;
+                        });
+                        
+                        // Create map for rajaneliöhinta prices
+                        const rajahintaMap = new Map(rajahintaDataPoints.map(dp => [`${dp.month}/${dp.year}`, dp.price]));
+                        
+                        // Create price array matching all labels
+                        const rajahintaPrices = allLabelsArray.map(l => rajahintaMap.get(l) || null);
+                        
+                        // Update labels to include all points
+                        labels = allLabelsArray;
+                        
+                        // Update existing datasets to match new labels
+                        datasets.forEach((dataset, index) => {
+                            const originalData = originalDatasets[index].data;
+                            const newData = allLabelsArray.map(l => {
+                                const oldIndex = originalLabels.indexOf(l);
+                                return oldIndex >= 0 ? originalData[oldIndex] : null;
+                            });
+                            dataset.data = newData;
+                        });
+                        
+                        // Determine colors based on theme
+                        const isDark = document.body.classList.contains('dark-mode') || 
+                                       (!document.body.classList.contains('light-mode') && 
+                                        window.matchMedia('(prefers-color-scheme: dark)').matches);
+                        
+                        const rajahintaColor = isDark ? '#ffa94d' : '#ff8c00';
+                        
+                        datasets.push({
+                            label: 'Rajaneliöhinta',
+                            data: rajahintaPrices,
+                            borderColor: rajahintaColor,
+                            backgroundColor: isDark ? 'rgba(255, 169, 77, 0.1)' : 'rgba(255, 140, 0, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.1,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            spanGaps: true,
+                            borderDash: [5, 5], // Dashed line to distinguish from index lines
+                            hidden: winner && winner.type !== 'rajaneliohinta'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error adding rajaneliöhinta to chart:', error);
+                }
             }
             
             if (datasets.length === 0 || labels.length === 0) {
@@ -2498,17 +2661,15 @@
             resultInfo.innerHTML = infoHTML;
             resultDiv.classList.add('show');
             
-            // Create price evolution chart
-            createPriceChart(purchaseYear, purchaseMonth, originalPrice);
+            // Get apartment size from results if available
+            const apartmentSize = results.rajaneliohinta ? results.rajaneliohinta.apartmentSize : null;
             
-            // Show note if rajaneliöhinta wins
+            // Create price evolution chart
+            createPriceChart(purchaseYear, purchaseMonth, originalPrice, apartmentSize, winner);
+            
+            // Hide chart note (no longer needed since rajaneliöhinta is shown in the chart)
             const chartNote = document.getElementById('chartNote');
-            if (winner.type === 'rajaneliohinta') {
-                chartNote.style.display = 'block';
-                chartNote.innerHTML = '<strong>ℹ️ Huom:</strong> Vaikka käyrät näyttävät indeksien mukaisen hinnan kehityksen, käytetään kuitenkin <strong>rajaneliöhintaa</strong> koska se on korkeampi.';
-            } else {
-                chartNote.style.display = 'none';
-            }
+            chartNote.style.display = 'none';
             
             // Scroll to result only if requested (not on auto-load)
             if (shouldScroll) {
@@ -2593,7 +2754,9 @@
                 createPriceChart(
                     currentChartData.purchaseYear,
                     currentChartData.purchaseMonth,
-                    currentChartData.originalPrice
+                    currentChartData.originalPrice,
+                    currentChartData.apartmentSize || null,
+                    currentChartData.winner || null
                 );
             }
         }
