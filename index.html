@@ -406,6 +406,11 @@
             border-top: 2px solid #e0e0e0;
         }
 
+        #improvementsList {
+            display: block;
+            overflow: visible;
+        }
+
         .improvement-item {
             background: rgba(255, 255, 255, 0.5);
             border: 2px solid #e0e0e0;
@@ -604,6 +609,12 @@
         .result-change {
             font-size: 18px;
             font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .result-improvements {
+            font-size: 18px;
+            font-weight: 600;
             margin-bottom: 20px;
         }
 
@@ -664,7 +675,7 @@
         }
 
         .result-info.expanded {
-            max-height: 1000px;
+            max-height: none;
             padding: 15px;
         }
 
@@ -1316,7 +1327,7 @@
         <form id="calculatorForm">
             <div class="form-group">
                 <label for="originalPrice">Alkuperäinen velaton hankintahinta (€)</label>
-                <input type="number" id="originalPrice" name="originalPrice" required min="0" step="1000">
+                <input type="number" id="originalPrice" name="originalPrice" required min="0">
             </div>
 
             <div class="form-group">
@@ -1370,6 +1381,7 @@
             <div class="result-title">Velaton enimmäishinta</div>
             <div class="result-price" id="resultPrice" aria-label="Laskettu enimmäishinta"></div>
             <div class="result-change" id="resultChange" aria-label="Hinnanmuutos"></div>
+            <div class="result-improvements" id="resultImprovements" aria-label="Parannukset" style="display: none;"></div>
             <div class="price-chart-container" id="priceChartContainer" style="display: none;">
                 <canvas id="priceChart"></canvas>
                 <div id="chartNote" style="margin-top: 12px; padding: 10px; background: rgba(255, 193, 7, 0.1); border-left: 3px solid #ffc107; font-size: 13px; display: none;"></div>
@@ -1476,6 +1488,82 @@
             throw new Error('Could not find any indices file');
         }
 
+        // Validate indices data structure
+        function validateIndicesData(data) {
+            const errors = [];
+            
+            // Check required fields
+            if (!data) {
+                errors.push('Data is null or undefined');
+                return errors;
+            }
+            
+            if (!data.rakennuskustannusindeksi || typeof data.rakennuskustannusindeksi !== 'object') {
+                errors.push('rakennuskustannusindeksi is missing or invalid');
+            }
+            
+            if (!data.markkinahintaindeksi || typeof data.markkinahintaindeksi !== 'object') {
+                errors.push('markkinahintaindeksi is missing or invalid');
+            }
+            
+            // Optional fields (just log warnings)
+            if (data.vanhat_markkinahintaindeksi && typeof data.vanhat_markkinahintaindeksi !== 'object') {
+                console.warn('vanhat_markkinahintaindeksi has invalid format');
+            }
+            
+            if (data.rajaneliohinta && typeof data.rajaneliohinta !== 'object') {
+                console.warn('rajaneliohinta has invalid format');
+            }
+            
+            return errors;
+        }
+
+        // Safely parse index data with error handling
+        function parseIndexData(indexData, indexName) {
+            const parsed = {};
+            
+            if (!indexData || typeof indexData !== 'object') {
+                console.warn(`${indexName} is missing or invalid`);
+                return parsed;
+            }
+            
+            try {
+                for (const [yearStr, months] of Object.entries(indexData)) {
+                    const year = parseInt(yearStr);
+                    if (isNaN(year)) {
+                        console.warn(`Invalid year in ${indexName}: ${yearStr}`);
+                        continue;
+                    }
+                    
+                    parsed[year] = {};
+                    if (!months || typeof months !== 'object') {
+                        console.warn(`Invalid months data for year ${year} in ${indexName}`);
+                        continue;
+                    }
+                    
+                    for (const [monthStr, value] of Object.entries(months)) {
+                        const month = parseInt(monthStr);
+                        if (isNaN(month) || month < 1 || month > 12) {
+                            console.warn(`Invalid month in ${indexName} for year ${year}: ${monthStr}`);
+                            continue;
+                        }
+                        
+                        const numValue = typeof value === 'number' ? value : parseFloat(value);
+                        if (isNaN(numValue)) {
+                            console.warn(`Invalid value in ${indexName} for ${year}-${month}: ${value}`);
+                            continue;
+                        }
+                        
+                        parsed[year][month] = numValue;
+                    }
+                }
+            } catch (error) {
+                console.error(`Error parsing ${indexName}:`, error);
+            }
+            
+            return parsed;
+        }
+
         // Lataa indeksit JSON-tiedostosta
         async function loadIndices() {
             try {
@@ -1483,51 +1571,68 @@
                 const indicesFile = await findLatestIndicesFile();
                 const response = await fetch(indicesFile);
                 if (!response.ok) {
-                    throw new Error('Failed to load indices');
+                    throw new Error(`Failed to load indices file: ${response.status} ${response.statusText}`);
                 }
+                
                 const data = await response.json();
+                
+                // Validate data structure
+                const validationErrors = validateIndicesData(data);
+                if (validationErrors.length > 0) {
+                    throw new Error(`Invalid indices data structure: ${validationErrors.join(', ')}`);
+                }
                 
                 // Store raw data for charts
                 indicesData = data;
                 
-                // Muunna JSON data oikeaan muotoon (merkkijonoavaimet -> numerot)
-                rakennuskustannusindeksi = {};
-                for (const [year, months] of Object.entries(data.rakennuskustannusindeksi)) {
-                    rakennuskustannusindeksi[parseInt(year)] = {};
-                    for (const [month, value] of Object.entries(months)) {
-                        rakennuskustannusindeksi[parseInt(year)][parseInt(month)] = value;
-                    }
-                }
+                // Parse indices data safely
+                rakennuskustannusindeksi = parseIndexData(data.rakennuskustannusindeksi, 'rakennuskustannusindeksi');
+                markkinahintaindeksi = parseIndexData(data.markkinahintaindeksi, 'markkinahintaindeksi');
                 
-                markkinahintaindeksi = {};
-                for (const [year, months] of Object.entries(data.markkinahintaindeksi)) {
-                    markkinahintaindeksi[parseInt(year)] = {};
-                    for (const [month, value] of Object.entries(months)) {
-                        markkinahintaindeksi[parseInt(year)][parseInt(month)] = value;
-                    }
-                }
-                
-                // Lataa vanhat markkinahintaindeksi (ennen 2011 valmistuneille)
-                vanhatMarkkinahintaindeksi = {};
+                // Parse optional indices
                 if (data.vanhat_markkinahintaindeksi) {
-                    for (const [year, months] of Object.entries(data.vanhat_markkinahintaindeksi)) {
-                        vanhatMarkkinahintaindeksi[parseInt(year)] = {};
-                        for (const [month, value] of Object.entries(months)) {
-                            vanhatMarkkinahintaindeksi[parseInt(year)][parseInt(month)] = value;
-                        }
-                    }
+                    vanhatMarkkinahintaindeksi = parseIndexData(data.vanhat_markkinahintaindeksi, 'vanhat_markkinahintaindeksi');
+                } else {
+                    vanhatMarkkinahintaindeksi = {};
                 }
                 
-                // Lataa rajaneliöhinta
+                // Parse rajaneliöhinta safely
                 if (data.rajaneliohinta) {
-                    rajaneliohinta = data.rajaneliohinta;
+                    try {
+                        // Validate rajaneliöhinta structure
+                        if (typeof data.rajaneliohinta === 'object' && 
+                            typeof data.rajaneliohinta.price_per_sqm === 'number' &&
+                            data.rajaneliohinta.valid_from &&
+                            data.rajaneliohinta.valid_until) {
+                            rajaneliohinta = data.rajaneliohinta;
+                        } else {
+                            console.warn('rajaneliohinta has invalid structure, skipping');
+                            rajaneliohinta = null;
+                        }
+                    } catch (error) {
+                        console.error('Error parsing rajaneliohinta:', error);
+                        rajaneliohinta = null;
+                    }
+                } else {
+                    rajaneliohinta = null;
+                }
+                
+                // Check if we have minimum required data
+                const hasRakennuskustannus = Object.keys(rakennuskustannusindeksi).length > 0;
+                const hasMarkkinahinta = Object.keys(markkinahintaindeksi).length > 0;
+                
+                if (!hasRakennuskustannus || !hasMarkkinahinta) {
+                    throw new Error('Required indices data is empty or invalid');
                 }
                 
                 indicesLoaded = true;
                 return true;
             } catch (error) {
                 console.error('Error loading indices:', error);
-                alert('Virhe: Indeksien lataus epäonnistui. Päivitä sivu.');
+                indicesLoaded = false;
+                // Show user-friendly error message
+                const errorMsg = error.message || 'Tuntematon virhe';
+                alert(`Virhe: Indeksien lataus epäonnistui.\n\n${errorMsg}\n\nPäivitä sivu ja yritä uudelleen.`);
                 return false;
             }
         }
@@ -1708,38 +1813,71 @@
 
         // Get the latest available index value (not in the future)
         function getLatestIndex(indexData) {
-            const currentDate = new Date();
-            const currentYear = currentDate.getFullYear();
-            const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-11
+            // Validate input
+            if (!indexData || typeof indexData !== 'object' || Object.keys(indexData).length === 0) {
+                return null;
+            }
             
-            const years = Object.keys(indexData).map(Number).sort((a, b) => b - a);
-            
-            for (const year of years) {
-                // Skip future years
-                if (year > currentYear) continue;
+            try {
+                const currentDate = new Date();
+                const currentYear = currentDate.getFullYear();
+                const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-11
                 
-                const months = Object.keys(indexData[year]).map(Number).sort((a, b) => b - a);
-                for (const month of months) {
-                    // Skip future months in current year
-                    if (year === currentYear && month > currentMonth) continue;
+                const years = Object.keys(indexData).map(Number).filter(y => !isNaN(y)).sort((a, b) => b - a);
+                
+                for (const year of years) {
+                    // Skip future years
+                    if (year > currentYear) continue;
                     
-                    if (indexData[year][month]) {
-                        return {
-                            value: indexData[year][month],
-                            year: year,
-                            month: month
-                        };
+                    if (!indexData[year] || typeof indexData[year] !== 'object') {
+                        continue;
+                    }
+                    
+                    const months = Object.keys(indexData[year]).map(Number).filter(m => !isNaN(m)).sort((a, b) => b - a);
+                    for (const month of months) {
+                        // Skip future months in current year
+                        if (year === currentYear && month > currentMonth) continue;
+                        
+                        const value = indexData[year][month];
+                        if (typeof value === 'number' && !isNaN(value)) {
+                            return {
+                                value: value,
+                                year: year,
+                                month: month
+                            };
+                        }
                     }
                 }
+            } catch (error) {
+                console.error('Error in getLatestIndex:', error);
             }
+            
             return null;
         }
 
         // Get index value for a specific date
         function getIndexValue(indexData, year, month) {
-            if (indexData[year] && indexData[year][month]) {
-                return indexData[year][month];
+            // Validate input
+            if (!indexData || typeof indexData !== 'object') {
+                return null;
             }
+            
+            if (typeof year !== 'number' || isNaN(year) || typeof month !== 'number' || isNaN(month)) {
+                return null;
+            }
+            
+            try {
+                if (indexData[year] && typeof indexData[year] === 'object' && 
+                    indexData[year][month] !== undefined) {
+                    const value = indexData[year][month];
+                    if (typeof value === 'number' && !isNaN(value)) {
+                        return value;
+                    }
+                }
+            } catch (error) {
+                console.error('Error in getIndexValue:', error);
+            }
+            
             return null;
         }
 
@@ -2294,14 +2432,27 @@
 
             resultPrice.textContent = formatPrice(finalPrice);
 
-            // Calculate change
-            const priceChange = finalPrice - originalPrice;
+            // Get improvements total
+            const improvementsTotal = results.improvements ? results.improvements.totalIndexedValue : 0;
+            
+            // Calculate base price without improvements (for change calculation)
+            const basePrice = finalPrice - improvementsTotal;
+            const priceChange = basePrice - originalPrice;
             const percentageChange = ((priceChange / originalPrice) * 100).toFixed(1);
             const changeSign = priceChange >= 0 ? '+' : '';
             const changeColor = priceChange >= 0 ? '#27ae60' : '#e74c3c';
 
             // Display change
             resultChange.innerHTML = `<span style="color: ${changeColor};">${changeSign}${formatPrice(Math.abs(priceChange))} (${changeSign}${percentageChange}%)</span>`;
+            
+            // Display improvements separately if they exist
+            const resultImprovements = document.getElementById('resultImprovements');
+            if (improvementsTotal > 0) {
+                resultImprovements.style.display = 'block';
+                resultImprovements.innerHTML = `<span style="color: #666;">sis. ${formatPrice(improvementsTotal)} parannukset</span>`;
+            } else {
+                resultImprovements.style.display = 'none';
+            }
 
             let infoHTML = `
                 Alkuperäinen velaton hankintahinta: ${formatPrice(originalPrice)}<br>
@@ -2446,6 +2597,7 @@
                     <strong>Rajaneliöhinta:</strong> ${isSelected ? '✓ (käytetty)' : ''}<br>
                     <div style="padding-left: 20px; margin-top: 8px;">
                         <em>Kaikkien Hitas-yhtiöiden keskimääräinen neliöhinta</em><br>
+                        <a href="graphs/#rajaneliohinta-chart" target="_blank" rel="noopener" style="font-size: 13px; margin-top: 4px; display: inline-block;">Katso graafi →</a><br>
                         <br>
                         Asunnon pinta-ala: ${rh.apartmentSize} m²<br>
                         Rajaneliöhinta: ${formatPrice(rh.pricePerSqm)}/m² (voimassa ${rh.validFrom} - ${rh.validUntil})<br>
@@ -2534,6 +2686,19 @@
             const improvements = getImprovements();
 
             // Calculate
+            // Check if indices are loaded
+            if (!indicesLoaded) {
+                alert('Virhe: Indeksit eivät ole vielä ladattu. Odota hetki ja yritä uudelleen.');
+                return;
+            }
+            
+            // Validate that we have required indices
+            if (!rakennuskustannusindeksi || Object.keys(rakennuskustannusindeksi).length === 0 ||
+                !markkinahintaindeksi || Object.keys(markkinahintaindeksi).length === 0) {
+                alert('Virhe: Vaaditut indeksit puuttuvat. Päivitä sivu ja yritä uudelleen.');
+                return;
+            }
+
             const results = calculateRajahinta(originalPrice, purchaseYear, purchaseMonth, apartmentSize, improvements);
 
             // Display result
@@ -2645,6 +2810,35 @@
             }
 
             initializeYearDropdown();
+
+            // Add custom step behavior for originalPrice input (step 1000 for arrows, but allow any value)
+            const originalPriceInput = document.getElementById('originalPrice');
+            if (originalPriceInput) {
+                originalPriceInput.addEventListener('keydown', function(e) {
+                    // Handle arrow up/down keys with step 1000
+                    if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        const currentValue = parseFloat(this.value) || 0;
+                        this.value = currentValue + 1000;
+                    } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        const currentValue = parseFloat(this.value) || 0;
+                        const newValue = Math.max(0, currentValue - 1000);
+                        this.value = newValue;
+                    }
+                });
+                
+                // Handle mouse wheel with step 1000
+                originalPriceInput.addEventListener('wheel', function(e) {
+                    if (document.activeElement === this) {
+                        e.preventDefault();
+                        const currentValue = parseFloat(this.value) || 0;
+                        const step = 1000;
+                        const newValue = e.deltaY < 0 ? currentValue + step : Math.max(0, currentValue - step);
+                        this.value = newValue;
+                    }
+                });
+            }
 
             // Setup "Add improvement" button
             const addImprovementBtn = document.getElementById('addImprovementBtn');
