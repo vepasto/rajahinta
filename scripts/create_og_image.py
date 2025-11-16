@@ -20,7 +20,10 @@ cairosvg.svg2png(
 
 # Convert square SVG to PNG (1200x1200 for WhatsApp)
 cairosvg.svg2png(
-    url=str(svg_square_path), write_to=str(png_square_path), output_width=1200, output_height=1200
+    url=str(svg_square_path),
+    write_to=str(png_square_path),
+    output_width=1200,
+    output_height=1200,
 )
 
 print(f"Created {png_path}")
