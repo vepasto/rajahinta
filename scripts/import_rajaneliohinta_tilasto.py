@@ -111,7 +111,7 @@ def load_existing_tilasto_from_json():
     Load existing rajaneliöhinta tilasto from the latest JSON file.
     Returns a dictionary: {year: {month: price}} or None if not found
     """
-    data_dir = Path(__file__).parent.parent / "data"
+    data_dir = Path(__file__).parent.parent / "docs" / "data"
 
     if not data_dir.exists():
         return None

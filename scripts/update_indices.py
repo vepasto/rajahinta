@@ -140,7 +140,7 @@ def create_json_file(
 
     today = datetime.now().strftime("%Y-%m-%d")
     json_filename = f"indices-{today}.json"
-    json_path = Path(__file__).parent.parent / "data" / json_filename
+    json_path = Path(__file__).parent.parent / "docs" / "data" / json_filename
 
     print(f"Creating {json_path}...")
 
