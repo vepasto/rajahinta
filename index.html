@@ -693,6 +693,21 @@
             color: #333;
         }
 
+        .improvement-detail-box {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
+        }
+
+        body.dark-mode .improvement-detail-box {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        body:not(.light-mode) .improvement-detail-box {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
         .warning {
             background: #fff3cd;
             border-left: 4px solid #ffc107;
@@ -2453,7 +2468,7 @@
                 
                 improvementsData.improvements.forEach((imp, index) => {
                     infoHTML += `
-                        <div style="margin-bottom: 15px; padding: 10px; background: rgba(255, 255, 255, 0.5); border-radius: 5px;">
+                        <div class="improvement-detail-box">
                             <strong>Parannus ${index + 1}</strong> (${monthNames[imp.improvementMonth - 1]} ${imp.improvementYear})<br>
                             Parannuksen hinta: ${formatPrice(imp.originalPrice)}<br>
                             Omavastuu (30 €/m²): ${formatPrice(imp.omavastuu)}<br>
