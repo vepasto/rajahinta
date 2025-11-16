@@ -696,6 +696,15 @@
                     throw new Error('Could not load indices data: ' + (lastError ? lastError.message : 'No files found'));
                 }
                 
+                // Validate data structure
+                if (!data.rakennuskustannusindeksi || typeof data.rakennuskustannusindeksi !== 'object') {
+                    throw new Error('Invalid data: rakennuskustannusindeksi is missing or invalid');
+                }
+                
+                if (!data.markkinahintaindeksi || typeof data.markkinahintaindeksi !== 'object') {
+                    throw new Error('Invalid data: markkinahintaindeksi is missing or invalid');
+                }
+                
                 const isDark = document.body.classList.contains('dark-mode') || 
                                (!document.body.classList.contains('light-mode') && 
                                 window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -712,14 +721,36 @@
                 const rakennuskustannus = [];
                 const markkinahinta = [];
                 
-                const newYears = Object.keys(data.rakennuskustannusindeksi).map(Number).sort((a, b) => a - b);
-                for (const year of newYears) {
-                    const months = Object.keys(data.rakennuskustannusindeksi[year]).map(Number).sort((a, b) => a - b);
-                    for (const month of months) {
-                        newLabels.push(`${year}-${String(month).padStart(2, '0')}`);
-                        rakennuskustannus.push(data.rakennuskustannusindeksi[year][month]);
-                        markkinahinta.push(data.markkinahintaindeksi[year]?.[month] || null);
+                try {
+                    const newYears = Object.keys(data.rakennuskustannusindeksi)
+                        .map(Number)
+                        .filter(y => !isNaN(y))
+                        .sort((a, b) => a - b);
+                    
+                    for (const year of newYears) {
+                        if (!data.rakennuskustannusindeksi[year] || typeof data.rakennuskustannusindeksi[year] !== 'object') {
+                            continue;
+                        }
+                        
+                        const months = Object.keys(data.rakennuskustannusindeksi[year])
+                            .map(Number)
+                            .filter(m => !isNaN(m) && m >= 1 && m <= 12)
+                            .sort((a, b) => a - b);
+                        
+                        for (const month of months) {
+                            const rkValue = data.rakennuskustannusindeksi[year][month];
+                            const mhValue = data.markkinahintaindeksi[year]?.[month];
+                            
+                            if (typeof rkValue === 'number' && !isNaN(rkValue)) {
+                                newLabels.push(`${year}-${String(month).padStart(2, '0')}`);
+                                rakennuskustannus.push(rkValue);
+                                markkinahinta.push((typeof mhValue === 'number' && !isNaN(mhValue)) ? mhValue : null);
+                            }
+                        }
                     }
+                } catch (error) {
+                    console.error('Error parsing new indices data:', error);
+                    throw new Error('Failed to parse indices data');
                 }
                 
                 const ctxNew = document.getElementById('newIndicesChart').getContext('2d');
@@ -804,14 +835,33 @@
                 const oldLabels = [];
                 const vanhatMarkkinahinta = [];
                 
-                if (data.vanhat_markkinahintaindeksi) {
-                    const oldYears = Object.keys(data.vanhat_markkinahintaindeksi).map(Number).sort((a, b) => a - b);
-                    for (const year of oldYears) {
-                        const months = Object.keys(data.vanhat_markkinahintaindeksi[year]).map(Number).sort((a, b) => a - b);
-                        for (const month of months) {
-                            oldLabels.push(`${year}-${String(month).padStart(2, '0')}`);
-                            vanhatMarkkinahinta.push(data.vanhat_markkinahintaindeksi[year][month]);
+                if (data.vanhat_markkinahintaindeksi && typeof data.vanhat_markkinahintaindeksi === 'object') {
+                    try {
+                        const oldYears = Object.keys(data.vanhat_markkinahintaindeksi)
+                            .map(Number)
+                            .filter(y => !isNaN(y))
+                            .sort((a, b) => a - b);
+                        
+                        for (const year of oldYears) {
+                            if (!data.vanhat_markkinahintaindeksi[year] || typeof data.vanhat_markkinahintaindeksi[year] !== 'object') {
+                                continue;
+                            }
+                            
+                            const months = Object.keys(data.vanhat_markkinahintaindeksi[year])
+                                .map(Number)
+                                .filter(m => !isNaN(m) && m >= 1 && m <= 12)
+                                .sort((a, b) => a - b);
+                            
+                            for (const month of months) {
+                                const value = data.vanhat_markkinahintaindeksi[year][month];
+                                if (typeof value === 'number' && !isNaN(value)) {
+                                    oldLabels.push(`${year}-${String(month).padStart(2, '0')}`);
+                                    vanhatMarkkinahinta.push(value);
+                                }
+                            }
                         }
+                    } catch (error) {
+                        console.error('Error parsing old indices data:', error);
                     }
                 }
                 
@@ -888,14 +938,33 @@
                 const rajaneliohintaLabels = [];
                 const rajaneliohinta = [];
                 
-                if (data.rajaneliohinta_tilasto) {
-                    const rajahintaYears = Object.keys(data.rajaneliohinta_tilasto).map(Number).sort((a, b) => a - b);
-                    for (const year of rajahintaYears) {
-                        const months = Object.keys(data.rajaneliohinta_tilasto[year]).map(Number).sort((a, b) => a - b);
-                        for (const month of months) {
-                            rajaneliohintaLabels.push(`${year}-${String(month).padStart(2, '0')}`);
-                            rajaneliohinta.push(data.rajaneliohinta_tilasto[year][month]);
+                if (data.rajaneliohinta_tilasto && typeof data.rajaneliohinta_tilasto === 'object') {
+                    try {
+                        const rajahintaYears = Object.keys(data.rajaneliohinta_tilasto)
+                            .map(Number)
+                            .filter(y => !isNaN(y))
+                            .sort((a, b) => a - b);
+                        
+                        for (const year of rajahintaYears) {
+                            if (!data.rajaneliohinta_tilasto[year] || typeof data.rajaneliohinta_tilasto[year] !== 'object') {
+                                continue;
+                            }
+                            
+                            const months = Object.keys(data.rajaneliohinta_tilasto[year])
+                                .map(Number)
+                                .filter(m => !isNaN(m) && m >= 1 && m <= 12)
+                                .sort((a, b) => a - b);
+                            
+                            for (const month of months) {
+                                const value = data.rajaneliohinta_tilasto[year][month];
+                                if (typeof value === 'number' && !isNaN(value)) {
+                                    rajaneliohintaLabels.push(`${year}-${String(month).padStart(2, '0')}`);
+                                    rajaneliohinta.push(value);
+                                }
+                            }
                         }
+                    } catch (error) {
+                        console.error('Error parsing rajaneliohinta_tilasto data:', error);
                     }
                 }
                 
