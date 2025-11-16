@@ -2526,6 +2526,15 @@
             const modalCanvas = document.getElementById('priceChartModal');
             const modal = document.getElementById('chartModal');
             
+            if (!modalCanvas || !modal) {
+                return;
+            }
+
+            // Show modal first so canvas has proper dimensions
+            modal.style.display = 'flex';
+            document.body.classList.add('modal-open');
+            document.body.style.overflow = 'hidden';
+            
             // Destroy existing modal chart
             if (priceChartModalInstance) {
                 priceChartModalInstance.destroy();
@@ -2534,21 +2543,47 @@
 
             // Get chart data from existing chart
             const chartData = priceChartInstance.data;
-            const chartOptions = priceChartInstance.options;
             
-            // Determine if dark mode
-            const isDark = document.body.classList.contains('dark-mode') || 
-                           (!document.body.classList.contains('light-mode') && 
-                            window.matchMedia('(prefers-color-scheme: dark)').matches);
+            // Verify we have valid data
+            if (!chartData || !chartData.labels || !chartData.datasets || chartData.datasets.length === 0) {
+                console.error('Invalid chart data');
+                closeModalChart();
+                return;
+            }
             
-            const textColor = isDark ? '#d0d0d0' : '#333';
-            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)';
-            
-            // Use taller aspect ratio for modal (more vertical space)
-            const aspectRatio = 0.7;
-            
-            // Create new chart in modal with same data
-            priceChartModalInstance = new Chart(modalCanvas, {
+            // Wait a bit for DOM to update and canvas to get proper dimensions
+            setTimeout(function() {
+                // Check if modal is still open
+                if (modal.style.display !== 'flex') {
+                    return;
+                }
+                
+                // Verify canvas is visible and has dimensions
+                const rect = modalCanvas.getBoundingClientRect();
+                if (rect.width === 0 || rect.height === 0) {
+                    console.error('Canvas has no dimensions');
+                    // Try again after a bit more time
+                    setTimeout(function() {
+                        if (modal.style.display === 'flex') {
+                            createModalChart();
+                        }
+                    }, 100);
+                    return;
+                }
+                
+                // Determine if dark mode
+                const isDark = document.body.classList.contains('dark-mode') || 
+                               (!document.body.classList.contains('light-mode') && 
+                                window.matchMedia('(prefers-color-scheme: dark)').matches);
+                
+                const textColor = isDark ? '#d0d0d0' : '#333';
+                const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)';
+                
+                // Use taller aspect ratio for modal (more vertical space)
+                const aspectRatio = 0.7;
+                
+                // Create new chart in modal with same data
+                priceChartModalInstance = new Chart(modalCanvas, {
                 type: 'line',
                 data: {
                     labels: chartData.labels,
@@ -2618,11 +2653,7 @@
                     }
                 }
             });
-            
-            // Show modal
-            modal.style.display = 'flex';
-            document.body.classList.add('modal-open');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }, 50); // Small delay to ensure DOM is ready
         }
 
         // Close modal
