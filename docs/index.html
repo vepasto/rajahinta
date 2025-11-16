@@ -2549,6 +2549,21 @@
             modal.style.display = 'flex';
             document.body.classList.add('modal-open');
             document.body.style.overflow = 'hidden';
+            
+            // Request fullscreen if supported
+            if (modal.requestFullscreen) {
+                modal.requestFullscreen().catch(err => {
+                    console.log('Fullscreen request failed:', err);
+                });
+            } else if (modal.webkitRequestFullscreen) { // Safari
+                modal.webkitRequestFullscreen();
+            } else if (modal.webkitEnterFullscreen) { // iOS Safari
+                modal.webkitEnterFullscreen();
+            } else if (modal.mozRequestFullScreen) { // Firefox
+                modal.mozRequestFullScreen();
+            } else if (modal.msRequestFullscreen) { // IE/Edge
+                modal.msRequestFullscreen();
+            }
 
             // Get chart data from existing chart and deep clone it
             const chartData = priceChartInstance.data;
@@ -2674,6 +2689,20 @@
         // Close modal
         function closeModalChart() {
             const modal = document.getElementById('chartModal');
+            
+            // Exit fullscreen if in fullscreen mode
+            if (document.fullscreenElement || document.webkitFullscreenElement || 
+                document.mozFullScreenElement || document.msFullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
             
             // Destroy modal chart to free memory
             if (priceChartModalInstance) {
@@ -3159,6 +3188,19 @@
                 if (e.key === 'Escape' && chartModal && chartModal.style.display === 'flex') {
                     closeModalChart();
                 }
+            });
+
+            // Handle fullscreen change events
+            const fullscreenChangeEvents = ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'];
+            fullscreenChangeEvents.forEach(eventName => {
+                document.addEventListener(eventName, function() {
+                    const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || 
+                                           document.mozFullScreenElement || document.msFullscreenElement);
+                    // If user exits fullscreen (e.g., via browser UI), close modal
+                    if (!isFullscreen && chartModal && chartModal.style.display === 'flex') {
+                        closeModalChart();
+                    }
+                });
             });
 
             // Close modal when clicking outside the chart
