@@ -696,7 +696,7 @@
         }
 
         .price-chart-container canvas {
-            max-height: 300px;
+            max-height: 600px;
         }
 
         @media (max-width: 768px) {
@@ -1561,7 +1561,7 @@
                     </label>
                     <input type="number" id="improvementPrice_${improvementIndex}" 
                            class="improvement-price" data-index="${improvementIndex}" 
-                           min="0" step="100" value="${price}">
+                           min="0" step="1" value="${price}">
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -2297,7 +2297,7 @@
             
             // Use smaller aspect ratio on mobile for taller chart
             const isMobile = window.innerWidth <= 768;
-            const aspectRatio = isMobile ? 1.2 : 2.5;
+            const aspectRatio = isMobile ? 1.2 : 1.2; // Taller chart on desktop too
             
             chartContainer.style.display = 'block';
             
