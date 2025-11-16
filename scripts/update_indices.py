@@ -4,7 +4,6 @@ Update HITAS indices from Helsinki city's PDF file.
 Downloads the latest PDF, parses the index tables, and updates index.html.
 """
 
-import re
 import sys
 import json
 from pathlib import Path
@@ -181,37 +180,13 @@ def create_json_file(
 
 
 def update_html_reference(json_filename):
-    """Update HTML to reference the new JSON file."""
-    print(f"Updating {HTML_PATH} with JSON reference...")
-
-    if not HTML_PATH.exists():
-        print(f"Error: {HTML_PATH} not found")
-        return False
-
-    with open(HTML_PATH, "r", encoding="utf-8") as f:
-        html_content = f.read()
-
-    # Find and replace the JSON filename reference
-    pattern = r"const INDICES_FILE = '[^']*';"
-    replacement = f"const INDICES_FILE = 'data/{json_filename}';"
-
-    if "const INDICES_FILE" not in html_content:
-        # Add the constant if it doesn't exist (after <script> tag)
-        script_pattern = r"(<script>\s*)"
-        replacement_with_const = (
-            f"\\1\n        const INDICES_FILE = 'data/{json_filename}';\n"
-        )
-        html_content = re.sub(
-            script_pattern, replacement_with_const, html_content, count=1
-        )
-    else:
-        html_content = re.sub(pattern, replacement, html_content)
-
-    # Write updated content
-    with open(HTML_PATH, "w", encoding="utf-8") as f:
-        f.write(html_content)
-
-    print("HTML reference updated successfully!")
+    """
+    Update HTML to reference the new JSON file.
+    Note: This function is no longer needed as indices files are now loaded
+    automatically by finding the latest file. Kept for backwards compatibility.
+    """
+    print("Note: HTML files now automatically find the latest indices file.")
+    print("No manual update needed.")
     return True
 
 
