@@ -1320,12 +1320,12 @@
         <form id="calculatorForm">
             <div class="form-group">
                 <label for="originalPrice">Alkuperäinen velaton hankintahinta (€)</label>
-                <input type="number" id="originalPrice" name="originalPrice" required min="0">
+                <input type="number" id="originalPrice" name="originalPrice" required min="0" max="999999999">
             </div>
 
             <div class="form-group">
                 <label for="apartmentSize">Asunnon pinta-ala (m²)</label>
-                <input type="number" id="apartmentSize" name="apartmentSize" required min="1" step="0.5">
+                <input type="number" id="apartmentSize" name="apartmentSize" required min="1" step="0.5" max="9999">
             </div>
 
             <div class="form-section-title">Valmistumisaika</div>
@@ -3168,6 +3168,43 @@
             
             if (themeToggle) {
                 themeToggle.addEventListener('click', toggleTheme);
+            }
+
+            // Limit input length for number inputs
+            const originalPriceInput = document.getElementById('originalPrice');
+            const apartmentSizeInput = document.getElementById('apartmentSize');
+
+            if (originalPriceInput) {
+                originalPriceInput.addEventListener('input', function(e) {
+                    const value = e.target.value;
+                    if (value === '') return;
+                    // Count digits in the value (excluding decimal point)
+                    const digitsOnly = value.replace(/\D/g, '');
+                    if (digitsOnly.length > 9) {
+                        // Limit to 9 digits
+                        const prevValue = e.target.dataset.prevValue || '';
+                        e.target.value = prevValue;
+                    } else {
+                        e.target.dataset.prevValue = value;
+                    }
+                });
+            }
+
+            if (apartmentSizeInput) {
+                apartmentSizeInput.addEventListener('input', function(e) {
+                    const value = e.target.value;
+                    if (value === '') return;
+                    // Count digits before decimal point (integer part)
+                    const parts = value.split('.');
+                    const integerPart = parts[0];
+                    if (integerPart && integerPart.length > 4) {
+                        // Limit to 4 digits in integer part
+                        const prevValue = e.target.dataset.prevValue || '';
+                        e.target.value = prevValue;
+                    } else {
+                        e.target.dataset.prevValue = value;
+                    }
+                });
             }
 
             // Full-screen chart modal functionality
