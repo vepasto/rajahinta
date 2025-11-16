@@ -774,20 +774,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            transform: scale(0.95);
-            animation: fadeInContent 0.3s ease-out 0.1s forwards;
-        }
-
-        @keyframes fadeInContent {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            opacity: 1;
+            transform: scale(1);
         }
 
         body.dark-mode .chart-modal-content,
@@ -2523,25 +2511,46 @@
                 return;
             }
 
-            const modalCanvas = document.getElementById('priceChartModal');
             const modal = document.getElementById('chartModal');
+            const modalChartContainer = document.querySelector('.chart-modal-chart-container');
             
-            if (!modalCanvas || !modal) {
+            if (!modal || !modalChartContainer) {
                 return;
             }
+
+            // Ensure modal is properly closed/reset before opening
+            if (modal.style.display === 'flex') {
+                closeModalChart();
+                return;
+            }
+            
+            // Destroy existing modal chart if any
+            if (priceChartModalInstance) {
+                try {
+                    priceChartModalInstance.destroy();
+                } catch (e) {
+                    console.error('Error destroying existing modal chart:', e);
+                }
+                priceChartModalInstance = null;
+            }
+            
+            // Remove old canvas and create new one to avoid Chart.js issues
+            const oldCanvas = document.getElementById('priceChartModal');
+            if (oldCanvas) {
+                oldCanvas.remove();
+            }
+            
+            // Create fresh canvas element
+            const modalCanvas = document.createElement('canvas');
+            modalCanvas.id = 'priceChartModal';
+            modalChartContainer.appendChild(modalCanvas);
 
             // Show modal first so canvas has proper dimensions
             modal.style.display = 'flex';
             document.body.classList.add('modal-open');
             document.body.style.overflow = 'hidden';
-            
-            // Destroy existing modal chart
-            if (priceChartModalInstance) {
-                priceChartModalInstance.destroy();
-                priceChartModalInstance = null;
-            }
 
-            // Get chart data from existing chart
+            // Get chart data from existing chart and deep clone it
             const chartData = priceChartInstance.data;
             
             // Verify we have valid data
@@ -2551,47 +2560,49 @@
                 return;
             }
             
-            // Wait a bit for DOM to update and canvas to get proper dimensions
-            setTimeout(function() {
-                // Check if modal is still open
-                if (modal.style.display !== 'flex') {
-                    return;
+            // Deep clone data to avoid Chart.js reference issues
+            const clonedLabels = [...chartData.labels];
+            const clonedDatasets = chartData.datasets.map(dataset => {
+                // Create a completely new dataset object
+                const newDataset = {
+                    label: dataset.label,
+                    data: [...dataset.data], // Clone data array
+                    borderColor: dataset.borderColor,
+                    backgroundColor: dataset.backgroundColor,
+                    borderWidth: dataset.borderWidth,
+                    fill: dataset.fill,
+                    tension: dataset.tension,
+                    pointRadius: dataset.pointRadius,
+                    pointHoverRadius: dataset.pointHoverRadius,
+                    spanGaps: dataset.spanGaps,
+                    hidden: false // Reset hidden state for modal - show all datasets
+                };
+                
+                // Copy borderDash if it exists
+                if (dataset.borderDash) {
+                    newDataset.borderDash = [...dataset.borderDash];
                 }
                 
-                // Verify canvas is visible and has dimensions
-                const rect = modalCanvas.getBoundingClientRect();
-                if (rect.width === 0 || rect.height === 0) {
-                    console.error('Canvas has no dimensions');
-                    // Try again after a bit more time
-                    setTimeout(function() {
-                        if (modal.style.display === 'flex') {
-                            createModalChart();
-                        }
-                    }, 100);
-                    return;
-                }
-                
-                // Determine if dark mode
-                const isDark = document.body.classList.contains('dark-mode') || 
-                               (!document.body.classList.contains('light-mode') && 
-                                window.matchMedia('(prefers-color-scheme: dark)').matches);
-                
-                const textColor = isDark ? '#d0d0d0' : '#333';
-                const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)';
-                
-                // Use taller aspect ratio for modal (more vertical space)
-                const aspectRatio = 0.7;
-                
-                // Create new chart in modal with same data
-                priceChartModalInstance = new Chart(modalCanvas, {
+                return newDataset;
+            });
+            
+            // Determine if dark mode
+            const isDark = document.body.classList.contains('dark-mode') || 
+                           (!document.body.classList.contains('light-mode') && 
+                            window.matchMedia('(prefers-color-scheme: dark)').matches);
+            
+            const textColor = isDark ? '#d0d0d0' : '#333';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)';
+            
+            // Use taller aspect ratio for modal (more vertical space)
+            const aspectRatio = 0.7;
+            
+            // Create new chart in modal with cloned data
+            priceChartModalInstance = new Chart(modalCanvas, {
                 type: 'line',
                 data: {
-                    labels: chartData.labels,
-                    datasets: chartData.datasets.map(dataset => ({
-                        ...dataset,
-                        // Reset hidden state for modal - show all datasets
-                        hidden: false
-                    }))
+                    labels: clonedLabels,
+                    datasets: clonedDatasets
                 },
                 options: {
                     responsive: true,
@@ -2653,21 +2664,37 @@
                     }
                 }
             });
-            }, 50); // Small delay to ensure DOM is ready
+            
+            // Resize chart after creation to ensure proper rendering
+            if (priceChartModalInstance) {
+                priceChartModalInstance.resize();
+            }
         }
 
         // Close modal
         function closeModalChart() {
             const modal = document.getElementById('chartModal');
-            modal.style.display = 'none';
-            document.body.classList.remove('modal-open');
-            document.body.style.overflow = ''; // Restore scrolling
             
             // Destroy modal chart to free memory
             if (priceChartModalInstance) {
-                priceChartModalInstance.destroy();
+                try {
+                    priceChartModalInstance.destroy();
+                } catch (e) {
+                    console.error('Error destroying modal chart:', e);
+                }
                 priceChartModalInstance = null;
             }
+            
+            // Remove canvas element completely
+            const modalCanvas = document.getElementById('priceChartModal');
+            if (modalCanvas) {
+                modalCanvas.remove();
+            }
+            
+            // Hide modal and reset styles
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = ''; // Restore scrolling
         }
 
         function displayResult(results, originalPrice, purchaseYear, purchaseMonth, shouldScroll = true) {
