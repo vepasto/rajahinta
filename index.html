@@ -1614,8 +1614,7 @@
                             intersect: false,
                             callbacks: {
                                 label: function(context) {
-                                    const label = context.dataset.label || '';
-                                    return label + ': ' + formatPriceCompact(context.parsed.y);
+                                    return formatPriceCompact(context.parsed.y);
                                 }
                             }
                         }
