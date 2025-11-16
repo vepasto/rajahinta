@@ -24,11 +24,11 @@
     <meta property="og:title" content="Hitas hintalaskuri">
     <meta property="og:description" content="Laske Hitas-asuntosi nykyinen velaton enimmäishinta käyttäen virallisia rakennuskustannus- ja markkinahintaindeksejä.">
     <!-- Landscape image for Facebook/Twitter -->
-    <meta property="og:image" itemprop="image" content="https://vepasto.github.io/rajahinta/og-image.png">
+    <meta property="og:image:secure_url" itemprop="image" content="https://vepasto.github.io/rajahinta/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <!-- Square image for WhatsApp (must be last og:image) -->
-    <meta property="og:image" itemprop="image" content="https://vepasto.github.io/rajahinta/og-image-square.png">
+    <meta property="og:image:secure_url" itemprop="image" content="https://vepasto.github.io/rajahinta/og-image-square.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="1200">
     
@@ -786,162 +786,6 @@
             border-color: rgba(255, 255, 255, 0.2);
         }
 
-        .house-icon {
-            display: block;
-            margin-top: 0;
-            cursor: pointer;
-            opacity: 0.3;
-            transition: all 0.3s;
-        }
-
-        .house-icon:hover {
-            opacity: 0.6;
-            transform: scale(1.1);
-        }
-
-        .house-icon svg {
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-        }
-
-        /* Snake Game Styles */
-        #snakeGame {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 9999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #snakeGame.active {
-            display: flex;
-        }
-
-        .game-container {
-            text-align: center;
-        }
-
-        .game-header {
-            color: white;
-            margin-bottom: 20px;
-        }
-
-        .game-header h2 {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .game-score {
-            font-size: 24px;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-
-        #gameCanvas {
-            border: 3px solid #667eea;
-            border-radius: 10px;
-            background: #1a1a2e;
-            box-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
-            touch-action: none; /* Prevent default touch behaviors */
-        }
-
-        .game-controls {
-            margin-top: 20px;
-            color: white;
-            font-size: 14px;
-        }
-
-        .game-controls p {
-            margin: 5px 0;
-        }
-
-        .close-game {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: white;
-            font-size: 24px;
-            transition: all 0.3s;
-        }
-
-        .close-game:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
-        }
-
-        .game-over-message {
-            color: #e74c3c;
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 15px;
-        }
-
-        .restart-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: all 0.3s;
-        }
-
-        .restart-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        /* Mobile Controls */
-        .mobile-controls {
-            display: none;
-            margin-top: 20px;
-            grid-template-columns: repeat(3, 60px);
-            grid-template-rows: repeat(3, 60px);
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .control-btn {
-            background: rgba(102, 126, 234, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 10px;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .control-btn:active {
-            background: rgba(102, 126, 234, 0.5);
-            transform: scale(0.95);
-        }
-
-        .control-btn.empty {
-            visibility: hidden;
-        }
-
         /* Dark mode */
         html.dark-mode {
             background-color: #1a1a2e;
@@ -1276,31 +1120,6 @@
             }
         }
 
-        @media (max-width: 768px) {
-            .mobile-controls {
-                display: grid;
-            }
-
-            .game-controls p {
-                font-size: 12px;
-            }
-
-            #gameCanvas {
-                width: 90vw !important;
-                height: 90vw !important;
-                max-width: 400px !important;
-                max-height: 400px !important;
-            }
-
-            .game-header h2 {
-                font-size: 24px;
-            }
-
-            .game-score {
-                font-size: 18px;
-            }
-        }
-
         @media (max-width: 600px) {
             .container {
                 padding: 25px;
@@ -1457,46 +1276,7 @@
         <a href="https://github.com/vepasto/rajahinta/issues" target="_blank" rel="noopener noreferrer" class="bug-report-link">
             Löysitkö bugin?
         </a>
-        <div class="house-icon" id="houseButton">
-            <svg width="30" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <g fill="white" fill-opacity="0.8">
-                    <path d="M50 10 L70 30 L70 50 L30 50 L30 30 Z"/>
-                    <rect x="40" y="35" width="8" height="10"/>
-                    <rect x="52" y="35" width="8" height="10"/>
-                </g>
-            </svg>
-        </div>
     </footer>
-
-    <!-- Snake Game Overlay -->
-    <div id="snakeGame">
-        <div class="close-game" id="closeGame">×</div>
-        <div class="game-container">
-            <div class="game-header">
-                <h2>🏠 Hitas Snake 🏠</h2>
-                <div class="game-score">Pisteet: <span id="score">0</span></div>
-                <div class="game-score" style="font-size: 16px;">Ennätys: <span id="highScore">0</span></div>
-            </div>
-            <canvas id="gameCanvas" width="400" height="400"></canvas>
-            <div id="gameOverContainer"></div>
-            <div class="game-controls">
-                <p>🎮 Käytä nuolinäppäimiä tai WASD</p>
-                <p>🏠 Kerää taloja kasvaaksesi!</p>
-                <p>⚠️ Älä törmää reunoihin tai itseesi!</p>
-            </div>
-            <div class="mobile-controls">
-                <div class="control-btn empty"></div>
-                <div class="control-btn" data-direction="up">▲</div>
-                <div class="control-btn empty"></div>
-                <div class="control-btn" data-direction="left">◄</div>
-                <div class="control-btn empty"></div>
-                <div class="control-btn" data-direction="right">►</div>
-                <div class="control-btn empty"></div>
-                <div class="control-btn" data-direction="down">▼</div>
-                <div class="control-btn empty"></div>
-            </div>
-        </div>
-    </div>
 
     <script>
         // Indeksit ladataan JSON-tiedostosta
@@ -1677,9 +1457,21 @@
             } catch (error) {
                 console.error('Error loading indices:', error);
                 indicesLoaded = false;
-                // Show user-friendly error message
+                // Show user-friendly error message without blocking page load
                 const errorMsg = error.message || 'Tuntematon virhe';
-                alert(`Virhe: Indeksien lataus epäonnistui.\n\n${errorMsg}\n\nPäivitä sivu ja yritä uudelleen.`);
+                // Use setTimeout to avoid blocking page load in Safari
+                setTimeout(() => {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #e74c3c; color: white; padding: 15px 20px; border-radius: 8px; z-index: 10000; max-width: 90%; box-shadow: 0 4px 6px rgba(0,0,0,0.3);';
+                    errorDiv.innerHTML = `<strong>Virhe:</strong> Indeksien lataus epäonnistui.<br><br>${errorMsg}<br><br><button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; background: white; color: #e74c3c; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Päivitä sivu</button>`;
+                    document.body.appendChild(errorDiv);
+                    // Auto-remove after 10 seconds
+                    setTimeout(() => {
+                        if (errorDiv.parentNode) {
+                            errorDiv.parentNode.removeChild(errorDiv);
+                        }
+                    }, 10000);
+                }, 100);
                 return false;
             }
         }
@@ -2902,9 +2694,6 @@
         });
 
     </script>
-    
-    <!-- Snake Game Easter Egg -->
-        <script src="scripts/snake-game.js"></script>
 </body>
 </html>
 
