@@ -342,6 +342,32 @@
             color: #b0b0b0;
         }
 
+        .external-link {
+            color: #667eea;
+            text-decoration: underline;
+            transition: color 0.3s;
+        }
+
+        .external-link:hover {
+            color: #5568d3;
+        }
+
+        body.dark-mode .external-link {
+            color: #9ca3ff;
+        }
+
+        body.dark-mode .external-link:hover {
+            color: #b4b9ff;
+        }
+
+        body:not(.light-mode) .external-link {
+            color: #9ca3ff;
+        }
+
+        body:not(.light-mode) .external-link:hover {
+            color: #b4b9ff;
+        }
+
         /* Prefer dark mode by default if user system preference is dark */
         @media (prefers-color-scheme: dark) {
             body:not(.light-mode) {
@@ -518,6 +544,20 @@
             <canvas id="oldIndicesChart"></canvas>
         </div>
 
+        <div class="chart-container" id="rajaneliohinta-chart">
+            <h3>Rajaneliöhinta</h3>
+            <div class="chart-description">
+                <strong>Rajaneliöhinta</strong> on neliömetrihinta, jota käytetään asunnon enimmäishinnan laskennassa.
+                <ul style="margin-top: 8px; margin-left: 20px;">
+                    <li>Rajaneliöhinta määritetään neljännesvuosittain (helmikuu, toukokuu, elokuu, marraskuu)</li>
+                    <li>Rajaneliöhinta kerrotaan asunnon pinta-alalla saadakseen rajahinnan</li>
+                    <li>Rajahinta on yksi neljästä mahdollisesta enimmäishinnasta</li>
+                </ul>
+                <a href="https://www.hel.fi/static/kv/asunto-osasto/hitas-rajahintatilasto.pdf" class="external-link" target="_blank" rel="noopener" style="margin-top: 8px; display: inline-block; color: #667eea; text-decoration: underline;">Lisätietoja Helsingin kaupungin sivuilta →</a>
+            </div>
+            <canvas id="rajaneliohintaChart"></canvas>
+        </div>
+
         <p style="margin-top: 30px; font-size: 13px; color: #999; text-align: center;">
             Indeksitiedot päivittyvät automaattisesti Helsingin kaupungin julkaisemista tiedoista.
         </p>
@@ -539,6 +579,7 @@
         // Store chart instances globally so we can destroy them when theme changes
         let newIndicesChartInstance = null;
         let oldIndicesChartInstance = null;
+        let rajaneliohintaChartInstance = null;
 
         // Theme toggle functionality
         function setTheme(theme) {
@@ -618,9 +659,42 @@
                     oldIndicesChartInstance.destroy();
                     oldIndicesChartInstance = null;
                 }
+                if (rajaneliohintaChartInstance) {
+                    rajaneliohintaChartInstance.destroy();
+                    rajaneliohintaChartInstance = null;
+                }
 
-                const response = await fetch('../data/indices-2025-11-15.json');
-                const data = await response.json();
+                // Find the latest indices file by trying dates backwards from today
+                let data = null;
+                let lastError = null;
+                const maxDaysBack = 30; // Try up to 30 days back
+                
+                // Start from today and go backwards
+                const today = new Date();
+                for (let daysBack = 0; daysBack < maxDaysBack; daysBack++) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - daysBack);
+                    
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const filename = `../data/indices-${year}-${month}-${day}.json`;
+                    
+                    try {
+                        const response = await fetch(filename);
+                        if (response.ok) {
+                            data = await response.json();
+                            break;
+                        }
+                    } catch (e) {
+                        lastError = e;
+                        continue;
+                    }
+                }
+                
+                if (!data) {
+                    throw new Error('Could not load indices data: ' + (lastError ? lastError.message : 'No files found'));
+                }
                 
                 const isDark = document.body.classList.contains('dark-mode') || 
                                (!document.body.classList.contains('light-mode') && 
@@ -800,6 +874,93 @@
                             y: {
                                 ticks: {
                                     color: textColor
+                                },
+                                grid: {
+                                    color: gridColor
+                                },
+                                beginAtZero: false
+                            }
+                        }
+                    }
+                });
+                
+                // Chart 3: Rajaneliöhinta
+                const rajaneliohintaLabels = [];
+                const rajaneliohinta = [];
+                
+                if (data.rajaneliohinta_tilasto) {
+                    const rajahintaYears = Object.keys(data.rajaneliohinta_tilasto).map(Number).sort((a, b) => a - b);
+                    for (const year of rajahintaYears) {
+                        const months = Object.keys(data.rajaneliohinta_tilasto[year]).map(Number).sort((a, b) => a - b);
+                        for (const month of months) {
+                            rajaneliohintaLabels.push(`${year}-${String(month).padStart(2, '0')}`);
+                            rajaneliohinta.push(data.rajaneliohinta_tilasto[year][month]);
+                        }
+                    }
+                }
+                
+                const ctxRajahinta = document.getElementById('rajaneliohintaChart').getContext('2d');
+                rajaneliohintaChartInstance = new Chart(ctxRajahinta, {
+                    type: 'line',
+                    data: {
+                        labels: rajaneliohintaLabels,
+                        datasets: [
+                            {
+                                label: 'Rajaneliöhinta (€/m²)',
+                                data: rajaneliohinta,
+                                borderColor: '#ffa94d',
+                                backgroundColor: 'rgba(255, 169, 77, 0.1)',
+                                borderWidth: 2,
+                                tension: 0.1,
+                                pointRadius: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: aspectRatio,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    color: textColor,
+                                    font: {
+                                        size: 12
+                                    },
+                                    padding: 15
+                                }
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' + context.parsed.y.toFixed(0) + ' €/m²';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: textColor,
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    autoSkip: true,
+                                    maxTicksLimit: 20
+                                },
+                                grid: {
+                                    color: gridColor
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    color: textColor,
+                                    callback: function(value) {
+                                        return value.toFixed(0) + ' €/m²';
+                                    }
                                 },
                                 grid: {
                                     color: gridColor
