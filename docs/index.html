@@ -693,6 +693,33 @@
             padding: 15px;
             background: rgba(255, 255, 255, 0.7);
             border-radius: 8px;
+            position: relative;
+        }
+
+        .fullscreen-chart-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 10px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .fullscreen-chart-btn:hover {
+            background: rgba(102, 126, 234, 1);
+        }
+
+        .fullscreen-chart-btn svg {
+            width: 18px;
+            height: 18px;
         }
 
         .price-chart-container canvas {
@@ -703,6 +730,117 @@
             .price-chart-container canvas {
                 max-height: 800px;
             }
+        }
+
+        /* Chart modal styles */
+        .chart-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10001; /* Higher than navigation (100) */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            opacity: 0;
+            animation: fadeInModal 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeInModal {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .chart-modal.active ~ .top-nav,
+        body.modal-open .top-nav {
+            display: none !important;
+        }
+
+        .chart-modal-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 0;
+            padding: 60px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.95);
+            animation: fadeInContent 0.3s ease-out 0.1s forwards;
+        }
+
+        @keyframes fadeInContent {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        body.dark-mode .chart-modal-content,
+        body:not(.light-mode) .chart-modal-content {
+            background: #1a1a2e;
+        }
+
+        .close-chart-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            border: none;
+            color: #333;
+            font-size: 36px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+            z-index: 10002;
+        }
+
+        .close-chart-modal:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode .close-chart-modal,
+        body:not(.light-mode) .close-chart-modal {
+            color: #d0d0d0;
+        }
+
+        body.dark-mode .close-chart-modal:hover,
+        body:not(.light-mode) .close-chart-modal:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-modal-chart-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-modal-chart-container canvas {
+            max-width: 100%;
+            max-height: calc(100vh - 120px);
         }
 
         .result-info strong {
@@ -1250,8 +1388,23 @@
             <div class="result-change" id="resultChange" aria-label="Hinnanmuutos"></div>
             <div class="result-improvements" id="resultImprovements" aria-label="Parannukset" style="display: none;"></div>
             <div class="price-chart-container" id="priceChartContainer" style="display: none;">
+                <button class="fullscreen-chart-btn" id="fullscreenChartBtn" aria-label="Avaa graafi täysikokoisena" title="Avaa graafi täysikokoisena">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                    </svg>
+                </button>
                 <canvas id="priceChart"></canvas>
                 <div id="chartNote" style="margin-top: 12px; padding: 10px; background: rgba(255, 193, 7, 0.1); border-left: 3px solid #ffc107; font-size: 13px; display: none;"></div>
+            </div>
+            
+            <!-- Full-screen chart modal -->
+            <div class="chart-modal" id="chartModal" style="display: none;">
+                <div class="chart-modal-content">
+                    <button class="close-chart-modal" id="closeChartModal" aria-label="Sulje graafi">×</button>
+                    <div class="chart-modal-chart-container">
+                        <canvas id="priceChartModal"></canvas>
+                    </div>
+                </div>
             </div>
             <button class="calculation-toggle" id="calculationToggle" aria-expanded="false" aria-controls="resultInfo">
                 <strong>Laskenta</strong>
@@ -1955,6 +2108,7 @@
 
         // Display result
         let priceChartInstance = null;
+        let priceChartModalInstance = null; // Chart instance for modal
         let currentChartData = null; // Store current chart data for theme switching
 
         function createPriceChart(purchaseYear, purchaseMonth, originalPrice, apartmentSize = null, winner = null) {
@@ -2363,6 +2517,128 @@
             });
         }
 
+        // Create chart in modal
+        function createModalChart() {
+            if (!currentChartData || !priceChartInstance) {
+                return;
+            }
+
+            const modalCanvas = document.getElementById('priceChartModal');
+            const modal = document.getElementById('chartModal');
+            
+            // Destroy existing modal chart
+            if (priceChartModalInstance) {
+                priceChartModalInstance.destroy();
+                priceChartModalInstance = null;
+            }
+
+            // Get chart data from existing chart
+            const chartData = priceChartInstance.data;
+            const chartOptions = priceChartInstance.options;
+            
+            // Determine if dark mode
+            const isDark = document.body.classList.contains('dark-mode') || 
+                           (!document.body.classList.contains('light-mode') && 
+                            window.matchMedia('(prefers-color-scheme: dark)').matches);
+            
+            const textColor = isDark ? '#d0d0d0' : '#333';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)';
+            
+            // Use taller aspect ratio for modal (more vertical space)
+            const aspectRatio = 0.7;
+            
+            // Create new chart in modal with same data
+            priceChartModalInstance = new Chart(modalCanvas, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: chartData.datasets.map(dataset => ({
+                        ...dataset,
+                        // Reset hidden state for modal - show all datasets
+                        hidden: false
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: aspectRatio,
+                    plugins: {
+                        legend: {
+                            display: chartData.datasets.length > 1,
+                            position: 'top',
+                            labels: {
+                                color: textColor,
+                                usePointStyle: true,
+                                padding: 15,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return formatPrice(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: textColor,
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 30,
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: gridColor
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: textColor,
+                                callback: function(value) {
+                                    return formatPriceCompact(value);
+                                },
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            grid: {
+                                color: gridColor
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Show modal
+            modal.style.display = 'flex';
+            document.body.classList.add('modal-open');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        // Close modal
+        function closeModalChart() {
+            const modal = document.getElementById('chartModal');
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = ''; // Restore scrolling
+            
+            // Destroy modal chart to free memory
+            if (priceChartModalInstance) {
+                priceChartModalInstance.destroy();
+                priceChartModalInstance = null;
+            }
+        }
+
         function displayResult(results, originalPrice, purchaseYear, purchaseMonth, shouldScroll = true) {
             const resultDiv = document.getElementById('result');
             const resultPrice = document.getElementById('resultPrice');
@@ -2758,6 +3034,12 @@
                     currentChartData.apartmentSize || null,
                     currentChartData.winner || null
                 );
+                
+                // Recreate modal chart if it's open
+                const chartModal = document.getElementById('chartModal');
+                if (chartModal && chartModal.style.display === 'flex' && priceChartInstance) {
+                    createModalChart();
+                }
             }
         }
 
@@ -2800,6 +3082,64 @@
             if (themeToggle) {
                 themeToggle.addEventListener('click', toggleTheme);
             }
+
+            // Full-screen chart modal functionality
+            const fullscreenBtn = document.getElementById('fullscreenChartBtn');
+            const closeModalBtn = document.getElementById('closeChartModal');
+            const chartModal = document.getElementById('chartModal');
+
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', createModalChart);
+            }
+
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeModalChart);
+            }
+
+            // Close modal on ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && chartModal && chartModal.style.display === 'flex') {
+                    closeModalChart();
+                }
+            });
+
+            // Close modal when clicking outside the chart
+            if (chartModal) {
+                chartModal.addEventListener('click', function(e) {
+                    if (e.target === chartModal) {
+                        closeModalChart();
+                    }
+                });
+            }
+
+            // Handle window resize to update charts
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                // Debounce resize events
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    // Resize main chart if it exists
+                    if (priceChartInstance) {
+                        priceChartInstance.resize();
+                    }
+                    // Resize modal chart if it exists and is visible
+                    if (priceChartModalInstance && chartModal && chartModal.style.display === 'flex') {
+                        priceChartModalInstance.resize();
+                    }
+                }, 150);
+            });
+
+            // Handle orientation change (mobile)
+            window.addEventListener('orientationchange', function() {
+                setTimeout(function() {
+                    if (priceChartInstance) {
+                        priceChartInstance.resize();
+                    }
+                    if (priceChartModalInstance && chartModal && chartModal.style.display === 'flex') {
+                        priceChartModalInstance.resize();
+                    }
+                }, 200);
+            });
 
             // Initialize theme
             const savedTheme = localStorage.getItem('theme');
