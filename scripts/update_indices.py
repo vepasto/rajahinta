@@ -21,6 +21,7 @@ except ImportError:
 # Import the old market index importer and rajaneliöhinta importer
 from import_old_market_index import get_old_market_index
 from import_rajaneliohinta import get_rajaneliohinta
+from import_rajaneliohinta_tilasto import get_rajaneliohinta_tilasto
 
 PDF_URL = "https://www.hel.fi/static/kv/asunto-osasto/hitas-indeksit-2005-100.pdf"
 HTML_PATH = Path(__file__).parent.parent / "index.html"
@@ -129,7 +130,11 @@ def extract_indices_from_pdf(pdf_data):
 
 
 def create_json_file(
-    rakennuskustannus, markkinahinta, old_market_index, rajaneliohinta
+    rakennuskustannus,
+    markkinahinta,
+    old_market_index,
+    rajaneliohinta,
+    rajaneliohinta_tilasto,
 ):
     """Create JSON file with current date in filename."""
     from datetime import datetime
@@ -160,6 +165,13 @@ def create_json_file(
     # Add rajaneliöhinta if available
     if rajaneliohinta:
         data["rajaneliohinta"] = rajaneliohinta
+
+    # Add rajaneliöhinta tilasto (historical data) if available
+    if rajaneliohinta_tilasto:
+        data["rajaneliohinta_tilasto"] = {
+            str(year): {str(month): value for month, value in months.items()}
+            for year, months in rajaneliohinta_tilasto.items()
+        }
 
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
@@ -241,6 +253,19 @@ def main():
         print("Warning: Failed to get rajaneliöhinta")
         print("Continuing without rajaneliöhinta data...")
 
+    # Get rajaneliöhinta tilasto (historical data)
+    # Pass current rajaneliöhinta so it can be added to the historical data
+    print("\n" + "=" * 50)
+    print("Fetching rajaneliöhinta tilasto (historical data)...")
+    print("=" * 50)
+    rajaneliohinta_tilasto = get_rajaneliohinta_tilasto(
+        current_rajaneliohinta=rajaneliohinta if rajaneliohinta else None
+    )
+
+    if not rajaneliohinta_tilasto:
+        print("Warning: Failed to get rajaneliöhinta tilasto")
+        print("Continuing without rajaneliöhinta tilasto data...")
+
     # Display summary
     print("\n" + "=" * 50)
     print("SUMMARY")
@@ -270,6 +295,13 @@ def main():
             f"  Valid: {rajaneliohinta['valid_from']} - {rajaneliohinta['valid_until']}"
         )
 
+    if rajaneliohinta_tilasto:
+        total_values = sum(len(months) for months in rajaneliohinta_tilasto.values())
+        print(f"Rajaneliöhinta tilasto: {total_values} historical values")
+        print(
+            f"  Years: {min(rajaneliohinta_tilasto.keys())} - {max(rajaneliohinta_tilasto.keys())}"
+        )
+
     print("=" * 50)
 
     # Create JSON file
@@ -278,6 +310,7 @@ def main():
         markkinahinta,
         old_market_index if old_market_index else {},
         rajaneliohinta if rajaneliohinta else None,
+        rajaneliohinta_tilasto if rajaneliohinta_tilasto else None,
     )
 
     # Update HTML reference
