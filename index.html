@@ -299,10 +299,218 @@
             margin-top: 5px;
         }
 
+        .label-with-tooltip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            cursor: help;
+        }
+
+        .info-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 1;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .info-icon:hover {
+            opacity: 1;
+        }
+
+        .tooltip-content {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-bottom: 8px;
+            padding: 10px 12px;
+            background: #333;
+            color: white;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            max-width: 250px;
+            white-space: normal;
+            width: max-content;
+        }
+
+        .info-tooltip:hover .tooltip-content {
+            opacity: 1;
+        }
+
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #333;
+        }
+
+        body.dark-mode .info-icon {
+            background: #9ca3ff;
+        }
+
+        body.dark-mode .tooltip-content {
+            background: #1a1a2e;
+            border: 1px solid #444;
+        }
+
+        body.dark-mode .tooltip-content::after {
+            border-top-color: #1a1a2e;
+        }
+
+        body:not(.light-mode) .info-icon {
+            background: #9ca3ff;
+        }
+
+        body:not(.light-mode) .tooltip-content {
+            background: #1a1a2e;
+            border: 1px solid #444;
+        }
+
+        body:not(.light-mode) .tooltip-content::after {
+            border-top-color: #1a1a2e;
+        }
+
         .button-group {
             display: flex;
             gap: 10px;
             margin-top: 30px;
+        }
+
+        .improvements-section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .improvement-item {
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .improvement-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .improvement-item-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .btn-remove {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 0 0 auto;
+        }
+
+        .btn-remove:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        .btn-add-improvement {
+            background: transparent;
+            color: #667eea;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+            opacity: 0.7;
+        }
+
+        .btn-add-improvement:hover {
+            opacity: 1;
+            background: rgba(102, 126, 234, 0.05);
+            border-color: #667eea;
+        }
+
+        body.dark-mode .improvements-section {
+            border-top-color: #444;
+        }
+
+        body.dark-mode .improvement-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #444;
+        }
+
+        body.dark-mode .improvement-item-title {
+            color: #e0e0e0;
+        }
+
+        body:not(.light-mode) .improvements-section {
+            border-top-color: #444;
+        }
+
+        body:not(.light-mode) .improvement-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #444;
+        }
+
+        body:not(.light-mode) .improvement-item-title {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .btn-add-improvement {
+            color: #9ca3ff;
+            border-color: #9ca3ff;
+        }
+
+        body.dark-mode .btn-add-improvement:hover {
+            background: rgba(156, 163, 255, 0.1);
+            border-color: #9ca3ff;
+        }
+
+        body:not(.light-mode) .btn-add-improvement {
+            color: #9ca3ff;
+            border-color: #9ca3ff;
+        }
+
+        body:not(.light-mode) .btn-add-improvement:hover {
+            background: rgba(156, 163, 255, 0.1);
+            border-color: #9ca3ff;
         }
 
         button {
@@ -1128,6 +1336,12 @@
                 </div>
             </div>
 
+            <div class="improvements-section">
+                <div class="form-section-title">Yhtiön parannukset</div>
+                <div id="improvementsList"></div>
+                <button type="button" class="btn-add-improvement" id="addImprovementBtn">+ Lisää parannus</button>
+            </div>
+
             <div class="button-group">
                 <button type="submit" class="btn-primary">Laske enimmäishinta</button>
             </div>
@@ -1292,6 +1506,163 @@
             }
         }
 
+        // Initialize year dropdown for improvements
+        function initializeImprovementYearDropdown(selectElement, selectedYear = null) {
+            const currentYear = new Date().getFullYear();
+            const startYear = 1978;
+            
+            selectElement.innerHTML = '';
+            for (let year = currentYear; year >= startYear; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (selectedYear && year === selectedYear) {
+                    option.selected = true;
+                }
+                selectElement.appendChild(option);
+            }
+        }
+
+        // Improvements management
+        let improvementCounter = 0;
+
+        // Update improvement numbering dynamically
+        function updateImprovementNumbers() {
+            const improvementItems = document.querySelectorAll('.improvement-item');
+            improvementItems.forEach((item, index) => {
+                const titleElement = item.querySelector('.improvement-item-title');
+                if (titleElement) {
+                    titleElement.textContent = `Parannus ${index + 1}`;
+                }
+            });
+        }
+
+        function addImprovement(improvementData = null) {
+            const improvementsList = document.getElementById('improvementsList');
+            const improvementIndex = improvementCounter++;
+            
+            const improvementItem = document.createElement('div');
+            improvementItem.className = 'improvement-item';
+            improvementItem.dataset.index = improvementIndex;
+            
+            const price = improvementData ? improvementData.price : '';
+            const year = improvementData ? improvementData.year : null;
+            const month = improvementData ? improvementData.month : null;
+            
+            // Get current number of improvements for display
+            const currentCount = improvementsList.children.length;
+            
+            improvementItem.innerHTML = `
+                <div class="improvement-item-header">
+                    <span class="improvement-item-title">Parannus ${currentCount + 1}</span>
+                    <button type="button" class="btn-remove" onclick="removeImprovement(${improvementIndex})">Poista</button>
+                </div>
+                <div class="form-group">
+                    <label for="improvementPrice_${improvementIndex}" class="label-with-tooltip">
+                        <span>Huoneistoon kohdistuva hinta (€)</span>
+                        <span class="info-tooltip">
+                            <span class="info-icon">?</span>
+                            <span class="tooltip-content">
+                                Huoneiston osuus lasketaan huoneiston ja yhtiön pinta-alojen suhteessa.<br>
+                                Esim. huoneisto 60 m² / yhtiö 2400 m² = 2,5%
+                            </span>
+                        </span>
+                    </label>
+                    <input type="number" id="improvementPrice_${improvementIndex}" 
+                           class="improvement-price" data-index="${improvementIndex}" 
+                           min="0" step="100" value="${price}">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="improvementYear_${improvementIndex}">Valmistumisvuosi</label>
+                        <select id="improvementYear_${improvementIndex}" 
+                                class="improvement-year" data-index="${improvementIndex}"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="improvementMonth_${improvementIndex}">Valmistumiskuukausi</label>
+                        <select id="improvementMonth_${improvementIndex}" 
+                                class="improvement-month" data-index="${improvementIndex}">
+                            <option value="1" ${month === 1 ? 'selected' : ''}>Tammikuu</option>
+                            <option value="2" ${month === 2 ? 'selected' : ''}>Helmikuu</option>
+                            <option value="3" ${month === 3 ? 'selected' : ''}>Maaliskuu</option>
+                            <option value="4" ${month === 4 ? 'selected' : ''}>Huhtikuu</option>
+                            <option value="5" ${month === 5 ? 'selected' : ''}>Toukokuu</option>
+                            <option value="6" ${month === 6 ? 'selected' : ''}>Kesäkuu</option>
+                            <option value="7" ${month === 7 ? 'selected' : ''}>Heinäkuu</option>
+                            <option value="8" ${month === 8 ? 'selected' : ''}>Elokuu</option>
+                            <option value="9" ${month === 9 ? 'selected' : ''}>Syyskuu</option>
+                            <option value="10" ${month === 10 ? 'selected' : ''}>Lokakuu</option>
+                            <option value="11" ${month === 11 ? 'selected' : ''}>Marraskuu</option>
+                            <option value="12" ${month === 12 ? 'selected' : ''}>Joulukuu</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            
+            improvementsList.appendChild(improvementItem);
+            
+            // Initialize year dropdown
+            const yearSelect = document.getElementById(`improvementYear_${improvementIndex}`);
+            initializeImprovementYearDropdown(yearSelect, year);
+            
+            // Update all numbers
+            updateImprovementNumbers();
+            
+            // Update localStorage with current improvements
+            const savedData = loadFromLocalStorage();
+            if (savedData) {
+                const currentImprovements = getImprovements();
+                saveToLocalStorage({
+                    ...savedData,
+                    improvements: currentImprovements
+                });
+            }
+        }
+
+        // Make removeImprovement globally accessible
+        window.removeImprovement = function(index) {
+            const improvementItem = document.querySelector(`.improvement-item[data-index="${index}"]`);
+            if (improvementItem) {
+                improvementItem.remove();
+                // Update numbering after removal
+                updateImprovementNumbers();
+                
+                // Update localStorage with current improvements
+                const savedData = loadFromLocalStorage();
+                if (savedData) {
+                    const currentImprovements = getImprovements();
+                    saveToLocalStorage({
+                        ...savedData,
+                        improvements: currentImprovements
+                    });
+                }
+            }
+        };
+
+        function getImprovements() {
+            const improvements = [];
+            const improvementItems = document.querySelectorAll('.improvement-item');
+            
+            improvementItems.forEach(item => {
+                const index = item.dataset.index;
+                const priceInput = document.getElementById(`improvementPrice_${index}`);
+                const yearSelect = document.getElementById(`improvementYear_${index}`);
+                const monthSelect = document.getElementById(`improvementMonth_${index}`);
+                
+                if (priceInput && yearSelect && monthSelect) {
+                    const price = parseFloat(priceInput.value);
+                    const year = parseInt(yearSelect.value);
+                    const month = parseInt(monthSelect.value);
+                    
+                    if (!isNaN(price) && price > 0 && year && month) {
+                        improvements.push({ price, year, month });
+                    }
+                }
+            });
+            
+            return improvements;
+        }
+
         // Get the latest available index value (not in the future)
         function getLatestIndex(indexData) {
             const currentDate = new Date();
@@ -1347,13 +1718,124 @@
             return Math.round(price) + ' €';
         }
 
+        // Calculate indexed value for a single improvement
+        function getImprovementIndexedValue(improvement, apartmentSize) {
+            const omavastuu = apartmentSize * 30; // 30 €/m²
+            
+            // If improvement price is less than or equal to omavastuu, no indexing
+            if (improvement.price <= omavastuu) {
+                return {
+                    originalPrice: improvement.price,
+                    omavastuu: omavastuu,
+                    indexedValue: 0,
+                    indexedAmount: 0,
+                    usedIndex: null,
+                    improvementYear: improvement.year,
+                    improvementMonth: improvement.month
+                };
+            }
+            
+            // Amount to be indexed (price exceeding omavastuu)
+            const amountToIndex = improvement.price - omavastuu;
+            
+            // Check if improvement was completed before 2011
+            const isBefore2011 = improvement.year < 2011;
+            
+            let indexedValue = 0;
+            let usedIndex = null;
+            
+            if (isBefore2011) {
+                // Use old market price index
+                const improvementOldMarket = getIndexValue(vanhatMarkkinahintaindeksi, improvement.year, improvement.month);
+                const currentOldMarket = getLatestIndex(vanhatMarkkinahintaindeksi);
+                
+                if (improvementOldMarket && currentOldMarket) {
+                    indexedValue = (amountToIndex * currentOldMarket.value) / improvementOldMarket;
+                    usedIndex = {
+                        name: 'Vanhojen osakeasuntojen hintaindeksi',
+                        type: 'vanhatMarkkinahinta',
+                        improvementIndex: improvementOldMarket,
+                        currentIndex: currentOldMarket
+                    };
+                }
+            } else {
+                // Use both indices and choose the higher one
+                const improvementRk = getIndexValue(rakennuskustannusindeksi, improvement.year, improvement.month);
+                const improvementMh = getIndexValue(markkinahintaindeksi, improvement.year, improvement.month);
+                const currentRk = getLatestIndex(rakennuskustannusindeksi);
+                const currentMh = getLatestIndex(markkinahintaindeksi);
+                
+                let rkValue = 0;
+                let mhValue = 0;
+                
+                if (improvementRk && currentRk) {
+                    rkValue = (amountToIndex * currentRk.value) / improvementRk;
+                }
+                
+                if (improvementMh && currentMh) {
+                    mhValue = (amountToIndex * currentMh.value) / improvementMh;
+                }
+                
+                // Choose the higher value
+                if (rkValue >= mhValue && rkValue > 0) {
+                    indexedValue = rkValue;
+                    usedIndex = {
+                        name: 'Rakennuskustannusindeksi',
+                        type: 'rakennuskustannus',
+                        improvementIndex: improvementRk,
+                        currentIndex: currentRk
+                    };
+                } else if (mhValue > 0) {
+                    indexedValue = mhValue;
+                    usedIndex = {
+                        name: 'Markkinahintaindeksi',
+                        type: 'markkinahinta',
+                        improvementIndex: improvementMh,
+                        currentIndex: currentMh
+                    };
+                }
+            }
+            
+            return {
+                originalPrice: improvement.price,
+                omavastuu: omavastuu,
+                indexedValue: indexedValue,
+                indexedAmount: amountToIndex,
+                usedIndex: usedIndex,
+                improvementYear: improvement.year,
+                improvementMonth: improvement.month
+            };
+        }
+
+        // Calculate total improvements impact
+        function calculateImprovements(improvements, apartmentSize) {
+            if (!improvements || improvements.length === 0) {
+                return {
+                    totalIndexedValue: 0,
+                    improvements: []
+                };
+            }
+            
+            const improvementResults = improvements.map(improvement => 
+                getImprovementIndexedValue(improvement, apartmentSize)
+            );
+            
+            const totalIndexedValue = improvementResults.reduce((sum, result) => sum + result.indexedValue, 0);
+            
+            return {
+                totalIndexedValue: totalIndexedValue,
+                improvements: improvementResults
+            };
+        }
+
         // Calculate rajahinta
-        function calculateRajahinta(originalPrice, purchaseYear, purchaseMonth, apartmentSize) {
+        function calculateRajahinta(originalPrice, purchaseYear, purchaseMonth, apartmentSize, improvements = []) {
             const results = {
                 rakennuskustannus: null,
                 markkinahinta: null,
                 vanhatMarkkinahinta: null,
-                rajaneliohinta: null
+                rajaneliohinta: null,
+                improvements: null
             };
 
             // Check if apartment was completed before 2011
@@ -1400,7 +1882,24 @@
                 }
             }
 
-            // Calculate rajaneliöhinta (applies to all Hitas apartments)
+            // Calculate improvements impact
+            if (improvements && improvements.length > 0) {
+                const improvementsResult = calculateImprovements(improvements, apartmentSize);
+                results.improvements = improvementsResult;
+                
+                // Add improvements to index prices (not to rajaneliöhinta)
+                if (results.rakennuskustannus) {
+                    results.rakennuskustannus.price += improvementsResult.totalIndexedValue;
+                }
+                if (results.markkinahinta) {
+                    results.markkinahinta.price += improvementsResult.totalIndexedValue;
+                }
+                if (results.vanhatMarkkinahinta) {
+                    results.vanhatMarkkinahinta.price += improvementsResult.totalIndexedValue;
+                }
+            }
+
+            // Calculate rajaneliöhinta (applies to all Hitas apartments, improvements NOT added)
             if (rajaneliohinta && apartmentSize) {
                 results.rajaneliohinta = {
                     price: apartmentSize * rajaneliohinta.price_per_sqm,
@@ -1770,6 +2269,8 @@
             // Show old market index calculation for pre-2011 apartments
             if (results.vanhatMarkkinahinta) {
                 const vm = results.vanhatMarkkinahinta;
+                const basePrice = (originalPrice * vm.currentIndex.value) / vm.purchaseIndex;
+                const improvementsTotal = results.improvements ? results.improvements.totalIndexedValue : 0;
                 
                 // Check if old market index is using older data
                 const vmIsOld = vm.currentIndex.year < currentYear || 
@@ -1784,6 +2285,16 @@
                         Valmistumishetken indeksi: ${vm.purchaseIndex.toFixed(2)}<br>
                         Nykyinen indeksi: ${vm.currentIndex.value.toFixed(2)} (${monthNames[vm.currentIndex.month - 1]} ${vm.currentIndex.year})<br>
                         Kaava: ${vm.currentIndex.value.toFixed(2)} / ${vm.purchaseIndex.toFixed(2)} × ${formatPrice(originalPrice)}<br>
+                        Indeksipohjainen hinta: ${formatPrice(basePrice)}<br>
+                `;
+                
+                if (improvementsTotal > 0) {
+                    infoHTML += `
+                        + Parannukset: ${formatPrice(improvementsTotal)}<br>
+                    `;
+                }
+                
+                infoHTML += `
                         Tulos: ${formatPrice(vm.price)}<br>
                     </div>
                 `;
@@ -1801,6 +2312,8 @@
             else if (results.rakennuskustannus) {
                 const rk = results.rakennuskustannus;
                 const isSelected = usedIndex === 'Rakennuskustannusindeksi';
+                const basePrice = (originalPrice * rk.currentIndex.value) / rk.purchaseIndex;
+                const improvementsTotal = results.improvements ? results.improvements.totalIndexedValue : 0;
                 
                 // Check if Rakennuskustannus index is using older data
                 const rkIsOld = rk.currentIndex.year < currentYear || 
@@ -1813,6 +2326,16 @@
                         Valmistumishetken indeksi: ${rk.purchaseIndex.toFixed(2)}<br>
                         Nykyinen indeksi: ${rk.currentIndex.value.toFixed(2)} (${monthNames[rk.currentIndex.month - 1]} ${rk.currentIndex.year})<br>
                         Kaava: ${rk.currentIndex.value.toFixed(2)} / ${rk.purchaseIndex.toFixed(2)} × ${formatPrice(originalPrice)}<br>
+                        Indeksipohjainen hinta: ${formatPrice(basePrice)}<br>
+                `;
+                
+                if (improvementsTotal > 0) {
+                    infoHTML += `
+                        + Parannukset: ${formatPrice(improvementsTotal)}<br>
+                    `;
+                }
+                
+                infoHTML += `
                         Tulos: ${formatPrice(rk.price)}<br>
                     </div>
                 `;
@@ -1832,6 +2355,8 @@
             if (results.markkinahinta) {
                 const mh = results.markkinahinta;
                 const isSelected = usedIndex === 'Markkinahintaindeksi';
+                const basePrice = (originalPrice * mh.currentIndex.value) / mh.purchaseIndex;
+                const improvementsTotal = results.improvements ? results.improvements.totalIndexedValue : 0;
                 
                 // Check if Markkinahinta index is using older data
                 const mhIsOld = mh.currentIndex.year < currentYear || 
@@ -1844,6 +2369,16 @@
                         Valmistumishetken indeksi: ${mh.purchaseIndex.toFixed(2)}<br>
                         Nykyinen indeksi: ${mh.currentIndex.value.toFixed(2)} (${monthNames[mh.currentIndex.month - 1]} ${mh.currentIndex.year})<br>
                         Kaava: ${mh.currentIndex.value.toFixed(2)} / ${mh.purchaseIndex.toFixed(2)} × ${formatPrice(originalPrice)}<br>
+                        Indeksipohjainen hinta: ${formatPrice(basePrice)}<br>
+                `;
+                
+                if (improvementsTotal > 0) {
+                    infoHTML += `
+                        + Parannukset: ${formatPrice(improvementsTotal)}<br>
+                    `;
+                }
+                
+                infoHTML += `
                         Tulos: ${formatPrice(mh.price)}<br>
                     </div>
                 `;
@@ -1873,6 +2408,49 @@
                         Rajaneliöhinta: ${formatPrice(rh.pricePerSqm)}/m² (voimassa ${rh.validFrom} - ${rh.validUntil})<br>
                         Kaava: ${rh.apartmentSize} m² × ${formatPrice(rh.pricePerSqm)}/m²<br>
                         Tulos: ${formatPrice(rh.price)}<br>
+                    </div>
+                `;
+            }
+
+            // Show improvements
+            if (results.improvements && results.improvements.improvements.length > 0) {
+                const improvementsData = results.improvements;
+                infoHTML += `
+                    <br>
+                    <strong>Parannukset:</strong><br>
+                    <div style="padding-left: 20px; margin-top: 8px;">
+                        <em>Parannukset lisätään vain indeksihintoihin, ei rajaneliöhintaan</em><br>
+                        <br>
+                `;
+                
+                improvementsData.improvements.forEach((imp, index) => {
+                    infoHTML += `
+                        <div style="margin-bottom: 15px; padding: 10px; background: rgba(255, 255, 255, 0.5); border-radius: 5px;">
+                            <strong>Parannus ${index + 1}</strong> (${monthNames[imp.improvementMonth - 1]} ${imp.improvementYear})<br>
+                            Parannuksen hinta: ${formatPrice(imp.originalPrice)}<br>
+                            Omavastuu (30 €/m²): ${formatPrice(imp.omavastuu)}<br>
+                    `;
+                    
+                    if (imp.indexedValue > 0) {
+                        infoHTML += `
+                            Indeksitarkistettava summa: ${formatPrice(imp.indexedAmount)}<br>
+                            Käytetty indeksi: ${imp.usedIndex.name}<br>
+                            Indeksitarkistettu arvo: ${formatPrice(imp.indexedValue)}<br>
+                        `;
+                    } else {
+                        infoHTML += `
+                            <em>Ei indeksitarkistusta (hinta ≤ omavastuu)</em><br>
+                        `;
+                    }
+                    
+                    infoHTML += `</div>`;
+                });
+                
+                infoHTML += `
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.1);">
+                            <strong>Parannusten yhteensä indeksitarkistettu arvo: ${formatPrice(improvementsData.totalIndexedValue)}</strong><br>
+                            <em>Tämä summa on lisätty kaikkiin indeksihintoihin</em>
+                        </div>
                     </div>
                 `;
             }
@@ -1910,9 +2488,10 @@
             const apartmentSize = parseFloat(document.getElementById('apartmentSize').value);
             const purchaseYear = parseInt(document.getElementById('purchaseYear').value);
             const purchaseMonth = parseInt(document.getElementById('purchaseMonth').value);
+            const improvements = getImprovements();
 
             // Calculate
-            const results = calculateRajahinta(originalPrice, purchaseYear, purchaseMonth, apartmentSize);
+            const results = calculateRajahinta(originalPrice, purchaseYear, purchaseMonth, apartmentSize, improvements);
 
             // Display result
             displayResult(results, originalPrice, purchaseYear, purchaseMonth);
@@ -1922,7 +2501,8 @@
                 originalPrice,
                 apartmentSize,
                 purchaseYear,
-                purchaseMonth
+                purchaseMonth,
+                improvements
             });
         });
 
@@ -2023,6 +2603,14 @@
 
             initializeYearDropdown();
 
+            // Setup "Add improvement" button
+            const addImprovementBtn = document.getElementById('addImprovementBtn');
+            if (addImprovementBtn) {
+                addImprovementBtn.addEventListener('click', function() {
+                    addImprovement();
+                });
+            }
+
             // Lataa indeksit ensin
             await loadIndices();
 
@@ -2036,13 +2624,22 @@
                 document.getElementById('purchaseYear').value = savedData.purchaseYear;
                 document.getElementById('purchaseMonth').value = savedData.purchaseMonth;
 
+                // Load improvements
+                if (savedData.improvements && savedData.improvements.length > 0) {
+                    savedData.improvements.forEach(improvement => {
+                        addImprovement(improvement);
+                    });
+                }
+
                 // Auto-calculate without scrolling (only if apartment size is available)
                 if (savedData.apartmentSize) {
+                    const improvements = savedData.improvements || [];
                     const results = calculateRajahinta(
                         savedData.originalPrice,
                         savedData.purchaseYear,
                         savedData.purchaseMonth,
-                        savedData.apartmentSize
+                        savedData.apartmentSize,
+                        improvements
                     );
                     displayResult(results, savedData.originalPrice, savedData.purchaseYear, savedData.purchaseMonth, false);
                 }
