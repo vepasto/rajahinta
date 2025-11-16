@@ -450,6 +450,12 @@
             max-height: 300px;
         }
 
+        @media (max-width: 768px) {
+            .price-chart-container canvas {
+                max-height: 400px;
+            }
+        }
+
         .result-info strong {
             color: #333;
         }
@@ -1566,6 +1572,10 @@
             const textColor = isDark ? '#d0d0d0' : '#333';
             const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)';
             
+            // Use smaller aspect ratio on mobile for taller chart
+            const isMobile = window.innerWidth <= 768;
+            const aspectRatio = isMobile ? 1.5 : 2.5;
+            
             chartContainer.style.display = 'block';
             
             priceChartInstance = new Chart(canvas, {
@@ -1577,7 +1587,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    aspectRatio: 2.5,
+                    aspectRatio: aspectRatio,
                     plugins: {
                         legend: {
                             display: datasets.length > 1,
