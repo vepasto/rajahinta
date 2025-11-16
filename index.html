@@ -2811,35 +2811,6 @@
 
             initializeYearDropdown();
 
-            // Add custom step behavior for originalPrice input (step 1000 for arrows, but allow any value)
-            const originalPriceInput = document.getElementById('originalPrice');
-            if (originalPriceInput) {
-                originalPriceInput.addEventListener('keydown', function(e) {
-                    // Handle arrow up/down keys with step 1000
-                    if (e.key === 'ArrowUp') {
-                        e.preventDefault();
-                        const currentValue = parseFloat(this.value) || 0;
-                        this.value = currentValue + 1000;
-                    } else if (e.key === 'ArrowDown') {
-                        e.preventDefault();
-                        const currentValue = parseFloat(this.value) || 0;
-                        const newValue = Math.max(0, currentValue - 1000);
-                        this.value = newValue;
-                    }
-                });
-                
-                // Handle mouse wheel with step 1000
-                originalPriceInput.addEventListener('wheel', function(e) {
-                    if (document.activeElement === this) {
-                        e.preventDefault();
-                        const currentValue = parseFloat(this.value) || 0;
-                        const step = 1000;
-                        const newValue = e.deltaY < 0 ? currentValue + step : Math.max(0, currentValue - step);
-                        this.value = newValue;
-                    }
-                });
-            }
-
             // Setup "Add improvement" button
             const addImprovementBtn = document.getElementById('addImprovementBtn');
             if (addImprovementBtn) {
