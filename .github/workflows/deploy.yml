@@ -29,6 +29,31 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install minification tools
+        run: |
+          npm install -g terser clean-css-cli
+
+      - name: Minify JavaScript files
+        run: |
+          for file in docs/js/*.js; do
+            if [ -f "$file" ]; then
+              terser "$file" -o "$file" --compress --mangle --comments false
+            fi
+          done
+
+      - name: Minify CSS files
+        run: |
+          for file in docs/css/*.css; do
+            if [ -f "$file" ]; then
+              cleancss -o "$file" "$file"
+            fi
+          done
+
       - name: Add cache busting to HTML files
         run: |
           python scripts/add_cache_busting.py
