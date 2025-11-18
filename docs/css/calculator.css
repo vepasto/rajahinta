@@ -130,7 +130,10 @@ body::before {
     z-index: 1;
 }
 
-/* Container styles are now in common.css for consistency */
+/* Container styles - calculator page needs narrower width */
+#main-content.container {
+    max-width: 600px;
+}
 
 .header {
     text-align: center;
