@@ -793,9 +793,13 @@
         let rajaneliohintaChartInstance = null;
 
         // Theme toggle functionality
-        function setTheme(theme) {
+        // Theme tracking
+        let isInitialThemeLoad = true;
+        
+        function setTheme(theme, isUserAction = false) {
             const lightIcon = document.getElementById('lightIcon');
             const darkIcon = document.getElementById('darkIcon');
+            let actualTheme = theme;
             
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark-mode');
@@ -805,6 +809,7 @@
                 if (lightIcon) lightIcon.classList.remove('active');
                 if (darkIcon) darkIcon.classList.add('active');
                 localStorage.setItem('theme', 'dark');
+                actualTheme = 'dark';
             } else if (theme === 'light') {
                 document.documentElement.classList.add('light-mode');
                 document.documentElement.classList.remove('dark-mode');
@@ -813,6 +818,7 @@
                 if (lightIcon) lightIcon.classList.add('active');
                 if (darkIcon) darkIcon.classList.remove('active');
                 localStorage.setItem('theme', 'light');
+                actualTheme = 'light';
             } else {
                 // Auto mode - follow system preference
                 document.documentElement.classList.remove('dark-mode', 'light-mode');
@@ -821,6 +827,22 @@
                 if (lightIcon) lightIcon.classList.toggle('active', !isDark);
                 if (darkIcon) darkIcon.classList.toggle('active', isDark);
                 localStorage.removeItem('theme');
+                actualTheme = isDark ? 'dark' : 'light';
+            }
+            
+            // Track theme usage in Google Analytics (if consent given)
+            if (typeof window.gtag === 'function') {
+                window.gtag('event', 'theme_change', {
+                    'event_category': 'ui',
+                    'event_label': actualTheme,
+                    'value': actualTheme === 'dark' ? 1 : 0,
+                    'non_interaction': !isUserAction && isInitialThemeLoad
+                });
+            }
+            
+            // Mark that initial load is done
+            if (isInitialThemeLoad) {
+                isInitialThemeLoad = false;
             }
             
             // Reload charts with new theme colors
@@ -837,9 +859,9 @@
             
             // Toggle between dark and light
             if (isDarkNow) {
-                setTheme('light');
+                setTheme('light', true); // true = user action
             } else {
-                setTheme('dark');
+                setTheme('dark', true); // true = user action
             }
         }
         
