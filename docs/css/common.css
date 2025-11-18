@@ -318,6 +318,11 @@ ol {
     gap: 10px;
 }
 
+.footer p,
+.footer span {
+    color: white;
+}
+
 .footer a {
     color: inherit;
     text-decoration: underline;
