@@ -444,6 +444,10 @@ body.dark-mode .footer a {
     color: #5568d3;
 }
 
+.external-link:visited {
+    color: #8b7fb8;
+}
+
 body.dark-mode .external-link {
     color: #9ca3ff;
 }
@@ -452,12 +456,20 @@ body.dark-mode .external-link:hover {
     color: #b4b9ff;
 }
 
+body.dark-mode .external-link:visited {
+    color: #7a7fb8;
+}
+
 body:not(.light-mode) .external-link {
     color: #9ca3ff;
 }
 
 body:not(.light-mode) .external-link:hover {
     color: #b4b9ff;
+}
+
+body:not(.light-mode) .external-link:visited {
+    color: #7a7fb8;
 }
 
 /* Prefer dark mode by default if user system preference is dark */
