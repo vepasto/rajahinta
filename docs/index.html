@@ -3206,6 +3206,16 @@
 
             const results = calculateRajahinta(originalPrice, purchaseYear, purchaseMonth, apartmentSize, improvements);
 
+            // Track calculation event in Google Analytics (if consent given)
+            if (typeof window.gtag === 'function') {
+                window.gtag('event', 'calculation', {
+                    'event_category': 'calculator',
+                    'event_label': 'price_calculation',
+                    'value': Math.round(results.finalPrice || 0),
+                    'non_interaction': false
+                });
+            }
+
             // Display result
             displayResult(results, originalPrice, purchaseYear, purchaseMonth);
 
@@ -3470,6 +3480,17 @@
                         savedData.apartmentSize,
                         improvements
                     );
+                    
+                    // Track auto-calculation event in Google Analytics (if consent given)
+                    if (typeof window.gtag === 'function') {
+                        window.gtag('event', 'auto_calculation', {
+                            'event_category': 'calculator',
+                            'event_label': 'auto_price_calculation',
+                            'value': Math.round(results.finalPrice || 0),
+                            'non_interaction': true
+                        });
+                    }
+                    
                     displayResult(results, savedData.originalPrice, savedData.purchaseYear, savedData.purchaseMonth, false);
                 }
             }
