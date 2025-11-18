@@ -183,180 +183,37 @@
 
     <script type="module">
         // Import indices loading module
-        import { findLatestIndicesFile } from './js/indices.js';
+        import { loadIndices, indicesState } from './js/calculator-indices.js';
         
-        // Make findLatestIndicesFile available globally for inline scripts
-        window.findLatestIndicesFile = () => findLatestIndicesFile('data');
+        // Make indices available globally for inline scripts
+        // Use getters so they always reference the current state
+        window.loadIndices = loadIndices;
+        Object.defineProperty(window, 'rakennuskustannusindeksi', {
+            get() { return indicesState.rakennuskustannusindeksi; },
+            configurable: true
+        });
+        Object.defineProperty(window, 'markkinahintaindeksi', {
+            get() { return indicesState.markkinahintaindeksi; },
+            configurable: true
+        });
+        Object.defineProperty(window, 'vanhatMarkkinahintaindeksi', {
+            get() { return indicesState.vanhatMarkkinahintaindeksi; },
+            configurable: true
+        });
+        Object.defineProperty(window, 'rajaneliohinta', {
+            get() { return indicesState.rajaneliohinta; },
+            configurable: true
+        });
+        Object.defineProperty(window, 'indicesLoaded', {
+            get() { return indicesState.indicesLoaded; },
+            configurable: true
+        });
+        Object.defineProperty(window, 'indicesData', {
+            get() { return indicesState.indicesData; },
+            configurable: true
+        });
     </script>
     <script>
-        // Indeksit ladataan JSON-tiedostosta
-        let rakennuskustannusindeksi = {};
-        let markkinahintaindeksi = {};
-        let vanhatMarkkinahintaindeksi = {};
-        let rajaneliohinta = null;
-        let indicesLoaded = false;
-        let indicesData = null; // Store raw JSON data for charts
-
-        // Validate indices data structure
-        function validateIndicesData(data) {
-            const errors = [];
-            
-            // Check required fields
-            if (!data) {
-                errors.push('Data is null or undefined');
-                return errors;
-            }
-            
-            if (!data.rakennuskustannusindeksi || typeof data.rakennuskustannusindeksi !== 'object') {
-                errors.push('rakennuskustannusindeksi is missing or invalid');
-            }
-            
-            if (!data.markkinahintaindeksi || typeof data.markkinahintaindeksi !== 'object') {
-                errors.push('markkinahintaindeksi is missing or invalid');
-            }
-            
-            // Optional fields (just log warnings)
-            if (data.vanhat_markkinahintaindeksi && typeof data.vanhat_markkinahintaindeksi !== 'object') {
-                console.warn('vanhat_markkinahintaindeksi has invalid format');
-            }
-            
-            if (data.rajaneliohinta && typeof data.rajaneliohinta !== 'object') {
-                console.warn('rajaneliohinta has invalid format');
-            }
-            
-            return errors;
-        }
-
-        // Safely parse index data with error handling
-        function parseIndexData(indexData, indexName) {
-            const parsed = {};
-            
-            if (!indexData || typeof indexData !== 'object') {
-                console.warn(`${indexName} is missing or invalid`);
-                return parsed;
-            }
-            
-            try {
-                for (const [yearStr, months] of Object.entries(indexData)) {
-                    const year = parseInt(yearStr);
-                    if (isNaN(year)) {
-                        console.warn(`Invalid year in ${indexName}: ${yearStr}`);
-                        continue;
-                    }
-                    
-                    parsed[year] = {};
-                    if (!months || typeof months !== 'object') {
-                        console.warn(`Invalid months data for year ${year} in ${indexName}`);
-                        continue;
-                    }
-                    
-                    for (const [monthStr, value] of Object.entries(months)) {
-                        const month = parseInt(monthStr);
-                        if (isNaN(month) || month < 1 || month > 12) {
-                            console.warn(`Invalid month in ${indexName} for year ${year}: ${monthStr}`);
-                            continue;
-                        }
-                        
-                        const numValue = typeof value === 'number' ? value : parseFloat(value);
-                        if (isNaN(numValue)) {
-                            console.warn(`Invalid value in ${indexName} for ${year}-${month}: ${value}`);
-                            continue;
-                        }
-                        
-                        parsed[year][month] = numValue;
-                    }
-                }
-            } catch (error) {
-                console.error(`Error parsing ${indexName}:`, error);
-            }
-            
-            return parsed;
-        }
-
-        // Lataa indeksit JSON-tiedostosta
-        async function loadIndices() {
-            try {
-                // Find the latest indices file automatically
-                const indicesFile = await window.findLatestIndicesFile();
-                const response = await fetch(indicesFile);
-                if (!response.ok) {
-                    throw new Error(`Failed to load indices file: ${response.status} ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                
-                // Validate data structure
-                const validationErrors = validateIndicesData(data);
-                if (validationErrors.length > 0) {
-                    throw new Error(`Invalid indices data structure: ${validationErrors.join(', ')}`);
-                }
-                
-                // Store raw data for charts
-                indicesData = data;
-                
-                // Parse indices data safely
-                rakennuskustannusindeksi = parseIndexData(data.rakennuskustannusindeksi, 'rakennuskustannusindeksi');
-                markkinahintaindeksi = parseIndexData(data.markkinahintaindeksi, 'markkinahintaindeksi');
-                
-                // Parse optional indices
-                if (data.vanhat_markkinahintaindeksi) {
-                    vanhatMarkkinahintaindeksi = parseIndexData(data.vanhat_markkinahintaindeksi, 'vanhat_markkinahintaindeksi');
-                } else {
-                    vanhatMarkkinahintaindeksi = {};
-                }
-                
-                // Parse rajaneliöhinta safely
-                if (data.rajaneliohinta) {
-                    try {
-                        // Validate rajaneliöhinta structure
-                        if (typeof data.rajaneliohinta === 'object' && 
-                            typeof data.rajaneliohinta.price_per_sqm === 'number' &&
-                            data.rajaneliohinta.valid_from &&
-                            data.rajaneliohinta.valid_until) {
-                            rajaneliohinta = data.rajaneliohinta;
-                        } else {
-                            console.warn('rajaneliohinta has invalid structure, skipping');
-                            rajaneliohinta = null;
-                        }
-                    } catch (error) {
-                        console.error('Error parsing rajaneliohinta:', error);
-                        rajaneliohinta = null;
-                    }
-                } else {
-                    rajaneliohinta = null;
-                }
-                
-                // Check if we have minimum required data
-                const hasRakennuskustannus = Object.keys(rakennuskustannusindeksi).length > 0;
-                const hasMarkkinahinta = Object.keys(markkinahintaindeksi).length > 0;
-                
-                if (!hasRakennuskustannus || !hasMarkkinahinta) {
-                    throw new Error('Required indices data is empty or invalid');
-                }
-                
-                indicesLoaded = true;
-                return true;
-            } catch (error) {
-                console.error('Error loading indices:', error);
-                indicesLoaded = false;
-                // Show user-friendly error message without blocking page load
-                const errorMsg = error.message || 'Tuntematon virhe';
-                // Use setTimeout to avoid blocking page load in Safari
-                setTimeout(() => {
-                    const errorDiv = document.createElement('div');
-                    errorDiv.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #e74c3c; color: white; padding: 15px 20px; border-radius: 8px; z-index: 10000; max-width: 90%; box-shadow: 0 4px 6px rgba(0,0,0,0.3);';
-                    errorDiv.innerHTML = `<strong>Virhe:</strong> Indeksien lataus epäonnistui.<br><br>${errorMsg}<br><br><button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; background: white; color: #e74c3c; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Päivitä sivu</button>`;
-                    document.body.appendChild(errorDiv);
-                    // Auto-remove after 10 seconds
-                    setTimeout(() => {
-                        if (errorDiv.parentNode) {
-                            errorDiv.parentNode.removeChild(errorDiv);
-                        }
-                    }, 10000);
-                }, 100);
-                return false;
-            }
-        }
 
         const monthNames = ['Tammikuu', 'Helmikuu', 'Maaliskuu', 'Huhtikuu', 'Toukokuu', 'Kesäkuu', 
                            'Heinäkuu', 'Elokuu', 'Syyskuu', 'Lokakuu', 'Marraskuu', 'Joulukuu'];
