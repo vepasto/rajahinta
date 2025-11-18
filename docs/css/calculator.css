@@ -119,7 +119,7 @@ body::before {
     width: 100%;
     height: 100%;
     opacity: 0.05;
-    background-image: url('house-pattern.svg');
+    background-image: url('../house-pattern.svg');
     background-size: 80px 80px;
     pointer-events: none;
     z-index: 0;
