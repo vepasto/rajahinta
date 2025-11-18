@@ -619,14 +619,15 @@ button {
 }
 
 .result-info a {
-    color: #667eea;
-    text-decoration: none;
-    transition: color 0.3s;
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: rgba(0, 0, 0, 0.3);
+    text-underline-offset: 2px;
+    transition: text-decoration-color 0.3s;
 }
 
 .result-info a:hover {
-    color: #764ba2;
-    text-decoration: underline;
+    text-decoration-color: rgba(0, 0, 0, 0.5);
 }
 
 .result-info.expanded {
@@ -823,8 +824,14 @@ body:not(.light-mode) .improvement-detail-box {
 }
 
 .footer a {
-    color: white;
+    color: inherit;
     text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.6);
+    text-underline-offset: 2px;
+}
+
+.footer a:hover {
+    text-decoration-color: rgba(255, 255, 255, 0.8);
 }
 
 .bug-report-link {
@@ -934,11 +941,14 @@ body.dark-mode .result-info {
 }
 
 body.dark-mode .result-info a {
-    color: #9ca3ff;
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.4);
+    text-underline-offset: 2px;
 }
 
 body.dark-mode .result-info a:hover {
-    color: #b8bcff;
+    text-decoration-color: rgba(255, 255, 255, 0.6);
 }
 
 body.dark-mode .result-info.expanded {
@@ -977,7 +987,14 @@ body.dark-mode .footer {
 }
 
 body.dark-mode .footer a {
-    color: #b0b0b0;
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.4);
+    text-underline-offset: 2px;
+}
+
+body.dark-mode .footer a:hover {
+    text-decoration-color: rgba(255, 255, 255, 0.6);
 }
 
 body.dark-mode .theme-toggle {
@@ -1098,11 +1115,14 @@ body.dark-mode .nav-link.active {
     }
 
     body:not(.light-mode) .result-info a {
-        color: #9ca3ff;
+        color: inherit;
+        text-decoration: underline;
+        text-decoration-color: rgba(255, 255, 255, 0.4);
+        text-underline-offset: 2px;
     }
 
     body:not(.light-mode) .result-info a:hover {
-        color: #b8bcff;
+        text-decoration-color: rgba(255, 255, 255, 0.6);
     }
 
     body:not(.light-mode) .result-info.expanded {
@@ -1141,7 +1161,14 @@ body.dark-mode .nav-link.active {
     }
 
     body:not(.light-mode) .footer a {
-        color: #b0b0b0;
+        color: inherit;
+        text-decoration: underline;
+        text-decoration-color: rgba(255, 255, 255, 0.4);
+        text-underline-offset: 2px;
+    }
+
+    body:not(.light-mode) .footer a:hover {
+        text-decoration-color: rgba(255, 255, 255, 0.6);
     }
 
     body:not(.light-mode) .theme-toggle {

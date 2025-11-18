@@ -284,8 +284,14 @@ ol {
 }
 
 .footer a {
-    color: white;
+    color: inherit;
     text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.6);
+    text-underline-offset: 2px;
+}
+
+.footer a:hover {
+    text-decoration-color: rgba(255, 255, 255, 0.8);
 }
 
 .bug-report-link {
@@ -431,45 +437,59 @@ body.dark-mode .footer {
 }
 
 body.dark-mode .footer a {
-    color: #b0b0b0;
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.4);
+    text-underline-offset: 2px;
+}
+
+body.dark-mode .footer a:hover {
+    text-decoration-color: rgba(255, 255, 255, 0.6);
 }
 
 .external-link {
-    color: #667eea;
+    color: inherit;
     text-decoration: underline;
-    transition: color 0.3s;
+    text-decoration-color: rgba(0, 0, 0, 0.3);
+    text-underline-offset: 2px;
+    transition: text-decoration-color 0.3s;
 }
 
 .external-link:hover {
-    color: #5568d3;
+    text-decoration-color: rgba(0, 0, 0, 0.5);
 }
 
 .external-link:visited {
-    color: #8b7fb8;
+    color: inherit;
+    text-decoration-color: rgba(0, 0, 0, 0.25);
 }
 
 body.dark-mode .external-link {
-    color: #9ca3ff;
+    color: inherit;
+    text-decoration-color: rgba(255, 255, 255, 0.4);
 }
 
 body.dark-mode .external-link:hover {
-    color: #b4b9ff;
+    text-decoration-color: rgba(255, 255, 255, 0.6);
 }
 
 body.dark-mode .external-link:visited {
-    color: #7a7fb8;
+    color: inherit;
+    text-decoration-color: rgba(255, 255, 255, 0.35);
 }
 
 body:not(.light-mode) .external-link {
-    color: #9ca3ff;
+    color: inherit;
+    text-decoration-color: rgba(255, 255, 255, 0.4);
 }
 
 body:not(.light-mode) .external-link:hover {
-    color: #b4b9ff;
+    text-decoration-color: rgba(255, 255, 255, 0.6);
 }
 
 body:not(.light-mode) .external-link:visited {
-    color: #7a7fb8;
+    color: inherit;
+    text-decoration-color: rgba(255, 255, 255, 0.35);
 }
 
 /* Prefer dark mode by default if user system preference is dark */
