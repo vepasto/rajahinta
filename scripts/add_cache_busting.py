@@ -49,13 +49,14 @@ def add_cache_busting_to_html(html_file, commit_hash):
     
     # Pattern to match JS/CSS file references
     # Matches: href="css/file.css" or src="js/file.js" or src="../js/file.js"
+    # Also handles existing query parameters by replacing them
     patterns = [
-        # CSS files
-        (r'(href=["\'])(css/[^"\']+\.css)(["\'])', r'\1\2?v=' + commit_hash + r'\3'),
-        (r'(href=["\'])(\.\./css/[^"\']+\.css)(["\'])', r'\1\2?v=' + commit_hash + r'\3'),
-        # JS files
-        (r'(src=["\'])(js/[^"\']+\.js)(["\'])', r'\1\2?v=' + commit_hash + r'\3'),
-        (r'(src=["\'])(\.\./js/[^"\']+\.js)(["\'])', r'\1\2?v=' + commit_hash + r'\3'),
+        # CSS files - replace existing ?v=... or add new
+        (r'(href=["\'])(css/[^"\']+?)(\?v=[^"\']+)?(["\'])', r'\1\2?v=' + commit_hash + r'\4'),
+        (r'(href=["\'])(\.\./css/[^"\']+?)(\?v=[^"\']+)?(["\'])', r'\1\2?v=' + commit_hash + r'\4'),
+        # JS files - replace existing ?v=... or add new
+        (r'(src=["\'])(js/[^"\']+?)(\?v=[^"\']+)?(["\'])', r'\1\2?v=' + commit_hash + r'\4'),
+        (r'(src=["\'])(\.\./js/[^"\']+?)(\?v=[^"\']+)?(["\'])', r'\1\2?v=' + commit_hash + r'\4'),
     ]
     
     for pattern, replacement in patterns:
@@ -69,16 +70,35 @@ def add_cache_busting_to_html(html_file, commit_hash):
         print(f"No changes needed for {html_file}")
         return False
 
+def find_html_files(root_dir='docs'):
+    """Find all HTML files recursively in the docs directory."""
+    html_files = []
+    root_path = Path(root_dir)
+    
+    if not root_path.exists():
+        print(f"Warning: Directory {root_dir} does not exist.", file=sys.stderr)
+        return html_files
+    
+    # Find all HTML files recursively
+    for html_file in root_path.rglob('*.html'):
+        html_files.append(str(html_file))
+    
+    return sorted(html_files)
+
 def main():
     """Main function."""
     commit_hash = get_git_commit_hash()
     
-    # HTML files to update
-    html_files = [
-        'docs/index.html',
-        'docs/graphs/index.html',
-        'docs/info/index.html',
-    ]
+    # Find all HTML files automatically
+    html_files = find_html_files('docs')
+    
+    if not html_files:
+        print("No HTML files found in docs directory.", file=sys.stderr)
+        return 1
+    
+    print(f"Found {len(html_files)} HTML file(s) to process:")
+    for html_file in html_files:
+        print(f"  - {html_file}")
     
     updated_count = 0
     for html_file in html_files:
