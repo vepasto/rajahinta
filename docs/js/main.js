@@ -4,11 +4,32 @@ import { initCookieConsentHandlers } from './cookies.js';
 import { trackCalculation } from './analytics.js';
 
 // Set up theme change callback for chart reloading
-// This will be implemented when we refactor the chart code
 setOnThemeChange(() => {
     // Reload charts when theme changes
-    if (typeof loadIndicesCharts === 'function') {
-        setTimeout(loadIndicesCharts, 100);
+    // Check if we're on calculator page and charts exist
+    if (typeof window.createPriceChart === 'function' && window.currentChartData) {
+        setTimeout(() => {
+            window.createPriceChart(
+                window.currentChartData.purchaseYear,
+                window.currentChartData.purchaseMonth,
+                window.currentChartData.originalPrice,
+                window.currentChartData.apartmentSize || null,
+                window.currentChartData.winner || null
+            );
+            
+            // Recreate modal chart if it's open
+            const chartModal = document.getElementById('chartModal');
+            if (chartModal && chartModal.style.display === 'flex' && window.priceChartInstance) {
+                if (typeof window.createModalChart === 'function') {
+                    window.createModalChart();
+                }
+            }
+        }, 100);
+    }
+    
+    // Also check for graphs page charts
+    if (typeof window.loadIndicesCharts === 'function') {
+        setTimeout(window.loadIndicesCharts, 100);
     }
 });
 
