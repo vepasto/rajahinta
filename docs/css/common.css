@@ -385,6 +385,15 @@ body.dark-mode p {
     color: #c0c0c0;
 }
 
+body.dark-mode ul,
+body.dark-mode ol {
+    color: #c0c0c0;
+}
+
+body.dark-mode li {
+    color: #c0c0c0;
+}
+
 body.dark-mode .chart-container {
     background: #1a1a2e;
 }
@@ -503,6 +512,15 @@ body:not(.light-mode) .external-link:hover {
     }
 
     body:not(.light-mode) p {
+        color: #c0c0c0;
+    }
+
+    body:not(.light-mode) ul,
+    body:not(.light-mode) ol {
+        color: #c0c0c0;
+    }
+
+    body:not(.light-mode) li {
         color: #c0c0c0;
     }
 
