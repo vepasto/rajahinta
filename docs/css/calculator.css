@@ -125,19 +125,12 @@ body::before {
     z-index: 0;
 }
 
-.header, .container, .footer {
+.header, .footer {
     position: relative;
     z-index: 1;
 }
 
-.container {
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    max-width: 600px;
-    width: 100%;
-    padding: 40px;
-}
+/* Container styles are now in common.css for consistency */
 
 .header {
     text-align: center;
@@ -892,10 +885,7 @@ body.dark-mode .subtitle.small {
     color: #888;
 }
 
-body.dark-mode .container {
-    background: #2a2a3e;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-}
+/* Container dark mode styles are now in common.css for consistency */
 
 body.dark-mode label {
     color: #e0e0e0;
@@ -1059,10 +1049,7 @@ body.dark-mode .nav-link.active {
         color: #888;
     }
 
-    body:not(.light-mode) .container {
-        background: #2a2a3e;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-    }
+    /* Container dark mode styles are now in common.css for consistency */
 
     body:not(.light-mode) label {
         color: #e0e0e0;
@@ -1205,9 +1192,7 @@ body.dark-mode .nav-link.active {
 }
 
 @media (max-width: 600px) {
-    .container {
-        padding: 25px;
-    }
+    /* Container padding is now in common.css for consistency */
 
     h1 {
         font-size: 24px;
