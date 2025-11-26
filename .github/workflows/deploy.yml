@@ -5,6 +5,12 @@ on:
     branches:
       - main
       - master
+  workflow_run:
+    workflows: ["Update HITAS Indices"]
+    types:
+      - completed
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -14,6 +20,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -24,39 +31,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install minification tools
-        run: |
-          npm install -g terser clean-css-cli
+      - name: Install dependencies
+        run: npm install
 
-      - name: Minify JavaScript files
-        run: |
-          for file in docs/js/*.js; do
-            if [ -f "$file" ]; then
-              terser "$file" -o "$file" --compress --mangle --comments false
-            fi
-          done
-
-      - name: Minify CSS files
-        run: |
-          for file in docs/css/*.css; do
-            if [ -f "$file" ]; then
-              cleancss -o "$file" "$file"
-            fi
-          done
-
-      - name: Add cache busting to HTML files
-        run: |
-          python scripts/add_cache_busting.py
+      - name: Build Next.js
+        run: npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -64,7 +48,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './docs'
+          path: './out'
 
       - name: Deploy to GitHub Pages
         id: deployment
