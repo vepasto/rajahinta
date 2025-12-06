@@ -33,10 +33,14 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
   icons: {
-    icon: {
-      url: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Cdefs%3E%3ClinearGradient id=\'bg\' x1=\'0%25\' y1=\'0%25\' x2=\'100%25\' y2=\'100%25\'%3E%3Cstop offset=\'0%25\' style=\'stop-color:%23667eea\'/%3E%3Cstop offset=\'100%25\' style=\'stop-color:%23764ba2\'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=\'100\' height=\'100\' fill=\'url(%23bg)\'/%3E%3Cg fill=\'white\'%3E%3Cpath d=\'M50 25 L70 45 L70 75 L30 75 L30 45 Z\'/%3E%3Crect x=\'40\' y=\'55\' width=\'8\' height=\'12\'/%3E%3Crect x=\'52\' y=\'55\' width=\'8\' height=\'12\'/%3E%3C/g%3E%3C/svg%3E',
-      type: 'image/svg+xml',
-    },
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
 }
 
