@@ -1,14 +1,19 @@
 import type { Metadata, Viewport } from 'next'
 import '../styles/globals.css'
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+if (!siteUrl) {
+  throw new Error('NEXT_PUBLIC_SITE_URL environment variable is required')
+}
+
 export const metadata: Metadata = {
   title: 'Hitas hintalaskuri',
   description: 'Laske Hitas-asuntosi nykyinen velaton enimmäishinta käyttäen virallisia rakennuskustannus- ja markkinahintaindeksejä.',
-  metadataBase: new URL('https://hitas-hinta.fi'),
+  metadataBase: new URL(siteUrl),
   openGraph: {
     type: 'website',
     locale: 'fi_FI',
-    url: 'https://hitas-hinta.fi',
+    url: siteUrl,
     title: 'Hitas hintalaskuri',
     description: 'Laske Hitas-asuntosi nykyinen velaton enimmäishinta käyttäen virallisia rakennuskustannus- ja markkinahintaindeksejä.',
     images: [

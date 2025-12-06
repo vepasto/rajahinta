@@ -37,10 +37,16 @@ function loadGoogleAnalytics() {
     return;
   }
 
+  const gaId = process.env.NEXT_PUBLIC_GA_ID
+  if (!gaId) {
+    console.warn('Google Analytics ID not configured. Set NEXT_PUBLIC_GA_ID environment variable.');
+    return;
+  }
+
   // Add Google Analytics script
   const script = document.createElement('script');
   script.async = true;
-  script.src = 'https://www.googletagmanager.com/gtag/js?id=G-SBRC1GSMZS';
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
   document.head.appendChild(script);
 
   script.onload = () => {
@@ -50,7 +56,7 @@ function loadGoogleAnalytics() {
     }
     (window as any).gtag = gtag;
     gtag('js', new Date());
-    gtag('config', 'G-SBRC1GSMZS');
+    gtag('config', gaId);
   };
 }
 
