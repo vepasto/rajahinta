@@ -24,7 +24,7 @@ export function Navigation() {
             Info
           </Link>
           <Link href="/graphs" className={`nav-link ${isActivePath(pathname, '/graphs') ? 'active' : ''}`}>
-            Graafit
+            Indeksit
           </Link>
         </div>
         <ThemeToggle />

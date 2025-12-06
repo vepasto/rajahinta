@@ -42,7 +42,7 @@ export function ChartSection({
       <div className="chart-container" id={`${chartId}-chart`}>
         <h3>{title}</h3>
         <div className="chart-description">{description}</div>
-        <div style={{ position: 'relative', paddingTop: '35px' }}>
+        <div style={{ position: 'relative', paddingTop: '35px', minHeight: '400px' }}>
           {showPlaceholder && placeholderImage && (
             <img
               src={placeholderImage}
@@ -52,6 +52,9 @@ export function ChartSection({
                 height: 'auto',
                 display: 'block',
                 opacity: 0.7,
+                position: 'absolute',
+                top: '35px',
+                left: 0,
               }}
               className="chart-placeholder"
             />
@@ -61,6 +64,8 @@ export function ChartSection({
             ref={chartRef}
             style={{
               display: chartInstance ? 'block' : 'none',
+              width: '100%',
+              height: 'auto',
             }}
           ></canvas>
           <button

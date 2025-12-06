@@ -161,7 +161,7 @@ export function Charts() {
           },
           options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             aspectRatio: aspectRatio,
             plugins: {
               legend: {
@@ -269,7 +269,7 @@ export function Charts() {
           },
           options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             aspectRatio: aspectRatio,
             plugins: {
               legend: {
@@ -377,7 +377,7 @@ export function Charts() {
           },
           options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             aspectRatio: aspectRatio,
             plugins: {
               legend: {
