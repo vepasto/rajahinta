@@ -39,6 +39,9 @@ jobs:
         run: npm install
 
       - name: Build Next.js
+        env:
+          NEXT_PUBLIC_SITE_URL: https://hitas-hinta.fi
+          NEXT_PUBLIC_GA_ID: ${{ secrets.NEXT_PUBLIC_GA_ID }}
         run: npm run build
 
       - name: Setup Pages
