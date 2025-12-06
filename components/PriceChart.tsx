@@ -1,15 +1,34 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  LineController,
+  Title,
+  Tooltip,
+  Legend,
+  type ChartOptions,
+  type ChartData,
+} from 'chart.js'
 import { indicesState } from '@/lib/calculator-indices'
 import { formatPrice, formatPriceCompact } from '@/lib/calculator'
 import { setOnThemeChange } from '@/lib/theme'
 
-declare global {
-  interface Window {
-    Chart: any
-  }
-}
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  LineController,
+  Title,
+  Tooltip,
+  Legend
+)
 
 interface PriceChartProps {
   purchaseYear: number
@@ -33,7 +52,7 @@ export function PriceChart({
   const modalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.Chart || !chartRef.current) {
+    if (!chartRef.current) {
       return
     }
 
@@ -58,7 +77,7 @@ export function PriceChart({
   }, [purchaseYear, purchaseMonth, originalPrice, apartmentSize, winner])
 
   function createChart() {
-    if (!chartRef.current || !window.Chart || !indicesState.indicesData) {
+    if (!chartRef.current || !indicesState.indicesData) {
       return
     }
 
@@ -359,7 +378,9 @@ export function PriceChart({
     }
 
     const ctx = chartRef.current.getContext('2d')
-    chartInstanceRef.current = new window.Chart(ctx, {
+    if (!ctx) return
+    
+    chartInstanceRef.current = new ChartJS(ctx, {
       type: 'line',
       data: {
         labels: labels,
@@ -473,7 +494,9 @@ export function PriceChart({
     const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)'
 
     const ctx = modalCanvas.getContext('2d')
-    modalChartInstanceRef.current = new window.Chart(ctx, {
+    if (!ctx) return
+    
+    modalChartInstanceRef.current = new ChartJS(ctx, {
       type: 'line',
       data: {
         labels: clonedLabels,

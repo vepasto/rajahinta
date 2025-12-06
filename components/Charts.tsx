@@ -1,14 +1,35 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  LineController,
+  BarElement,
+  BarController,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js'
 import { loadIndicesData } from '@/lib/indices'
 import { setOnThemeChange } from '@/lib/theme'
 
-declare global {
-  interface Window {
-    Chart: any
-  }
-}
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  LineController,
+  BarElement,
+  BarController,
+  Title,
+  Tooltip,
+  Legend
+)
 
 export function Charts() {
   const newChartRef = useRef<HTMLCanvasElement>(null)
@@ -25,9 +46,6 @@ export function Charts() {
   })
 
   const loadCharts = async () => {
-    if (typeof window === 'undefined' || !window.Chart) {
-      return Promise.resolve()
-    }
 
     try {
       // Destroy existing charts
@@ -104,7 +122,8 @@ export function Charts() {
 
       if (newChartRef.current) {
         const ctxNew = newChartRef.current.getContext('2d')
-        chartInstancesRef.current.new = new window.Chart(ctxNew, {
+        if (!ctxNew) return
+        chartInstancesRef.current.new = new ChartJS(ctxNew, {
           type: 'line',
           data: {
             labels: newLabels,
@@ -218,7 +237,8 @@ export function Charts() {
 
       if (oldChartRef.current) {
         const ctxOld = oldChartRef.current.getContext('2d')
-        chartInstancesRef.current.old = new window.Chart(ctxOld, {
+        if (!ctxOld) return
+        chartInstancesRef.current.old = new ChartJS(ctxOld, {
           type: 'line',
           data: {
             labels: oldLabels,
@@ -323,7 +343,8 @@ export function Charts() {
 
       if (rajaneliohintaChartRef.current) {
         const ctxRajahinta = rajaneliohintaChartRef.current.getContext('2d')
-        chartInstancesRef.current.rajaneliohinta = new window.Chart(ctxRajahinta, {
+        if (!ctxRajahinta) return
+        chartInstancesRef.current.rajaneliohinta = new ChartJS(ctxRajahinta, {
           type: 'line',
           data: {
             labels: rajaneliohintaLabels,
@@ -414,16 +435,11 @@ export function Charts() {
   }
 
   useEffect(() => {
-    // Wait for Chart.js to load
-    const checkChart = setInterval(() => {
-      if (typeof window !== 'undefined' && window.Chart) {
-        clearInterval(checkChart)
-        loadCharts().then(() => {
-          // After charts are loaded, check if there's a hash in the URL and scroll to it
-          scrollToHash()
-        })
-      }
-    }, 100)
+    // Load charts immediately since Chart.js is now imported
+    loadCharts().then(() => {
+      // After charts are loaded, check if there's a hash in the URL and scroll to it
+      scrollToHash()
+    })
 
     // Listen for hash changes (e.g., when clicking links)
     const handleHashChange = () => {
@@ -437,7 +453,6 @@ export function Charts() {
     })
 
     return () => {
-      clearInterval(checkChart)
       window.removeEventListener('hashchange', handleHashChange)
       // Cleanup charts
       if (chartInstancesRef.current.new) {
