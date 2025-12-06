@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,6 +16,7 @@ import {
 } from 'chart.js'
 import { loadIndicesData } from '@/lib/indices'
 import { setOnThemeChange } from '@/lib/theme'
+import { ChartSection } from './ChartSection'
 
 // Register Chart.js components
 ChartJS.register(
@@ -44,6 +45,15 @@ export function Charts() {
     old: null,
     rajaneliohinta: null,
   })
+  const [chartInstances, setChartInstances] = useState<{
+    new: any
+    old: any
+    rajaneliohinta: any
+  }>({
+    new: null,
+    old: null,
+    rajaneliohinta: null,
+  })
 
   const loadCharts = async () => {
 
@@ -61,6 +71,7 @@ export function Charts() {
         chartInstancesRef.current.rajaneliohinta.destroy()
         chartInstancesRef.current.rajaneliohinta = null
       }
+      setChartInstances({ new: null, old: null, rajaneliohinta: null })
 
       const data = await loadIndicesData('/data/')
 
@@ -123,7 +134,7 @@ export function Charts() {
       if (newChartRef.current) {
         const ctxNew = newChartRef.current.getContext('2d')
         if (!ctxNew) return
-        chartInstancesRef.current.new = new ChartJS(ctxNew, {
+        const newChartInstance = new ChartJS(ctxNew, {
           type: 'line',
           data: {
             labels: newLabels,
@@ -199,6 +210,8 @@ export function Charts() {
             },
           },
         })
+        chartInstancesRef.current.new = newChartInstance
+        setChartInstances((prev) => ({ ...prev, new: newChartInstance }))
       }
 
       // Chart 2: Old market index (before 2011)
@@ -238,7 +251,7 @@ export function Charts() {
       if (oldChartRef.current) {
         const ctxOld = oldChartRef.current.getContext('2d')
         if (!ctxOld) return
-        chartInstancesRef.current.old = new ChartJS(ctxOld, {
+        const oldChartInstance = new ChartJS(ctxOld, {
           type: 'line',
           data: {
             labels: oldLabels,
@@ -305,6 +318,8 @@ export function Charts() {
             },
           },
         })
+        chartInstancesRef.current.old = oldChartInstance
+        setChartInstances((prev) => ({ ...prev, old: oldChartInstance }))
       }
 
       // Chart 3: Rajaneliöhinta
@@ -344,7 +359,7 @@ export function Charts() {
       if (rajaneliohintaChartRef.current) {
         const ctxRajahinta = rajaneliohintaChartRef.current.getContext('2d')
         if (!ctxRajahinta) return
-        chartInstancesRef.current.rajaneliohinta = new ChartJS(ctxRajahinta, {
+        const rajaneliohintaChartInstance = new ChartJS(ctxRajahinta, {
           type: 'line',
           data: {
             labels: rajaneliohintaLabels,
@@ -414,6 +429,8 @@ export function Charts() {
             },
           },
         })
+        chartInstancesRef.current.rajaneliohinta = rajaneliohintaChartInstance
+        setChartInstances((prev) => ({ ...prev, rajaneliohinta: rajaneliohintaChartInstance }))
       }
     } catch (error) {
       console.error('Error loading chart data:', error)
@@ -469,60 +486,84 @@ export function Charts() {
 
   return (
     <>
-      <div className="chart-container" id="new-indices-chart">
-        <h3>Indeksien kehitys (asunnot valmistuneet 2011 jälkeen)</h3>
-        <div className="chart-description">
-          <strong>Vuodesta 2011 alkaen valmistuneille asunnoille</strong> käytetään kahta indeksiä:
-          <ul style={{ marginTop: '8px', marginLeft: '20px' }}>
-            <li>
-              <strong>Rakennuskustannusindeksi</strong> (sininen) - Mittaa rakentamisen kustannusten
-              kehitystä
-            </li>
-            <li>
-              <strong>Markkinahintaindeksi</strong> (vihreä) - Perustuu asuntojen markkinahintoihin
-            </li>
-          </ul>
-          Enimmäishinta lasketaan molemmilla indekseillä ja käytetään korkeampaa arvoa.
-        </div>
-        <canvas id="newIndicesChart" ref={newChartRef}></canvas>
-      </div>
+      <ChartSection
+        title="Indeksien kehitys (asunnot valmistuneet 2011 jälkeen)"
+        description={
+          <>
+            <strong>Vuodesta 2011 alkaen valmistuneille asunnoille</strong> käytetään kahta indeksiä:
+            <ul style={{ marginTop: '8px', marginLeft: '20px' }}>
+              <li>
+                <strong>Rakennuskustannusindeksi</strong> (sininen) - Mittaa rakentamisen kustannusten
+                kehitystä
+              </li>
+              <li>
+                <strong>Markkinahintaindeksi</strong> (vihreä) - Perustuu asuntojen markkinahintoihin
+              </li>
+            </ul>
+            Enimmäishinta lasketaan molemmilla indekseillä ja käytetään korkeampaa arvoa.
+          </>
+        }
+        chartRef={newChartRef}
+        chartInstance={chartInstances.new}
+        chartId="newIndicesChart"
+        buttonId="fullscreenNewChartBtn"
+        modalId="newChartModal"
+        chartType="line"
+        aspectRatio={1.2}
+      />
 
-      <div className="chart-container" id="old-indices-chart">
-        <h3>Indeksien kehitys (asunnot valmistuneet ennen 2011)</h3>
-        <div className="chart-description">
-          <strong>Ennen vuotta 2011 valmistuneille asunnoille</strong> käytetään yhtä indeksiä:
-          <ul style={{ marginTop: '8px', marginLeft: '20px' }}>
-            <li>
-              <strong>Vanhat markkinahintaindeksi</strong> (punainen) - Aikaisempi markkinahintaindeksi
-            </li>
-          </ul>
-          Tätä indeksiä sovelletaan kaikkiin ennen 1.1.2011 valmistuneisiin Hitas-asuntoihin.
-        </div>
-        <canvas id="oldIndicesChart" ref={oldChartRef}></canvas>
-      </div>
+      <ChartSection
+        title="Indeksien kehitys (asunnot valmistuneet ennen 2011)"
+        description={
+          <>
+            <strong>Ennen vuotta 2011 valmistuneille asunnoille</strong> käytetään yhtä indeksiä:
+            <ul style={{ marginTop: '8px', marginLeft: '20px' }}>
+              <li>
+                <strong>Vanhat markkinahintaindeksi</strong> (punainen) - Aikaisempi markkinahintaindeksi
+              </li>
+            </ul>
+            Tätä indeksiä sovelletaan kaikkiin ennen 1.1.2011 valmistuneisiin Hitas-asuntoihin.
+          </>
+        }
+        chartRef={oldChartRef}
+        chartInstance={chartInstances.old}
+        chartId="oldIndicesChart"
+        buttonId="fullscreenOldChartBtn"
+        modalId="oldChartModal"
+        chartType="line"
+        aspectRatio={1.2}
+      />
 
-      <div className="chart-container" id="rajaneliohinta-chart">
-        <h3>Rajaneliöhinta</h3>
-        <div className="chart-description">
-          <strong>Rajaneliöhinta</strong> on neliömetrihinta, jota käytetään asunnon enimmäishinnan
-          laskennassa.
-          <ul style={{ marginTop: '8px', marginLeft: '20px' }}>
-            <li>Rajaneliöhinta määritetään neljännesvuosittain (helmikuu, toukokuu, elokuu, marraskuu)</li>
-            <li>Rajaneliöhinta kerrotaan asunnon pinta-alalla saadakseen rajahinnan</li>
-            <li>Rajahinta on yksi neljästä mahdollisesta enimmäishinnasta</li>
-          </ul>
-          <a
-            href="https://www.hel.fi/static/kv/asunto-osasto/hitas-rajahintatilasto.pdf"
-            className="external-link"
-            target="_blank"
-            rel="noopener"
-            style={{ marginTop: '8px', display: 'inline-block', color: '#667eea', textDecoration: 'underline' }}
-          >
-            Lisätietoja Helsingin kaupungin sivuilta →
-          </a>
-        </div>
-        <canvas id="rajaneliohintaChart" ref={rajaneliohintaChartRef}></canvas>
-      </div>
+      <ChartSection
+        title="Rajaneliöhinta"
+        description={
+          <>
+            <strong>Rajaneliöhinta</strong> on neliömetrihinta, jota käytetään asunnon enimmäishinnan
+            laskennassa.
+            <ul style={{ marginTop: '8px', marginLeft: '20px' }}>
+              <li>Rajaneliöhinta määritetään neljännesvuosittain (helmikuu, toukokuu, elokuu, marraskuu)</li>
+              <li>Rajaneliöhinta kerrotaan asunnon pinta-alalla saadakseen rajahinnan</li>
+              <li>Rajahinta on yksi neljästä mahdollisesta enimmäishinnasta</li>
+            </ul>
+            <a
+              href="https://www.hel.fi/static/kv/asunto-osasto/hitas-rajahintatilasto.pdf"
+              className="external-link"
+              target="_blank"
+              rel="noopener"
+              style={{ marginTop: '8px', display: 'inline-block', color: '#667eea', textDecoration: 'underline' }}
+            >
+              Lisätietoja Helsingin kaupungin sivuilta →
+            </a>
+          </>
+        }
+        chartRef={rajaneliohintaChartRef}
+        chartInstance={chartInstances.rajaneliohinta}
+        chartId="rajaneliohintaChart"
+        buttonId="fullscreenRajaneliohintaChartBtn"
+        modalId="rajaneliohintaChartModal"
+        chartType="line"
+        aspectRatio={1.2}
+      />
     </>
   )
 }

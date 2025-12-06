@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -17,6 +17,7 @@ import {
 import { indicesState } from '@/lib/calculator-indices'
 import { formatPrice, formatPriceCompact } from '@/lib/calculator'
 import { setOnThemeChange } from '@/lib/theme'
+import { FullscreenChart } from './FullscreenChart'
 
 // Register Chart.js components
 ChartJS.register(
@@ -47,9 +48,7 @@ export function PriceChart({
 }: PriceChartProps) {
   const chartRef = useRef<HTMLCanvasElement>(null)
   const chartInstanceRef = useRef<any>(null)
-  const modalChartRef = useRef<HTMLCanvasElement>(null)
-  const modalChartInstanceRef = useRef<any>(null)
-  const modalRef = useRef<HTMLDivElement>(null)
+  const [chartInstance, setChartInstance] = useState<any>(null)
 
   useEffect(() => {
     if (!chartRef.current) {
@@ -69,9 +68,6 @@ export function PriceChart({
     return () => {
       if (chartInstanceRef.current) {
         chartInstanceRef.current.destroy()
-      }
-      if (modalChartInstanceRef.current) {
-        modalChartInstanceRef.current.destroy()
       }
     }
   }, [purchaseYear, purchaseMonth, originalPrice, apartmentSize, winner])
@@ -380,7 +376,7 @@ export function PriceChart({
     const ctx = chartRef.current.getContext('2d')
     if (!ctx) return
     
-    chartInstanceRef.current = new ChartJS(ctx, {
+    const newChartInstance = new ChartJS(ctx, {
       type: 'line',
       data: {
         labels: labels,
@@ -440,198 +436,10 @@ export function PriceChart({
         },
       },
     })
+    chartInstanceRef.current = newChartInstance
+    setChartInstance(newChartInstance)
   }
 
-  function openModal() {
-    if (!modalRef.current || !chartInstanceRef.current) return
-
-    // Destroy existing modal chart
-    if (modalChartInstanceRef.current) {
-      modalChartInstanceRef.current.destroy()
-      modalChartInstanceRef.current = null
-    }
-
-    // Remove old canvas
-    const oldCanvas = document.getElementById('priceChartModal')
-    if (oldCanvas) {
-      oldCanvas.remove()
-    }
-
-    // Create new canvas
-    const modalCanvas = document.createElement('canvas')
-    modalCanvas.id = 'priceChartModal'
-    const modalChartContainer = modalRef.current.querySelector('.chart-modal-chart-container')
-    if (modalChartContainer) {
-      modalChartContainer.appendChild(modalCanvas)
-    }
-
-    modalRef.current.style.display = 'flex'
-    document.body.classList.add('modal-open')
-    document.body.style.overflow = 'hidden'
-
-    // Request fullscreen
-    if (modalRef.current.requestFullscreen) {
-      modalRef.current.requestFullscreen().catch((err: any) => {
-        console.log('Fullscreen request failed:', err)
-      })
-    }
-
-    // Clone chart data
-    const chartData = chartInstanceRef.current.data
-    const clonedLabels = [...chartData.labels]
-    const clonedDatasets = chartData.datasets.map((dataset: any) => ({
-      ...dataset,
-      data: [...dataset.data],
-      hidden: false,
-    }))
-
-    const isDark =
-      document.body.classList.contains('dark-mode') ||
-      (!document.body.classList.contains('light-mode') &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches)
-
-    const textColor = isDark ? '#d0d0d0' : '#333'
-    const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.15)'
-
-    const ctx = modalCanvas.getContext('2d')
-    if (!ctx) return
-    
-    modalChartInstanceRef.current = new ChartJS(ctx, {
-      type: 'line',
-      data: {
-        labels: clonedLabels,
-        datasets: clonedDatasets,
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: 0.7,
-        plugins: {
-          legend: {
-            display: chartData.datasets.length > 1,
-            position: 'top',
-            labels: {
-              color: textColor,
-              usePointStyle: true,
-              padding: 15,
-              font: {
-                size: 14,
-              },
-            },
-          },
-          tooltip: {
-            mode: 'index',
-            intersect: false,
-            callbacks: {
-              label: function (context: any) {
-                return formatPrice(context.parsed.y)
-              },
-            },
-          },
-        },
-        scales: {
-          x: {
-            ticks: {
-              color: textColor,
-              maxRotation: 45,
-              minRotation: 45,
-              autoSkip: true,
-              maxTicksLimit: 30,
-              font: {
-                size: 12,
-              },
-            },
-            grid: {
-              color: gridColor,
-            },
-          },
-          y: {
-            ticks: {
-              color: textColor,
-              callback: function (value: any) {
-                return formatPriceCompact(value)
-              },
-              font: {
-                size: 12,
-              },
-            },
-            grid: {
-              color: gridColor,
-            },
-          },
-        },
-      },
-    })
-  }
-
-  function closeModal() {
-    if (!modalRef.current) return
-
-    // Exit fullscreen
-    if (document.fullscreenElement) {
-      document.exitFullscreen()
-    }
-
-    // Destroy modal chart
-    if (modalChartInstanceRef.current) {
-      modalChartInstanceRef.current.destroy()
-      modalChartInstanceRef.current = null
-    }
-
-    // Remove canvas
-    const modalCanvas = document.getElementById('priceChartModal')
-    if (modalCanvas) {
-      modalCanvas.remove()
-    }
-
-    // Hide modal
-    modalRef.current.style.display = 'none'
-    document.body.classList.remove('modal-open')
-    document.body.style.overflow = ''
-  }
-
-  useEffect(() => {
-    const fullscreenBtn = document.getElementById('fullscreenChartBtn')
-    const closeModalBtn = document.getElementById('closeChartModal')
-
-    if (fullscreenBtn) {
-      fullscreenBtn.addEventListener('click', openModal)
-    }
-    if (closeModalBtn) {
-      closeModalBtn.addEventListener('click', closeModal)
-    }
-
-    // Close on ESC
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && modalRef.current && modalRef.current.style.display === 'flex') {
-        closeModal()
-      }
-    }
-    document.addEventListener('keydown', handleEsc)
-
-    // Close on outside click
-    const handleClickOutside = (e: MouseEvent) => {
-      if (modalRef.current && e.target === modalRef.current) {
-        closeModal()
-      }
-    }
-    if (modalRef.current) {
-      modalRef.current.addEventListener('click', handleClickOutside)
-    }
-
-    return () => {
-      if (fullscreenBtn) {
-        fullscreenBtn.removeEventListener('click', openModal)
-      }
-      if (closeModalBtn) {
-        closeModalBtn.removeEventListener('click', closeModal)
-      }
-      document.removeEventListener('keydown', handleEsc)
-      if (modalRef.current) {
-        modalRef.current.removeEventListener('click', handleClickOutside)
-      }
-    }
-  }, [])
 
   return (
     <>
@@ -648,15 +456,15 @@ export function PriceChart({
         </button>
         <canvas id="priceChart" ref={chartRef}></canvas>
       </div>
-
-      <div className="chart-modal" id="chartModal" ref={modalRef} style={{ display: 'none' }}>
-        <div className="chart-modal-content">
-          <button className="close-chart-modal" id="closeChartModal" aria-label="Sulje graafi">
-            ×
-          </button>
-          <div className="chart-modal-chart-container"></div>
-        </div>
-      </div>
+      {chartInstance && (
+        <FullscreenChart
+          chartInstance={chartInstance}
+          chartType="line"
+          aspectRatio={0.7}
+          buttonId="fullscreenChartBtn"
+          modalId="chartModal"
+        />
+      )}
     </>
   )
 }
