@@ -455,7 +455,7 @@ export function Charts() {
   return (
     <>
       <div className="chart-container" id="new-indices-chart">
-        <h3>Indeksien kehitys (2011→)</h3>
+        <h3>Indeksien kehitys (asunnot valmistuneet 2011 jälkeen)</h3>
         <div className="chart-description">
           <strong>Vuodesta 2011 alkaen valmistuneille asunnoille</strong> käytetään kahta indeksiä:
           <ul style={{ marginTop: '8px', marginLeft: '20px' }}>
@@ -473,7 +473,7 @@ export function Charts() {
       </div>
 
       <div className="chart-container" id="old-indices-chart">
-        <h3>Indeksien kehitys (←2011)</h3>
+        <h3>Indeksien kehitys (asunnot valmistuneet ennen 2011)</h3>
         <div className="chart-description">
           <strong>Ennen vuotta 2011 valmistuneille asunnoille</strong> käytetään yhtä indeksiä:
           <ul style={{ marginTop: '8px', marginLeft: '20px' }}>
