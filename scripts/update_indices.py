@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Update HITAS indices from Helsinki city's PDF file.
-Downloads the latest PDF, parses the index tables, and updates index.html.
+Downloads the latest PDF, parses the index tables, and creates JSON files.
 """
 
 import sys
@@ -23,7 +23,7 @@ from import_rajaneliohinta import get_rajaneliohinta
 from import_rajaneliohinta_tilasto import get_rajaneliohinta_tilasto
 
 PDF_URL = "https://www.hel.fi/static/kv/asunto-osasto/hitas-indeksit-2005-100.pdf"
-HTML_PATH = Path(__file__).parent.parent / "index.html"
+# HTML_PATH no longer needed - Next.js handles file references automatically
 
 
 def download_pdf():
