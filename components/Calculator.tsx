@@ -141,7 +141,23 @@ export function Calculator() {
   }
 
   function removeImprovement(id: number) {
-    setImprovements(improvements.filter((imp) => imp.id !== id))
+    const updatedImprovements = improvements.filter((imp) => imp.id !== id)
+    setImprovements(updatedImprovements)
+    
+    // Save to localStorage to persist the removal
+    const improvementsList: Improvement[] = updatedImprovements.map(({ id, ...rest }) => rest)
+    const origPrice = parseFloat(originalPrice)
+    const aptSize = parseFloat(apartmentSize)
+    
+    if (!isNaN(origPrice) && !isNaN(aptSize)) {
+      saveToLocalStorage({
+        originalPrice: origPrice,
+        apartmentSize: aptSize,
+        purchaseYear: purchaseYear,
+        purchaseMonth: purchaseMonth,
+        improvements: improvementsList,
+      })
+    }
   }
 
   function updateImprovement(id: number, field: keyof Improvement, value: number) {
