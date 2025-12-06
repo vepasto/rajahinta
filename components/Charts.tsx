@@ -510,6 +510,7 @@ export function Charts() {
         modalId="newChartModal"
         chartType="line"
         aspectRatio={1.2}
+        placeholderImage="/chart-placeholders/new-indices-chart.png"
       />
 
       <ChartSection
@@ -532,6 +533,7 @@ export function Charts() {
         modalId="oldChartModal"
         chartType="line"
         aspectRatio={1.2}
+        placeholderImage="/chart-placeholders/old-indices-chart.png"
       />
 
       <ChartSection
@@ -563,6 +565,7 @@ export function Charts() {
         modalId="rajaneliohintaChartModal"
         chartType="line"
         aspectRatio={1.2}
+        placeholderImage="/chart-placeholders/rajaneliohinta-chart.png"
       />
     </>
   )
