@@ -1,10 +1,9 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches:
-      - main
-      - master
+  # Manual trigger from GitHub Actions UI
+  workflow_dispatch:
+  # Automatic trigger when update-indices workflow completes successfully
   workflow_run:
     workflows: ["Update HITAS Indices"]
     types:
@@ -20,7 +19,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
