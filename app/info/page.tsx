@@ -1,6 +1,5 @@
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
-import { CookieConsent } from '@/components/CookieConsent'
 import '@/styles/info.css'
 
 export default function InfoPage() {
@@ -358,7 +357,6 @@ export default function InfoPage() {
       </main>
 
       <Footer />
-      <CookieConsent />
     </>
   )
 }

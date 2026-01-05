@@ -1,6 +1,5 @@
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
-import { CookieConsent } from '@/components/CookieConsent'
 import { Charts } from '@/components/Charts'
 import '@/styles/graphs.css'
 
@@ -38,7 +37,6 @@ export default function GraphsPage() {
       </main>
 
       <Footer />
-      <CookieConsent />
     </>
   )
 }

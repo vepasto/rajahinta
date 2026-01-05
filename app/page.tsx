@@ -1,6 +1,5 @@
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
-import { CookieConsent } from '@/components/CookieConsent'
 import { Calculator } from '@/components/Calculator'
 import '@/styles/calculator.css'
 
@@ -21,7 +20,6 @@ export default function HomePage() {
       </main>
 
       <Footer />
-      <CookieConsent />
     </>
   )
 }
