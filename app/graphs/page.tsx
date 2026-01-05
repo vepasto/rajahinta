@@ -2,6 +2,7 @@ import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
 import { Charts } from '@/components/Charts'
 import '@/styles/graphs.css'
+import '@/styles/calculator.css'
 
 export const metadata = {
   title: 'Hitas-indeksit - Graafit - Hitas hintalaskuri',
@@ -15,9 +16,12 @@ export default function GraphsPage() {
         Siirry sisältöön
       </a>
       <Navigation />
-      <header className="header">
+      <header className="header" style={{ paddingBottom: '10px', marginBottom: '20px' }}>
         <h1>Hitas-indeksit</h1>
-        <p className="subtitle">Visuaaliset käyrät hitas-indeksien kehityksestä</p>
+        <p className="subtitle" style={{ marginBottom: '10px' }}>Visuaaliset käyrät hitas-indeksien kehityksestä</p>
+        <a href="/" className="btn-primary btn-with-arrow">
+          <span className="arrow">→</span> Siirry laskuriin
+        </a>
       </header>
 
       <main id="main-content" className="container">

@@ -1,6 +1,7 @@
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
 import '@/styles/info.css'
+import '@/styles/calculator.css'
 
 export default function InfoPage() {
   return (
@@ -9,9 +10,12 @@ export default function InfoPage() {
         Siirry sisältöön
       </a>
       <Navigation />
-      <header className="header">
-        <h1>Hitas-asuntojen enimmäishintalaskuri</h1>
-        <p className="subtitle">Laske asuntosi nykyinen velaton enimmäishinta</p>
+      <header className="header" style={{ paddingBottom: '10px', marginBottom: '20px' }}>
+        <h1>Tietoa Hitas-asunnoista</h1>
+        <p className="subtitle" style={{ marginBottom: '10px' }}>Lue lisää Hitas-järjestelmästä ja hinnoittelusta</p>
+        <a href="/" className="btn-primary btn-with-arrow">
+          <span className="arrow">→</span> Siirry laskuriin
+        </a>
       </header>
 
       <main id="main-content" className="container">
