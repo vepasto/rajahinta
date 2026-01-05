@@ -6,7 +6,7 @@ import { FullscreenChart } from './FullscreenChart'
 interface ChartSectionProps {
   title: string
   description: ReactNode
-  chartRef: RefObject<HTMLCanvasElement>
+  chartRef: RefObject<HTMLCanvasElement | null>
   chartInstance: any
   chartId: string
   buttonId: string
