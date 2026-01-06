@@ -3,6 +3,11 @@ import { Footer } from '@/components/Footer'
 import '@/styles/info.css'
 import '@/styles/calculator.css'
 
+export const metadata = {
+  title: 'Tietoa Hitas-asunnoista - Hitas hintalaskuri',
+  description: 'Lue lisää Hitas-järjestelmästä, hinnoitteluperiaatteista ja enimmäishinnan laskemisesta. Tietoa indekseistä, rajaneliöhinnasta ja parannusten vaikutuksesta.',
+}
+
 export default function InfoPage() {
   return (
     <>
