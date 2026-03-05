@@ -8,6 +8,10 @@ on:
   # Allow manual trigger
   workflow_dispatch:
 
+concurrency:
+  group: update-indices
+  cancel-in-progress: false
+
 jobs:
   update-indices:
     runs-on: ubuntu-latest
@@ -54,7 +58,24 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git commit -m "Update HITAS indices (automated)"
-          git push
+          
+          # Retry push up to 3 times with exponential backoff
+          for i in 1 2 3; do
+            echo "Push attempt $i..."
+            # Fetch and rebase to ensure we're up to date
+            git fetch origin main
+            git rebase origin/main
+            if git push; then
+              echo "Push successful"
+              exit 0
+            fi
+            if [ $i -lt 3 ]; then
+              echo "Push failed, waiting before retry..."
+              sleep $((i * 10))
+            fi
+          done
+          echo "All push attempts failed"
+          exit 1
 
       - name: No changes detected
         if: steps.git-check.outputs.changed != 'true'
