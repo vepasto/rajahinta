@@ -1,3 +1,242 @@
 /* Info page specific styles */
 /* Most styles are already in common.css */
 
+/* HowTo section */
+.howto-section {
+  margin: 2rem 0;
+}
+
+.howto-steps {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.howto-step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+.howto-step:last-child {
+  padding-bottom: 0;
+}
+
+/* Vertical connector line between steps */
+.howto-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 0.875rem;
+  top: 2rem;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(102, 126, 234, 0.35), rgba(102, 126, 234, 0.08));
+}
+
+.howto-step-number {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: #667eea;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.howto-step-content {
+  padding-top: 0.15rem;
+  flex: 1;
+}
+
+.howto-step-name {
+  display: block;
+  font-size: 0.975rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.howto-step-text {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* Dark mode */
+body.dark-mode .howto-step-number,
+body:not(.light-mode) .howto-step-number {
+  background: #9ca3ff;
+  box-shadow: 0 0 0 3px rgba(156, 163, 255, 0.15);
+}
+
+body.dark-mode .howto-step-name,
+body:not(.light-mode) .howto-step-name {
+  color: #e0e0e0;
+}
+
+body.dark-mode .howto-step-text,
+body:not(.light-mode) .howto-step-text {
+  color: #b0b0b0;
+}
+
+body.dark-mode .howto-step::after,
+body:not(.light-mode) .howto-step::after {
+  background: linear-gradient(to bottom, rgba(156, 163, 255, 0.3), rgba(156, 163, 255, 0.05));
+}
+
+/* FAQ section */
+.faq-section {
+  margin: 2rem 0;
+}
+
+.faq-list {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.faq-item {
+  border-radius: 10px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  background: rgba(102, 126, 234, 0.03);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.faq-item:has(details[open]) {
+  border-color: rgba(102, 126, 234, 0.45);
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.1);
+}
+
+.faq-item details {
+  padding: 0;
+}
+
+.faq-item details > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  user-select: none;
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+
+.faq-item details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item details > summary:hover {
+  background: rgba(102, 126, 234, 0.07);
+}
+
+.faq-item details[open] > summary {
+  border-radius: 10px 10px 0 0;
+  background: rgba(102, 126, 234, 0.06);
+}
+
+/* Chevron icon on the right */
+.faq-item details > summary::after {
+  content: '';
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  transition: transform 0.25s ease;
+}
+
+.faq-item details[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+.faq-item details > summary:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: -2px;
+  border-radius: 10px;
+}
+
+.faq-item details > summary dt {
+  font-size: 0.975rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+}
+
+.faq-item details > summary:hover dt {
+  color: #667eea;
+}
+
+.faq-item details > dd {
+  margin: 0;
+  padding: 0 1.1rem 1.1rem 1.1rem;
+  color: #555;
+  line-height: 1.65;
+  font-size: 0.95rem;
+  border-top: 1px solid rgba(102, 126, 234, 0.15);
+  padding-top: 0.9rem;
+}
+
+/* Dark mode */
+body.dark-mode .faq-item,
+body:not(.light-mode) .faq-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(156, 163, 255, 0.2);
+}
+
+body.dark-mode .faq-item:has(details[open]),
+body:not(.light-mode) .faq-item:has(details[open]) {
+  border-color: rgba(156, 163, 255, 0.45);
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.15);
+}
+
+body.dark-mode .faq-item details > summary:hover,
+body:not(.light-mode) .faq-item details > summary:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .faq-item details[open] > summary,
+body:not(.light-mode) .faq-item details[open] > summary {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+body.dark-mode .faq-item details > summary::after,
+body:not(.light-mode) .faq-item details > summary::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3ff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+body.dark-mode .faq-item details > summary dt,
+body:not(.light-mode) .faq-item details > summary dt {
+  color: #e0e0e0;
+}
+
+body.dark-mode .faq-item details > summary:hover dt,
+body:not(.light-mode) .faq-item details > summary:hover dt {
+  color: #9ca3ff;
+}
+
+body.dark-mode .faq-item details > dd,
+body:not(.light-mode) .faq-item details > dd {
+  color: #b0b0b0;
+  border-top-color: rgba(156, 163, 255, 0.15);
+}
+

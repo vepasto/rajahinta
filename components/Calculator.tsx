@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { loadIndices, indicesState } from '@/lib/calculator-indices'
-import { calculateRajahinta, formatPrice, Improvement, CalculationResult } from '@/lib/calculator'
+import { calculateRajahinta, formatPrice, getLatestIndex, Improvement, CalculationResult } from '@/lib/calculator'
 import { trackEvent } from '@/lib/analytics'
 import { setOnThemeChange } from '@/lib/theme'
 import { PriceChart } from './PriceChart'
@@ -30,6 +30,11 @@ interface SavedData {
   improvements?: Improvement[]
 }
 
+function formatFinnishDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  return `${day}.${month}.${year}`
+}
+
 export function Calculator() {
   const [originalPrice, setOriginalPrice] = useState('')
   const [apartmentSize, setApartmentSize] = useState('')
@@ -49,6 +54,8 @@ export function Calculator() {
     winner: any
   } | null>(null)
   const [indicesLoaded, setIndicesLoaded] = useState(false)
+  const [dataUpdated, setDataUpdated] = useState<string | null>(null)
+  const [latestIndexMonth, setLatestIndexMonth] = useState<{ year: number; month: number } | null>(null)
 
   const resultInfoRef = useRef<HTMLDivElement>(null)
 
@@ -65,6 +72,10 @@ export function Calculator() {
     loadIndices().then((success) => {
       if (success) {
         setIndicesLoaded(true)
+        const raw = indicesState.indicesData?.updated
+        if (raw) setDataUpdated(formatFinnishDate(raw))
+        const latest = getLatestIndex(indicesState.rakennuskustannusindeksi)
+        if (latest) setLatestIndexMonth({ year: latest.year, month: latest.month })
       }
     })
   }, [])
@@ -476,6 +487,14 @@ export function Calculator() {
           }}
         >
           <em>Huom! Tämä on epävirallinen lomake ja tarkoitettu vain suuntaa antavaksi.</em>
+          {dataUpdated && (
+            <div style={{ marginTop: '4px', fontSize: '12px', opacity: 0.75 }}>
+              Indeksitiedot päivitetty {dataUpdated}
+              {latestIndexMonth && (
+                <> · uusin indeksi {monthNames[latestIndexMonth.month - 1].toLowerCase()} {latestIndexMonth.year}</>
+              )}
+            </div>
+          )}
         </div>
       </form>
 

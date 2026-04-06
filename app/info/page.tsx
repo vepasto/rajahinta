@@ -1,14 +1,188 @@
+import type { BreadcrumbList, FAQPage, HowTo, WithContext } from 'schema-dts'
+import { readdirSync, readFileSync } from 'fs'
+import { join } from 'path'
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
+import { JsonLd } from '@/components/JsonLd'
 import '@/styles/info.css'
 import '@/styles/calculator.css'
 
 export const metadata = {
   title: 'Tietoa Hitas-asunnoista - Hitas hintalaskuri',
-  description: 'Lue lisää Hitas-järjestelmästä, hinnoitteluperiaatteista ja enimmäishinnan laskemisesta. Tietoa indekseistä, rajaneliöhinnasta ja parannusten vaikutuksesta.',
+  description:
+    'Lue lisää Hitas-järjestelmästä, hinnoitteluperiaatteista ja enimmäishinnan laskemisesta. Tietoa indekseistä, rajaneliöhinnasta ja parannusten vaikutuksesta.',
+}
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
+
+interface Rajaneliohinta {
+  price_per_sqm: number
+  valid_from: string
+  valid_until: string
+}
+
+function loadLatestRajaneliohinta(): Rajaneliohinta | null {
+  try {
+    const dataDir = join(process.cwd(), 'public', 'data')
+    const latest = readdirSync(dataDir)
+      .filter((f) => /^indices-\d{4}-\d{2}-\d{2}\.json$/.test(f))
+      .sort()
+      .at(-1)
+    if (!latest) return null
+    const data = JSON.parse(readFileSync(join(dataDir, latest), 'utf-8'))
+    const raj = data?.rajaneliohinta
+    if (raj?.price_per_sqm && raj?.valid_from && raj?.valid_until) return raj
+    return null
+  } catch {
+    return null
+  }
+}
+
+function formatFinnishDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  return `${day}.${month}.${year}`
+}
+
+function formatPriceSqm(price: number): string {
+  return new Intl.NumberFormat('fi-FI').format(price) + '\u00a0€/m²'
 }
 
 export default function InfoPage() {
+  const raj = loadLatestRajaneliohinta()
+  const priceFormatted = raj ? formatPriceSqm(raj.price_per_sqm) : '–'
+  const validFrom = raj ? formatFinnishDate(raj.valid_from) : '–'
+  const validUntil = raj ? formatFinnishDate(raj.valid_until) : '–'
+
+  const breadcrumbJsonLd: WithContext<BreadcrumbList> = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Etusivu',
+        item: `${siteUrl}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Tietoa Hitas-asunnoista',
+        item: `${siteUrl}/info/`,
+      },
+    ],
+  }
+
+  const howToSteps: Array<{ name: string; text: string }> = [
+    {
+      name: 'Selvitä lähtötiedot',
+      text: 'Tarvitset asunnon alkuperäisen velattoman hankintahinnan, valmistumisajankohdan (vuosi ja kuukausi) sekä asunnon pinta-alan neliömetreinä.',
+    },
+    {
+      name: 'Laske indeksipohjainen hinta',
+      text: 'Vuodesta 2011 alkaen valmistetuille asunnoille lasketaan kaksi indeksihintaa: rakennuskustannusindeksillä ja markkinahintaindeksillä. Kaava: nykyinen indeksi / valmistumishetken indeksi × alkuperäinen hinta. Käytetään näistä korkeampaa. Ennen vuotta 2011 valmistuneille käytetään vanhojen osakeasuntojen hintaindeksiä.',
+    },
+    {
+      name: 'Laske rajaneliöhintapohjainen hinta',
+      text: raj
+        ? `Kerro asunnon pinta-ala nykyisellä rajaneliöhinnalla (${priceFormatted}, voimassa ${validFrom}–${validUntil}). Rajaneliöhinta on voimassa kaikille Hitas-asunnoille vuodesta 2011 alkaen.`
+        : 'Kerro asunnon pinta-ala voimassaolevalla rajaneliöhinnalla. Rajaneliöhinta on voimassa kaikille Hitas-asunnoille vuodesta 2011 alkaen.',
+    },
+    {
+      name: 'Lisää yhtiöparannukset',
+      text: 'Lisää huoneistokohtainen osuus yhtiön parannuskustannuksista indeksihintoihin. Parannuksiin sovelletaan 30 €/m² omavastuuta ja indeksitarkistusta. Parannuksia ei lisätä rajaneliöhintaan.',
+    },
+    {
+      name: 'Valitse korkein hinta',
+      text: 'Vertaile kaikkia laskettuja hintoja (rakennuskustannusindeksi + parannukset, markkinahintaindeksi + parannukset, rajaneliöhinta ilman parannuksia) ja valitse niistä korkein. Tämä on asunnon velaton enimmäishinta.',
+    },
+  ]
+
+  const howToJsonLd: WithContext<HowTo> = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'Miten Hitas-asunnon enimmäishinta lasketaan',
+    description:
+      'Hitas-asunnon velaton enimmäishinta lasketaan vertailemalla indeksipohjaisia hintoja ja rajaneliöhintaa, ja valitsemalla niistä korkein.',
+    inLanguage: 'fi-FI',
+    step: howToSteps.map(({ name, text }, i) => ({
+      '@type': 'HowToStep' as const,
+      position: i + 1,
+      name,
+      text,
+    })),
+  }
+
+  const faqItems: Array<{ question: string; answer: string }> = [
+    {
+      question: 'Voiko Hitas-asunnon myydä vapaasti?',
+      answer:
+        'Ei. Hitas-asunto voidaan myydä vain kaupungin vahvistaman enimmäishinnan mukaisesti, eikä myyntihinta saa ylittää laskettua enimmäishintaa. Ostajan tulee myös olla yksityishenkilö — yritykset eivät voi ostaa Hitas-asuntoa.',
+    },
+    {
+      question: 'Miten tiedän, onko asuntoni Hitas?',
+      answer:
+        'Hitas-status näkyy isännöitsijäntodistuksessa. Voit myös tarkistaa asian taloyhtiön isännöitsijältä tai Helsingin kaupungin asunto-osastolta. Hitas-asunnot sijaitsevat aina Helsingin kaupungin omistamalla maalla.',
+    },
+    {
+      question: 'Voiko Hitas-asunnon vuokrata?',
+      answer:
+        'Kyllä, Hitas-asunnon voi vuokrata normaalisti. Vuokraustoimintaan ei sovelleta Hitas-hintasääntelyä — rajoitukset koskevat vain asunnon myyntihintaa.',
+    },
+    {
+      question: 'Miten haen virallisen enimmäishinnan vahvistuksen?',
+      answer:
+        'Virallinen enimmäishinta haetaan Helsingin kaupungilta. Isännöitsijä täyttää enimmäishinnan vahvistamislomakkeen, johon liitetään isännöitsijäntodistus. Kaupunki vahvistaa hinnan näiden dokumenttien perusteella. Tämä laskuri antaa vain suuntaa antavan arvion — virallinen vahvistus on aina pyydettävä ennen kauppaa.',
+    },
+    {
+      question: 'Vaikuttaako asuntoon tehty remontti enimmäishintaan?',
+      answer:
+        'Kyllä, mutta vain taloyhtiön tekemät parannukset (yhtiöparannukset) lisätään enimmäishintaan. Osakkeenomistajan itse tekemät remontit eivät suoraan nosta enimmäishintaa. Yhtiöparannuksiin sovelletaan omavastuuta (30 €/m²) ja indeksitarkistusta.',
+    },
+    {
+      question: 'Mikä on rajaneliöhinta ja miksi se on tärkeä?',
+      answer: raj
+        ? `Rajaneliöhinta on Helsingin kaupunginvaltuuston neljännesvuosittain vahvistama neliöhintaraja. Se toimii hintapohjana kaikille Hitas-asunnoille vuodesta 2011 alkaen: jos indeksipohjainen hinta jää sen alle, käytetään rajaneliöhintaa. Nykyinen rajaneliöhinta on ${priceFormatted} (voimassa ${validFrom}–${validUntil}).`
+        : 'Rajaneliöhinta on Helsingin kaupunginvaltuuston neljännesvuosittain vahvistama neliöhintaraja. Se toimii hintapohjana kaikille Hitas-asunnoille vuodesta 2011 alkaen: jos indeksipohjainen hinta jää sen alle, käytetään rajaneliöhintaa.',
+    },
+  ]
+
+  const faqJsonLd: WithContext<FAQPage> = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    '@id': `${siteUrl}/info/#webpage`,
+    url: `${siteUrl}/info/`,
+    name: 'Tietoa Hitas-asunnoista',
+    description:
+      'Lue lisää Hitas-järjestelmästä, hinnoitteluperiaatteista ja enimmäishinnan laskemisesta. Tietoa indekseistä, rajaneliöhinnasta ja parannusten vaikutuksesta.',
+    inLanguage: 'fi-FI',
+    isPartOf: { '@id': `${siteUrl}/#website` },
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Mikä on Hitas-asunto?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Hitas (Hinta- ja laatutason säätelyjärjestelmä) on Helsingin kaupungin järjestelmä, jolla säädellään kaupungin maalla sijaitsevien asuntojen hintoja. Hitas-asuntojen myyntihinnat on rajattu kaupungin vahvistamiin enimmäishintoihin, asuntoja saa myydä vain yksityishenkilöille, ja alkuperäinen hankintahinta on markkinahintaa alempi.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Miten Hitas-asunnon enimmäishinta lasketaan?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: raj
+            ? `Hitas-asunnon enimmäishinta lasketaan vertailemalla indeksipohjaisia hintoja ja rajaneliöhintaa. Vuodesta 2011 alkaen valmistetuille lasketaan rakennuskustannusindeksihinta ja markkinahintaindeksihinta (kaava: nykyinen indeksi / valmistumisindeksi × alkuperäinen hinta). Lisäksi lasketaan rajaneliöhintapohjainen hinta (pinta-ala × ${priceFormatted}). Yhtiöparannukset lisätään indeksihintoihin. Lopullinen enimmäishinta on näistä korkein.`
+            : 'Hitas-asunnon enimmäishinta lasketaan vertailemalla indeksipohjaisia hintoja ja rajaneliöhintaa. Vuodesta 2011 alkaen valmistetuille lasketaan rakennuskustannusindeksihinta ja markkinahintaindeksihinta (kaava: nykyinen indeksi / valmistumisindeksi × alkuperäinen hinta). Lisäksi lasketaan rajaneliöhintapohjainen hinta. Yhtiöparannukset lisätään indeksihintoihin. Lopullinen enimmäishinta on näistä korkein.',
+        },
+      },
+      ...faqItems.map(({ question, answer }) => ({
+        '@type': 'Question' as const,
+        name: question,
+        acceptedAnswer: { '@type': 'Answer' as const, text: answer },
+      })),
+    ],
+  }
+
   return (
     <>
       <a href="#main-content" className="skip-link">
@@ -17,7 +191,9 @@ export default function InfoPage() {
       <Navigation />
       <header className="header" style={{ paddingBottom: '10px', marginBottom: '20px' }}>
         <h1>Tietoa Hitas-asunnoista</h1>
-        <p className="subtitle" style={{ marginBottom: '10px' }}>Lue lisää Hitas-järjestelmästä ja hinnoittelusta</p>
+        <p className="subtitle" style={{ marginBottom: '10px' }}>
+          Lue lisää Hitas-järjestelmästä ja hinnoittelusta
+        </p>
         <a href="/" className="btn-primary btn-with-arrow">
           <span className="arrow">→</span> Siirry laskuriin
         </a>
@@ -119,9 +295,9 @@ export default function InfoPage() {
         </p>
 
         <div className="info-box">
-          <strong>Nykyinen rajaneliöhinta:</strong> 4 159 €/m²
+          <strong>Nykyinen rajaneliöhinta:</strong> {priceFormatted}
           <br />
-          <strong>Voimassa:</strong> 1.11.2025 - 31.1.2026
+          <strong>Voimassa:</strong> {validFrom} – {validUntil}
           <br />
           <strong>Päivitetään:</strong> Neljännesvuosittain (helmikuu, toukokuu, elokuu, marraskuu)
         </div>
@@ -129,7 +305,7 @@ export default function InfoPage() {
         <div className="formula">
           Rajaneliöhinta:
           <br />
-          Asunnon pinta-ala (m²) × 4 159 €/m²
+          Asunnon pinta-ala (m²) × {priceFormatted}
         </div>
 
         <p>
@@ -207,15 +383,31 @@ export default function InfoPage() {
           <li>Markkinahintaindeksillä laskettu hinta + parannukset</li>
           <li>Vanhojen markkinahintaindeksin hinta + parannukset (jos valmistunut &lt; 2011)</li>
           <li>
-            Rajaneliöhinta (pinta-ala × 4 159 €/m²) - <em>ilman parannuksia</em>
+            Rajaneliöhinta (pinta-ala × {priceFormatted}) – <em>ilman parannuksia</em>
           </li>
         </ul>
+
+        <section className="howto-section" aria-labelledby="howto-heading">
+          <h2 id="howto-heading">Laskentaohje lyhyesti</h2>
+          <ol className="howto-steps">
+            {howToSteps.map(({ name, text }, i) => (
+              <li key={i} className="howto-step">
+                <div className="howto-step-number" aria-hidden="true">{i + 1}</div>
+                <div className="howto-step-content">
+                  <strong className="howto-step-name">{name}</strong>
+                  <p className="howto-step-text">{text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
 
         <h2>Mitä tämä lomake ei huomioi</h2>
 
         <div className="warning-box">
-          <strong>⚠️ Tärkeää:</strong> Tämä laskuri antaa vain <strong>karkean suuntaa antavan</strong>{' '}
-          arvion. Virallinen enimmäishinta vahvistetaan aina kaupungin toimesta.
+          <strong>⚠️ Tärkeää:</strong> Tämä laskuri antaa vain{' '}
+          <strong>karkean suuntaa antavan</strong> arvion. Virallinen enimmäishinta vahvistetaan
+          aina kaupungin toimesta.
         </div>
 
         <h3>Virallinen enimmäishinnan vahvistus</h3>
@@ -292,13 +484,35 @@ export default function InfoPage() {
           </li>
         </ul>
 
+        <section className="faq-section" aria-labelledby="faq-heading">
+          <h2 id="faq-heading">Usein kysytyt kysymykset</h2>
+
+          <dl className="faq-list">
+            {faqItems.map(({ question, answer }) => (
+              <div className="faq-item" key={question}>
+                <details>
+                  <summary>
+                    <dt>{question}</dt>
+                  </summary>
+                  <dd>{answer}</dd>
+                </details>
+              </div>
+            ))}
+          </dl>
+        </section>
+
         <h2>Lisätietoa</h2>
 
         <p>Lisätietoja Hitas-asunnoista ja hinnoittelusta:</p>
 
         <ul>
           <li>
-            <a href="https://fi.wikipedia.org/wiki/Hitas" className="external-link" target="_blank" rel="noopener">
+            <a
+              href="https://fi.wikipedia.org/wiki/Hitas"
+              className="external-link"
+              target="_blank"
+              rel="noopener"
+            >
               Wikipedia - Hitas
             </a>
           </li>
@@ -365,8 +579,10 @@ export default function InfoPage() {
         </ul>
       </main>
 
+      <JsonLd data={breadcrumbJsonLd} />
+      <JsonLd data={faqJsonLd} />
+      <JsonLd data={howToJsonLd} />
       <Footer />
     </>
   )
 }
-

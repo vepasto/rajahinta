@@ -84,20 +84,21 @@ def parse_rajaneliohinta_from_pdf(pdf_data):
                     # Rajaneliöhinta is updated quarterly: Feb, May, Aug, Nov
                     # Valid for 3 months each time
                     # If valid until 31.1.2026, it started 1.11.2025
-                    if month <= 1:  # Valid until Jan -> started in Nov of previous year
+                    # Rajaneliöhinta quarters: Q1 Feb–Apr, Q2 May–Jul, Q3 Aug–Oct, Q4 Nov–Jan
+                    if month <= 1:  # Valid until Jan -> started in Nov of previous year (Q4)
                         from_month = 11
                         from_year = year - 1
-                    elif month <= 4:  # Valid until Feb-Apr -> started in Nov
-                        from_month = 11
-                        from_year = year - 1
-                    elif month <= 7:  # Valid until May-Jul -> started in Feb
+                    elif month <= 4:  # Valid until Feb-Apr -> started in Feb (Q1)
                         from_month = 2
                         from_year = year
-                    elif month <= 10:  # Valid until Aug-Oct -> started in May
+                    elif month <= 7:  # Valid until May-Jul -> started in May (Q2)
                         from_month = 5
                         from_year = year
-                    else:  # Valid until Nov-Dec -> started in Aug
+                    elif month <= 10:  # Valid until Aug-Oct -> started in Aug (Q3)
                         from_month = 8
+                        from_year = year
+                    else:  # Valid until Nov-Dec -> started in Nov (Q4)
+                        from_month = 11
                         from_year = year
 
                     valid_from = f"{from_year:04d}-{from_month:02d}-01"

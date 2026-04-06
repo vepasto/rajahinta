@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
+import type { WebSite, WithContext } from 'schema-dts'
 import Script from 'next/script'
 import { CookieConsent } from '@/components/CookieConsent'
+import { JsonLd } from '@/components/JsonLd'
 import '../styles/globals.css'
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
@@ -70,6 +72,20 @@ export default function RootLayout({
   return (
     <html lang="fi">
       <head>
+        <JsonLd
+          data={
+            {
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              '@id': `${siteUrl}/#website`,
+              url: `${siteUrl}/`,
+              name: 'Hitas hintalaskuri',
+              description:
+                'Laske Hitas-asuntosi nykyinen velaton enimmäishinta käyttäen virallisia rakennuskustannus- ja markkinahintaindeksejä.',
+              inLanguage: 'fi-FI',
+            } satisfies WithContext<WebSite>
+          }
+        />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Hitas hintalaskuri" />

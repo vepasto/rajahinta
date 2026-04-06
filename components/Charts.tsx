@@ -55,7 +55,10 @@ export function Charts() {
     rajaneliohinta: null,
   })
 
+  const loadIdRef = useRef(0)
+
   const loadCharts = async () => {
+    const myId = ++loadIdRef.current
 
     try {
       // Destroy existing charts
@@ -74,6 +77,9 @@ export function Charts() {
       setChartInstances({ new: null, old: null, rajaneliohinta: null })
 
       const data = await loadIndicesData('/data/')
+
+      // A newer load has started (unmount/remount/theme change) — bail out
+      if (myId !== loadIdRef.current) return
 
       if (!data.rakennuskustannusindeksi || typeof data.rakennuskustannusindeksi !== 'object') {
         throw new Error('Invalid data: rakennuskustannusindeksi is missing or invalid')
@@ -470,16 +476,20 @@ export function Charts() {
     })
 
     return () => {
+      loadIdRef.current++ // invalidate any pending load
       window.removeEventListener('hashchange', handleHashChange)
       // Cleanup charts
       if (chartInstancesRef.current.new) {
         chartInstancesRef.current.new.destroy()
+        chartInstancesRef.current.new = null
       }
       if (chartInstancesRef.current.old) {
         chartInstancesRef.current.old.destroy()
+        chartInstancesRef.current.old = null
       }
       if (chartInstancesRef.current.rajaneliohinta) {
         chartInstancesRef.current.rajaneliohinta.destroy()
+        chartInstancesRef.current.rajaneliohinta = null
       }
     }
   }, [])

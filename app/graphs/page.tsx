@@ -1,8 +1,12 @@
+import type { BreadcrumbList, WebPage, WithContext } from 'schema-dts'
 import { Navigation } from '@/components/Navigation'
 import { Footer } from '@/components/Footer'
 import { Charts } from '@/components/Charts'
+import { JsonLd } from '@/components/JsonLd'
 import '@/styles/graphs.css'
 import '@/styles/calculator.css'
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
 
 export const metadata = {
   title: 'Hitas-indeksit - Graafit - Hitas hintalaskuri',
@@ -10,6 +14,42 @@ export const metadata = {
 }
 
 export default function GraphsPage() {
+  const breadcrumbJsonLd: WithContext<BreadcrumbList> = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Etusivu',
+        item: `${siteUrl}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Hitas-indeksit – Graafit',
+        item: `${siteUrl}/graphs/`,
+      },
+    ],
+  }
+
+  const jsonLd: WithContext<WebPage> = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${siteUrl}/graphs/#webpage`,
+    url: `${siteUrl}/graphs/`,
+    name: 'Hitas-indeksit – Graafit',
+    description: 'Visuaaliset graafit hitas-indeksien kehityksestä vuosien varrella.',
+    inLanguage: 'fi-FI',
+    isPartOf: { '@id': `${siteUrl}/#website` },
+    about: {
+      '@type': 'Thing',
+      name: 'Hitas-indeksit',
+      description:
+        'Helsingin kaupungin Hitas-asuntojen hinnoittelussa käytettävät rakennuskustannus- ja markkinahintaindeksit.',
+    },
+  }
+
   return (
     <>
       <a href="#main-content" className="skip-link">
@@ -40,6 +80,8 @@ export default function GraphsPage() {
         </p>
       </main>
 
+      <JsonLd data={breadcrumbJsonLd} />
+      <JsonLd data={jsonLd} />
       <Footer />
     </>
   )
