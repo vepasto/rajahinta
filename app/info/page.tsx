@@ -1,3 +1,4 @@
+import React from 'react'
 import type { BreadcrumbList, FAQPage, HowTo, WithContext } from 'schema-dts'
 import { readdirSync, readFileSync } from 'fs'
 import { join } from 'path'
@@ -112,7 +113,7 @@ export default function InfoPage() {
     })),
   }
 
-  const faqItems: Array<{ question: string; answer: string }> = [
+  const faqItems: Array<{ question: string; answer: string; answerNode?: React.ReactNode }> = [
     {
       question: 'Voiko Hitas-asunnon myydä vapaasti?',
       answer:
@@ -140,9 +141,16 @@ export default function InfoPage() {
     },
     {
       question: 'Mikä on rajaneliöhinta ja miksi se on tärkeä?',
-      answer: raj
-        ? `Rajaneliöhinta on Helsingin kaupunginvaltuuston neljännesvuosittain vahvistama neliöhintaraja. Se toimii hintapohjana kaikille Hitas-asunnoille vuodesta 2011 alkaen: jos indeksipohjainen hinta jää sen alle, käytetään rajaneliöhintaa. Nykyinen rajaneliöhinta on ${priceFormatted} (voimassa ${validFrom}–${validUntil}).`
-        : 'Rajaneliöhinta on Helsingin kaupunginvaltuuston neljännesvuosittain vahvistama neliöhintaraja. Se toimii hintapohjana kaikille Hitas-asunnoille vuodesta 2011 alkaen: jos indeksipohjainen hinta jää sen alle, käytetään rajaneliöhintaa.',
+      answer:
+        'Rajaneliöhinta on Helsingin kaupunginvaltuuston neljännesvuosittain vahvistama neliöhintaraja. Se toimii hintapohjana kaikille Hitas-asunnoille vuodesta 2011 alkaen: jos indeksipohjainen hinta jää sen alle, käytetään rajaneliöhintaa. Rajaneliöhinnan kehitys löytyy graafisivulta.',
+      answerNode: (
+        <>
+          Rajaneliöhinta on Helsingin kaupunginvaltuuston neljännesvuosittain vahvistama
+          neliöhintaraja. Se toimii hintapohjana kaikille Hitas-asunnoille vuodesta 2011 alkaen:
+          jos indeksipohjainen hinta jää sen alle, käytetään rajaneliöhintaa.{' '}
+          <a href="/graphs/">Rajaneliöhinnan kehitys löytyy graafisivulta →</a>
+        </>
+      ),
     },
   ]
 
@@ -488,13 +496,13 @@ export default function InfoPage() {
           <h2 id="faq-heading">Usein kysytyt kysymykset</h2>
 
           <dl className="faq-list">
-            {faqItems.map(({ question, answer }) => (
+            {faqItems.map(({ question, answer, answerNode }) => (
               <div className="faq-item" key={question}>
                 <details>
                   <summary>
                     <dt>{question}</dt>
                   </summary>
-                  <dd>{answer}</dd>
+                  <dd>{answerNode ?? answer}</dd>
                 </details>
               </div>
             ))}
